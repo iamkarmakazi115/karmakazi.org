@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mouse Following - Karmakazi</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        body {
+            background: radial-gradient(ellipse at center, #1b2735 0%, #090a0f 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            cursor: none;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 100px 20px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 4rem;
+            pointer-events: none;
+        }
+        
+        .title {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+        
+        /* Custom Cursor */
+        .cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.1s ease;
+            mix-blend-mode: difference;
+        }
+        
+        .cursor-follower {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            background: rgba(99, 102, 241, 0.3);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            transition: transform 0.3s ease;
+        }
+        
+        .cursor.hover {
+            transform: scale(2);
+            background: rgba(99, 102, 241, 0.5);
+        }
+        
+        /* Trail Effect */
+        .trail {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            pointer-events: none;
+            animation: trail-fade 1s ease forwards;
+        }
+        
+        @keyframes trail-fade {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0);
+            }
+        }
+        
+        /* Magnetic Elements */
+        .magnetic-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin: 4rem 0;
+        }
+        
+        .magnetic-element {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+        
+        .magnetic-element:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #667eea;
+        }
+        
+        .magnetic-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            transition: transform 0.3s ease;
+        }
+        
+        /* Spotlight Effect */
+        .spotlight {
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .spotlight.active {
+            opacity: 1;
+        }
+        
+        /* Ripple Effect */
+        .ripple-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 1rem;
+            overflow: hidden;
+            margin: 2rem 0;
+        }
+        
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%);
+            pointer-events: none;
+            animation: ripple-effect 1s ease-out forwards;
+        }
+        
+        @keyframes ripple-effect {
+            0% {
+                width: 0;
+                height: 0;
+                opacity: 1;
+            }
+            100% {
+                width: 500px;
+                height: 500px;
+                opacity: 0;
+            }
+        }
+        
+        /* Eyes Following */
+        .eyes-container {
+            display: flex;
+            justify-content: center;
+            gap: 4rem;
+            margin: 4rem 0;
+        }
+        
+        .eye {
+            width: 150px;
+            height: 150px;
+            background: white;
+            border-radius: 50%;
+            position: relative;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .pupil {
+            width: 50px;
+            height: 50px;
+            background: #333;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.1s ease;
+        }
+        
+        .iris {
+            width: 30px;
+            height: 30px;
+            background: #667eea;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        /* Particle Field */
+        .particle-field {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        /* Interactive Text */
+        .interactive-text {
+            font-size: 4rem;
+            font-weight: 700;
+            text-align: center;
+            margin: 4rem 0;
+            cursor: default;
+        }
+        
+        .interactive-text span {
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        
+        .interactive-text span:hover {
+            transform: scale(1.5) rotate(10deg);
+            color: #667eea;
+        }
+        
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 2rem 0;
+            position: relative;
+            z-index: 100;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: rgba(99, 102, 241, 0.3);
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+        
+        .back-button {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(10px);
+            color: #f1f5f9;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            cursor: pointer;
+        }
+        
+        .back-button:hover {
+            background: rgba(99, 102, 241, 0.2);
+            transform: translateX(-5px);
+        }
+        
+        .back-button::before {
+            content: '←';
+            font-size: 1.25rem;
+        }
+        
+        /* Demo Sections */
+        .demo-section {
+            margin: 4rem 0;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .demo-title {
+            font-size: 2rem;
+            color: #f1f5f9;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-follower" id="cursor-follower"></div>
+    
+    <!-- Spotlight -->
+    <div class="spotlight" id="spotlight"></div>
+    
+    <!-- Particle Field -->
+    <div class="particle-field" id="particle-field"></div>
+    
+    <!-- Back Button -->
+    <a href="../index.html" class="back-button">Back to Gallery</a>
+    
+    <div class="container">
+        <div class="header">
+            <h1 class="title">MOUSE FOLLOWING</h1>
+            <p style="color: #94a3b8; font-size: 1.25rem;">
+                Interactive elements that respond to cursor movement
+            </p>
+        </div>
+        
+        <!-- Controls -->
+        <div class="controls">
+            <button class="btn" onclick="toggleTrail()">Toggle Trail</button>
+            <button class="btn" onclick="toggleSpotlight()">Toggle Spotlight</button>
+            <button class="btn" onclick="toggleParticles()">Toggle Particles</button>
+            <button class="btn" onclick="resetEffects()">Reset All</button>
+        </div>
+        
+        <!-- Magnetic Elements -->
+        <div class="demo-section">
+            <h2 class="demo-title">Magnetic Elements</h2>
+            <p style="color: #94a3b8; text-align: center; margin-bottom: 2rem;">
+                Hover near these elements to see them attract to your cursor
+            </p>
+            <div class="magnetic-container">
+                <div class="magnetic-element" data-magnetic>
+                    <div class="magnetic-icon">🎯</div>
+                    <h3 style="color: #f1f5f9;">Target</h3>
+                    <p style="color: #94a3b8;">I'm attracted to you!</p>
+                </div>
+                <div class="magnetic-element" data-magnetic>
+                    <div class="magnetic-icon">🧲</div>
+                    <h3 style="color: #f1f5f9;">Magnet</h3>
+                    <p style="color: #94a3b8;">Feel the magnetic force</p>
+                </div>
+                <div class="magnetic-element" data-magnetic>
+                    <div class="magnetic-icon">⚡</div>
+                    <h3 style="color: #f1f5f9;">Energy</h3>
+                    <p style="color: #94a3b8;">Powered by cursor</p>
+                </div>
+                <div class="magnetic-element" data-magnetic>
+                    <div class="magnetic-icon">🌟</div>
+                    <h3 style="color: #f1f5f9;">Star</h3>
+                    <p style="color: #94a3b8;">Gravitational pull</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Eyes Following -->
+        <div class="demo-section">
+            <h2 class="demo-title">Eyes Following</h2>
+            <p style="color: #94a3b8; text-align: center; margin-bottom: 2rem;">
+                The eyes are watching your every move
+            </p>
+            <div class="eyes-container">
+                <div class="eye">
+                    <div class="pupil" data-eye="left">
+                        <div class="iris"></div>
+                    </div>
+                </div>
+                <div class="eye">
+                    <div class="pupil" data-eye="right">
+                        <div class="iris"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Ripple Effect Area -->
+        <div class="demo-section">
+            <h2 class="demo-title">Ripple Effect</h2>
+            <p style="color: #94a3b8; text-align: center; margin-bottom: 2rem;">
+                Click anywhere in the area below to create ripples
+            </p>
+            <div class="ripple-container" id="ripple-container"></div>
+        </div>
+        
+        <!-- Interactive Text -->
+        <div class="demo-section">
+            <h2 class="demo-title">Interactive Text</h2>
+            <div class="interactive-text" id="interactive-text"></div>
+        </div>
+    </div>
+    
+    <script>
+        // Cursor Setup
+        const cursor = document.getElementById('cursor');
+        const cursorFollower = document.getElementById('cursor-follower');
+        const spotlight = document.getElementById('spotlight');
+        
+        let mouseX = 0;
+        let mouseY = 0;
+        let cursorX = 0;
+        let cursorY = 0;
+        let followerX = 0;
+        let followerY = 0;
+        
+        // Settings
+        let trailEnabled = true;
+        let spotlightEnabled = false;
+        let particlesEnabled = true;
+        
+        // Mouse move handler
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            
+            // Update spotlight position
+            if (spotlightEnabled) {
+                spotlight.style.left = mouseX - 200 + 'px';
+                spotlight.style.top = mouseY - 200 + 'px';
+            }
+            
+            // Create trail
+            if (trailEnabled) {
+                createTrail(mouseX, mouseY);
+            }
+            
+            // Update particles
+            if (particlesEnabled) {
+                updateParticles(mouseX, mouseY);
+            }
+        });
+        
+        // Smooth cursor animation
+        function animateCursor() {
+            // Main cursor
+            cursorX += (mouseX - cursorX) * 0.3;
+            cursorY += (mouseY - cursorY) * 0.3;
+            cursor.style.left = cursorX - 10 + 'px';
+            cursor.style.top = cursorY - 10 + 'px';
+            
+            // Follower
+            followerX += (mouseX - followerX) * 0.1;
+            followerY += (mouseY - followerY) * 0.1;
+            cursorFollower.style.left = followerX - 20 + 'px';
+            cursorFollower.style.top = followerY - 20 + 'px';
+            
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+        
+        // Trail effect
+        let trailCount = 0;
+        function createTrail(x, y) {
+            if (trailCount % 3 !== 0) {
+                trailCount++;
+                return;
+            }
+            trailCount++;
+            
+            const trail = document.createElement('div');
+            trail.className = 'trail';
+            trail.style.left = x - 5 + 'px';
+            trail.style.top = y - 5 + 'px';
+            document.body.appendChild(trail);
+            
+            setTimeout(() => trail.remove(), 1000);
+        }
+        
+        // Magnetic elements
+        const magneticElements = document.querySelectorAll('[data-magnetic]');
+        
+        magneticElements.forEach(element => {
+            element.addEventListener('mousemove', (e) => {
+                const rect = element.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                
+                const deltaX = e.clientX - centerX;
+                const deltaY = e.clientY - centerY;
+                
+                const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+                const maxDistance = 100;
+                
+                if (distance < maxDistance) {
+                    const force = (maxDistance - distance) / maxDistance;
+                    const moveX = deltaX * force * 0.2;
+                    const moveY = deltaY * force * 0.2;
+                    
+                    element.style.transform = `translate(${moveX}px, ${moveY}px)`;
+                    
+                    // Move icon
+                    const icon = element.querySelector('.magnetic-icon');
+                    if (icon) {
+                        icon.style.transform = `translate(${moveX * 0.5}px, ${moveY * 0.5}px) scale(${1 + force * 0.2})`;
+                    }
+                }
+            });
+            
+            element.addEventListener('mouseleave', () => {
+                element.style.transform = 'translate(0, 0)';
+                const icon = element.querySelector('.magnetic-icon');
+                if (icon) {
+                    icon.style.transform = 'translate(0, 0) scale(1)';
+                }
+            });
+        });
+        
+        // Eyes following
+        const pupils = document.querySelectorAll('.pupil');
+        
+        document.addEventListener('mousemove', (e) => {
+            pupils.forEach(pupil => {
+                const eye = pupil.parentElement;
+                const rect = eye.getBoundingClientRect();
+                const eyeCenterX = rect.left + rect.width / 2;
+                const eyeCenterY = rect.top + rect.height / 2;
+                
+                const angle = Math.atan2(e.clientY - eyeCenterY, e.clientX - eyeCenterX);
+                const distance = Math.min(30, Math.sqrt(Math.pow(e.clientX - eyeCenterX, 2) + Math.pow(e.clientY - eyeCenterY, 2)) / 4);
+                
+                const pupilX = Math.cos(angle) * distance;
+                const pupilY = Math.sin(angle) * distance;
+                
+                pupil.style.transform = `translate(calc(-50% + ${pupilX}px), calc(-50% + ${pupilY}px))`;
+            });
+        });
+        
+        // Ripple effect
+        const rippleContainer = document.getElementById('ripple-container');
+        
+        rippleContainer.addEventListener('click', (e) => {
+            const rect = rippleContainer.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const ripple = document.createElement('div');
+            ripple.className = 'ripple';
+            ripple.style.left = x - 250 + 'px';
+            ripple.style.top = y - 250 + 'px';
+            
+            rippleContainer.appendChild(ripple);
+            
+            setTimeout(() => ripple.remove(), 1000);
+        });
+        
+        // Particle field
+        function createParticles() {
+            const particleField = document.getElementById('particle-field');
+            
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * window.innerWidth + 'px';
+                particle.style.top = Math.random() * window.innerHeight + 'px';
+                particle.dataset.speedX = (Math.random() - 0.5) * 0.5;
+                particle.dataset.speedY = (Math.random() - 0.5) * 0.5;
+                particleField.appendChild(particle);
+            }
+        }
+        createParticles();
+        
+        function updateParticles(mouseX, mouseY) {
+            const particles = document.querySelectorAll('.particle');
+            
+            particles.forEach(particle => {
+                const rect = particle.getBoundingClientRect();
+                const particleX = rect.left + rect.width / 2;
+                const particleY = rect.top + rect.height / 2;
+                
+                const distance = Math.sqrt(Math.pow(mouseX - particleX, 2) + Math.pow(mouseY - particleY, 2));
+                
+                if (distance < 100) {
+                    const angle = Math.atan2(particleY - mouseY, particleX - mouseX);
+                    const force = (100 - distance) / 100;
+                    
+                    const moveX = Math.cos(angle) * force * 20;
+                    const moveY = Math.sin(angle) * force * 20;
+                    
+                    particle.style.transform = `translate(${moveX}px, ${moveY}px) scale(${1 + force})`;
+                    particle.style.opacity = 1 - force * 0.5;
+                } else {
+                    particle.style.transform = 'translate(0, 0) scale(1)';
+                    particle.style.opacity = 0.5;
+                }
+            });
+        }
+        
+        // Interactive text
+        const text = "HOVER OVER ME";
+        const interactiveText = document.getElementById('interactive-text');
+        
+        text.split('').forEach((char, index) => {
+            const span = document.createElement('span');
+            span.textContent = char === ' ' ? '\u00A0' : char;
+            span.style.transitionDelay = `${index * 50}ms`;
+            interactiveText.appendChild(span);
+        });
+        
+        // Control functions
+        function toggleTrail() {
+            trailEnabled = !trailEnabled;
+        }
+        
+        function toggleSpotlight() {
+            spotlightEnabled = !spotlightEnabled;
+            spotlight.classList.toggle('active');
+        }
+        
+        function toggleParticles() {
+            particlesEnabled = !particlesEnabled;
+            const particleField = document.getElementById('particle-field');
+            particleField.style.display = particlesEnabled ? 'block' : 'none';
+        }
+        
+        function resetEffects() {
+            trailEnabled = true;
+            spotlightEnabled = false;
+            particlesEnabled = true;
+            spotlight.classList.remove('active');
+            document.getElementById('particle-field').style.display = 'block';
+        }
+        
+        // Hover detection for cursor style
+        document.querySelectorAll('button, a, .magnetic-element').forEach(element => {
+            element.addEventListener('mouseenter', () => {
+                cursor.classList.add('hover');
+            });
+            
+            element.addEventListener('mouseleave', () => {
+                cursor.classList.remove('hover');
+            });
+        });
+    </script>
+</body>
+</html>
