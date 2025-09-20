@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typewriter Effect - Karmakazi</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        body {
+            background: #0a0a0a;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            padding: 100px 20px;
+            min-height: 100vh;
+        }
+        
+        .terminal-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .terminal-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+        
+        .terminal-title {
+            font-size: clamp(2rem, 6vw, 4rem);
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+            margin-bottom: 1rem;
+        }
+        
+        /* Terminal Window */
+        .terminal {
+            background: #1a1a1a;
+            border: 2px solid #00ff00;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+            min-height: 200px;
+        }
+        
+        .terminal-bar {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #00ff00;
+        }
+        
+        .terminal-btn {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .terminal-btn.red { background: #ff5f56; }
+        .terminal-btn.yellow { background: #ffbd2e; }
+        .terminal-btn.green { background: #27c93f; }
+        
+        /* Typewriter Styles */
+        .typewriter {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            white-space: pre-wrap;
+        }
+        
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 20px;
+            background: #00ff00;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: #00ff00;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        
+        .slider-value {
+            min-width: 50px;
+            text-align: center;
+        }
+        
+        .back-button {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            background: #1a1a1a;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.25rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .back-button:hover {
+            background: #00ff00;
+            color: #000;
+            transform: translateX(-5px);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+        }
+        
+        .back-button::before {
+            content: '←';
+            font-size: 1.25rem;
+        }
+        
+        /* Demo Sections */
+        .demo-section {
+            margin: 3rem 0;
+        }
+        
+        .demo-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #00ff00;
+            text-shadow: 0 0 5px #00ff00;
+        }
+        
+        /* Custom Styles */
+        .rainbow-typewriter span {
+            animation: rainbow 2s linear infinite;
+        }
+        
+        @keyframes rainbow {
+            0% { color: #ff0000; }
+            14% { color: #ff7f00; }
+            28% { color: #ffff00; }
+            42% { color: #00ff00; }
+            57% { color: #0000ff; }
+            71% { color: #4b0082; }
+            85% { color: #9400d3; }
+            100% { color: #ff0000; }
+        }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="back-button">Back to Gallery</a>
+    
+    <div class="terminal-container">
+        <div class="terminal-header">
+            <h1 class="terminal-title">TYPEWRITER EFFECT</h1>
+            <p style="color: #00ff00; opacity: 0.8;">Classic terminal-style text animations</p>
+        </div>
+        
+        <!-- Simple Typewriter -->
+        <div class="demo-section">
+            <h2 class="demo-title">&gt; Simple Typewriter</h2>
+            <div class="terminal">
+                <div class="terminal-bar">
+                    <div class="terminal-btn red"></div>
+                    <div class="terminal-btn yellow"></div>
+                    <div class="terminal-btn green"></div>
+                </div>
+                <div class="typewriter typewriter-simple" id="simple-typewriter">
+                    <span id="simple-text"></span><span class="cursor"></span>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="btn" onclick="startSimpleTypewriter()">Start</button>
+                <button class="btn" onclick="pauseTypewriter()">Pause</button>
+                <button class="btn" onclick="resetTypewriter('simple')">Reset</button>
+            </div>
+        </div>
+        
+        <!-- Multi-line Code Typewriter -->
+        <div class="demo-section">
+            <h2 class="demo-title">&gt; Code Typewriter</h2>
+            <div class="terminal">
+                <div class="terminal-bar">
+                    <div class="terminal-btn red"></div>
+                    <div class="terminal-btn yellow"></div>
+                    <div class="terminal-btn green"></div>
+                </div>
+                <div class="code-typewriter" id="code-typewriter">
+                    <div class="code-line" id="line1"><span class="comment">// Initialize function</span></div>
+                    <div class="code-line" id="line2"><span class="keyword">function</span> <span class="function">typeWriter</span>() {</div>
+                    <div class="code-line" id="line3">  <span class="keyword">const</span> text = <span class="string">"Hello World"</span>;</div>
+                    <div class="code-line" id="line4">  <span class="keyword">let</span> index = <span class="number">0</span>;</div>
+                    <div class="code-line" id="line5">  <span class="keyword">return</span> text;</div>
+                    <div class="code-line" id="line6">}</div>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="btn" onclick="startCodeTypewriter()">Type Code</button>
+                <button class="btn" onclick="resetCodeTypewriter()">Reset</button>
+            </div>
+        </div>
+        
+        <!-- Glitch Typewriter -->
+        <div class="demo-section">
+            <h2 class="demo-title">&gt; Glitch Typewriter</h2>
+            <div class="terminal">
+                <div class="terminal-bar">
+                    <div class="terminal-btn red"></div>
+                    <div class="terminal-btn yellow"></div>
+                    <div class="terminal-btn green"></div>
+                </div>
+                <div class="typewriter typewriter-glitch" id="glitch-typewriter" data-text="">
+                    <span id="glitch-text"></span><span class="cursor"></span>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="btn" onclick="startGlitchTypewriter()">Start Glitch</button>
+                <button class="btn" onclick="resetTypewriter('glitch')">Reset</button>
+            </div>
+        </div>
+        
+        <!-- Infinite Loop Typewriter -->
+        <div class="demo-section">
+            <h2 class="demo-title">&gt; Infinite Loop</h2>
+            <div class="terminal">
+                <div class="terminal-bar">
+                    <div class="terminal-btn red"></div>
+                    <div class="terminal-btn yellow"></div>
+                    <div class="terminal-btn green"></div>
+                </div>
+                <div class="typewriter" id="infinite-typewriter">
+                    <span id="infinite-text"></span><span class="cursor"></span>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="btn" onclick="startInfiniteTypewriter()">Start Loop</button>
+                <button class="btn" onclick="stopInfiniteTypewriter()">Stop</button>
+            </div>
+        </div>
+        
+        <!-- Rainbow Typewriter -->
+        <div class="demo-section">
+            <h2 class="demo-title">&gt; Rainbow Typewriter</h2>
+            <div class="terminal">
+                <div class="terminal-bar">
+                    <div class="terminal-btn red"></div>
+                    <div class="terminal-btn yellow"></div>
+                    <div class="terminal-btn green"></div>
+                </div>
+                <div class="typewriter rainbow-typewriter" id="rainbow-typewriter">
+                    <span id="rainbow-text"></span><span class="cursor"></span>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="btn" onclick="startRainbowTypewriter()">Start Rainbow</button>
+                <button class="btn" onclick="resetTypewriter('rainbow')">Reset</button>
+            </div>
+        </div>
+        
+        <!-- Settings -->
+        <div class="settings">
+            <h2 class="demo-title">Settings</h2>
+            <div class="setting-row">
+                <span class="setting-label">Typing Speed:</span>
+                <input type="range" class="slider" id="speed-slider" min="10" max="200" value="50">
+                <span class="slider-value" id="speed-value">50ms</span>
+            </div>
+            <div class="setting-row">
+                <span class="setting-label">Delete Speed:</span>
+                <input type="range" class="slider" id="delete-slider" min="10" max="100" value="30">
+                <span class="slider-value" id="delete-value">30ms</span>
+            </div>
+            <div class="setting-row">
+                <span class="setting-label">Pause Duration:</span>
+                <input type="range" class="slider" id="pause-slider" min="500" max="3000" value="1500">
+                <span class="slider-value" id="pause-value">1500ms</span>
+            </div>
+        </div>
+        
+        <!-- Implementation Code -->
+        <div class="demo-section">
+            <h2 class="demo-title">&gt; Implementation</h2>
+            <div class="terminal">
+                <pre style="color: #00ff00; margin: 0; line-height: 1.6;"><code>// Typewriter Effect Implementation
+class TypeWriter {
+    constructor(element, text, speed = 50) {
+        this.element = element;
+        this.text = text;
+        this.speed = speed;
+        this.index = 0;
+        this.isTyping = false;
+    }
+    
+    type() {
+        if (this.index < this.text.length) {
+            this.element.textContent += this.text.charAt(this.index);
+            this.index++;
+            setTimeout(() => this.type(), this.speed);
+        }
+    }
+    
+    delete() {
+        if (this.element.textContent.length > 0) {
+            this.element.textContent = 
+                this.element.textContent.slice(0, -1);
+            setTimeout(() => this.delete(), this.speed / 2);
+        }
+    }
+    
+    reset() {
+        this.element.textContent = '';
+        this.index = 0;
+    }
+}</code></pre>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Global settings
+        let typingSpeed = 50;
+        let deleteSpeed = 30;
+        let pauseDuration = 1500;
+        let isPaused = false;
+        let currentTypewriter = null;
+        let infiniteInterval = null;
+        
+        // Update settings
+        document.getElementById('speed-slider').addEventListener('input', (e) => {
+            typingSpeed = e.target.value;
+            document.getElementById('speed-value').textContent = `${typingSpeed}ms`;
+        });
+        
+        document.getElementById('delete-slider').addEventListener('input', (e) => {
+            deleteSpeed = e.target.value;
+            document.getElementById('delete-value').textContent = `${deleteSpeed}ms`;
+        });
+        
+        document.getElementById('pause-slider').addEventListener('input', (e) => {
+            pauseDuration = e.target.value;
+            document.getElementById('pause-value').textContent = `${pauseDuration}ms`;
+        });
+        
+        // Simple Typewriter
+        function startSimpleTypewriter() {
+            const element = document.getElementById('simple-text');
+            const text = "Hello, I'm a simple typewriter effect. Watch me type this message character by character!";
+            element.textContent = '';
+            typeText(element, text, 0);
+        }
+        
+        function typeText(element, text, index) {
+            if (isPaused) return;
+            
+            if (index < text.length) {
+                element.textContent += text.charAt(index);
+                setTimeout(() => typeText(element, text, index + 1), typingSpeed);
+            }
+        }
+        
+        // Code Typewriter
+        function startCodeTypewriter() {
+            const lines = document.querySelectorAll('.code-line');
+            lines.forEach(line => line.style.opacity = '0');
+            
+            typeCodeLines(lines, 0);
+        }
+        
+        function typeCodeLines(lines, index) {
+            if (index < lines.length) {
+                const line = lines[index];
+                const originalText = line.innerHTML;
+                line.innerHTML = '';
+                line.style.opacity = '1';
+                
+                typeHTMLContent(line, originalText, 0, () => {
+                    setTimeout(() => typeCodeLines(lines, index + 1), 200);
+                });
+            }
+        }
+        
+        function typeHTMLContent(element, html, index, callback) {
+            if (index < html.length) {
+                element.innerHTML = html.substring(0, index + 1);
+                setTimeout(() => typeHTMLContent(element, html, index + 1, callback), typingSpeed);
+            } else if (callback) {
+                callback();
+            }
+        }
+        
+        function resetCodeTypewriter() {
+            const lines = document.querySelectorAll('.code-line');
+            lines.forEach(line => line.style.opacity = '0');
+        }
+        
+        // Glitch Typewriter
+        function startGlitchTypewriter() {
+            const element = document.getElementById('glitch-text');
+            const container = document.getElementById('glitch-typewriter');
+            const text = "SYSTEM.BREACH.DETECTED...INITIALIZING.COUNTERMEASURES";
+            
+            element.textContent = '';
+            container.setAttribute('data-text', '');
+            
+            typeGlitchText(element, container, text, 0);
+        }
+        
+        function typeGlitchText(element, container, text, index) {
+            if (index < text.length) {
+                element.textContent += text.charAt(index);
+                container.setAttribute('data-text', element.textContent);
+                setTimeout(() => typeGlitchText(element, container, text, index + 1), typingSpeed);
+            }
+        }
+        
+        // Infinite Loop Typewriter
+        function startInfiniteTypewriter() {
+            const element = document.getElementById('infinite-text');
+            const phrases = [
+                "Initializing system...",
+                "Loading components...",
+                "Establishing connection...",
+                "Synchronizing data...",
+                "Process complete!"
+            ];
+            
+            let phraseIndex = 0;
+            
+            function typePhrase() {
+                const text = phrases[phraseIndex];
+                element.textContent = '';
+                
+                typeText(element, text, 0);
+                
+                setTimeout(() => {
+                    deleteText(element, () => {
+                        phraseIndex = (phraseIndex + 1) % phrases.length;
+                        typePhrase();
+                    });
+                }, text.length * typingSpeed + pauseDuration);
+            }
+            
+            typePhrase();
+        }
+        
+        function deleteText(element, callback) {
+            if (element.textContent.length > 0) {
+                element.textContent = element.textContent.slice(0, -1);
+                setTimeout(() => deleteText(element, callback), deleteSpeed);
+            } else if (callback) {
+                callback();
+            }
+        }
+        
+        function stopInfiniteTypewriter() {
+            if (infiniteInterval) {
+                clearInterval(infiniteInterval);
+                infiniteInterval = null;
+            }
+        }
+        
+        // Rainbow Typewriter
+        function startRainbowTypewriter() {
+            const element = document.getElementById('rainbow-text');
+            const text = "Experience the colorful magic of rainbow typing!";
+            element.innerHTML = '';
+            
+            typeRainbowText(element, text, 0);
+        }
+        
+        function typeRainbowText(element, text, index) {
+            if (index < text.length) {
+                const span = document.createElement('span');
+                span.textContent = text.charAt(index);
+                span.style.animationDelay = `${index * 0.1}s`;
+                element.appendChild(span);
+                
+                setTimeout(() => typeRainbowText(element, text, index + 1), typingSpeed);
+            }
+        }
+        
+        // Utility functions
+        function pauseTypewriter() {
+            isPaused = !isPaused;
+        }
+        
+        function resetTypewriter(type) {
+            switch(type) {
+                case 'simple':
+                    document.getElementById('simple-text').textContent = '';
+                    break;
+                case 'glitch':
+                    document.getElementById('glitch-text').textContent = '';
+                    document.getElementById('glitch-typewriter').setAttribute('data-text', '');
+                    break;
+                case 'rainbow':
+                    document.getElementById('rainbow-text').innerHTML = '';
+                    break;
+            }
+        }
+        
+        // Auto-start simple typewriter on load
+        window.addEventListener('load', () => {
+            setTimeout(startSimpleTypewriter, 1000);
+        });
+    </script>
+</body>
+</html>
+            animation: blink 1s infinite;
+            vertical-align: text-bottom;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        /* Different Typewriter Styles */
+        .typewriter-simple {
+            color: #00ff00;
+        }
+        
+        .typewriter-matrix {
+            color: #00ff00;
+            text-shadow: 0 0 5px #00ff00;
+            background: linear-gradient(180deg, #00ff00 0%, #003300 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .typewriter-glitch {
+            position: relative;
+            color: #fff;
+        }
+        
+        .typewriter-glitch::before,
+        .typewriter-glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .typewriter-glitch::before {
+            animation: glitch-1 0.3s infinite;
+            color: #00ffff;
+            z-index: -1;
+        }
+        
+        .typewriter-glitch::after {
+            animation: glitch-2 0.3s infinite;
+            color: #ff00ff;
+            z-index: -2;
+        }
+        
+        @keyframes glitch-1 {
+            0%, 100% { clip-path: inset(0 0 0 0); }
+            25% { clip-path: inset(20% 0 40% 0); transform: translate(-2px, 2px); }
+            50% { clip-path: inset(60% 0 10% 0); transform: translate(2px, -2px); }
+            75% { clip-path: inset(0 0 70% 0); transform: translate(-1px, 1px); }
+        }
+        
+        @keyframes glitch-2 {
+            0%, 100% { clip-path: inset(0 0 0 0); }
+            25% { clip-path: inset(70% 0 0 0); transform: translate(1px, -1px); }
+            50% { clip-path: inset(10% 0 60% 0); transform: translate(-1px, 2px); }
+            75% { clip-path: inset(40% 0 20% 0); transform: translate(2px, 1px); }
+        }
+        
+        /* Multi-line Typewriter */
+        .code-typewriter {
+            font-family: 'Fira Code', 'Courier New', monospace;
+            font-size: 1rem;
+        }
+        
+        .code-line {
+            margin: 0.5rem 0;
+            opacity: 0;
+        }
+        
+        .code-line.typed {
+            opacity: 1;
+        }
+        
+        .keyword { color: #ff79c6; }
+        .string { color: #f1fa8c; }
+        .comment { color: #6272a4; }
+        .function { color: #50fa7b; }
+        .number { color: #bd93f9; }
+        
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 2rem 0;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .btn:hover {
+            background: #00ff00;
+            color: #000;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+        }
+        
+        /* Settings */
+        .settings {
+            background: #1a1a1a;
+            border: 1px solid #00ff00;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .setting-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .setting-label {
+            min-width: 150px;
+        }
+        
+        .slider {
+            flex: 1;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 4px;
+            background: #333;
+            outline: none;
+            border-radius: 2px;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #00ff00;
