@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karmakazi - Web Animation Showcase</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/animations.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Space+ Grotesk:wght@300;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation Header -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-text">KARMAKAZI</span>
+                <span class="logo-subtitle">Animation Lab</span>
+            </div>
+            <button class="mobile-menu-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-links">
+                <li><a href="index.html" class="active">Home</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle">Scroll Effects</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="pages/parallax-scroll.html">Parallax Scroll</a></li>
+                        <li><a href="pages/infinite-scroll.html">Infinite Scroll</a></li>
+                        <li><a href="pages/reveal-scroll.html">Reveal on Scroll</a></li>
+                        <li><a href="pages/sticky-scroll.html">Sticky Elements</a></li>
+                        <li><a href="pages/horizontal-scroll.html">Horizontal Scroll</a></li>
+                        <li><a href="pages/snap-scroll.html">Snap Scrolling</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle">Page Transitions</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="pages/fade-transitions.html">Fade Transitions</a></li>
+                        <li><a href="pages/slide-transitions.html">Slide Transitions</a></li>
+                        <li><a href="pages/morph-transitions.html">Morph Transitions</a></li>
+                        <li><a href="pages/curtain-reveal.html">Curtain Reveal</a></li>
+                        <li><a href="pages/liquid-transition.html">Liquid Transition</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle">3D Effects</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="pages/3d-cards.html">3D Card Flip</a></li>
+                        <li><a href="pages/3d-carousel.html">3D Carousel</a></li>
+                        <li><a href="pages/3d-cube.html">3D Cube Navigation</a></li>
+                        <li><a href="pages/3d-particles.html">3D Particles</a></li>
+                        <li><a href="pages/3d-text.html">3D Text Effects</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle">Interactive</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="pages/mouse-follow.html">Mouse Following</a></li>
+                        <li><a href="pages/magnetic-buttons.html">Magnetic Buttons</a></li>
+                        <li><a href="pages/ripple-effects.html">Ripple Effects</a></li>
+                        <li><a href="pages/drag-drop.html">Drag & Drop</a></li>
+                        <li><a href="pages/canvas-draw.html">Canvas Drawing</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle">Text Effects</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="pages/typewriter.html">Typewriter</a></li>
+                        <li><a href="pages/scramble-text.html">Scramble Text</a></li>
+                        <li><a href="pages/split-text.html">Split Text</a></li>
+                        <li><a href="pages/gradient-text.html">Gradient Animation</a></li>
+                        <li><a href="pages/glitch-text.html">Glitch Effect</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle">Advanced</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="pages/webgl-shader.html">WebGL Shaders</a></li>
+                        <li><a href="pages/svg-morph.html">SVG Morphing</a></li>
+                        <li><a href="pages/lottie-animations.html">Lottie Animations</a></li>
+                        <li><a href="pages/physics-simulation.html">Physics Simulation</a></li>
+                        <li><a href="pages/audio-visualizer.html">Audio Visualizer</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-background">
+            <div class="gradient-orb orb-1"></div>
+            <div class="gradient-orb orb-2"></div>
+            <div class="gradient-orb orb-3"></div>
+        </div>
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <span class="title-line">Welcome to</span>
+                <span class="title-line emphasis">KARMAKAZI</span>
+                <span class="title-line">Animation Showcase</span>
+            </h1>
+            <p class="hero-description">
+                Explore cutting-edge web animations, interactive components, and creative scroll effects. 
+                Each demo is crafted with pure CSS and vanilla JavaScript for maximum performance.
+            </p>
+            <div class="hero-cta">
+                <a href="#showcase" class="btn btn-primary">Explore Animations</a>
+                <a href="https://github.com/yourusername/karmakazi.org" class="btn btn-secondary">View on GitHub</a>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <span>Scroll to explore</span>
+            <div class="scroll-arrow"></div>
+        </div>
+    </section>
+
+    <!-- Animation Showcase Grid -->
+    <section id="showcase" class="showcase">
+        <div class="container">
+            <h2 class="section-title">Featured Animations</h2>
+            <div class="showcase-grid">
+                <!-- Parallax Card -->
+                <article class="showcase-card" data-animation="parallax">
+                    <div class="card-preview">
+                        <div class="preview-animation parallax-preview">
+                            <div class="layer" data-speed="0.5"></div>
+                            <div class="layer" data-speed="0.7"></div>
+                            <div class="layer" data-speed="1"></div>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <h3>Parallax Scrolling</h3>
+                        <p>Multi-layer depth effect that responds to scroll position</p>
+                        <a href="pages/parallax-scroll.html" class="card-link">View Demo →</a>
+                    </div>
+                </article>
+
+                <!-- 3D Cards -->
+                <article class="showcase-card" data-animation="3d">
+                    <div class="card-preview">
+                        <div class="preview-animation flip-preview">
+                            <div class="flip-card">
+                                <div class="flip-front">Front</div>
+                                <div class="flip-back">Back</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <h3>3D Card Flip</h3>
+                        <p>Interactive 3D transformation with smooth transitions</p>
+                        <a href="pages/3d-cards.html" class="card-link">View Demo →</a>
+                    </div>
+                </article>
+
+                <!-- Liquid Transition -->
+                <article class="showcase-card" data-animation="liquid">
+                    <div class="card-preview">
+                        <div class="preview-animation liquid-preview">
+                            <div class="liquid-blob"></div>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <h3>Liquid Transitions</h3>
+                        <p>Fluid morphing effects using SVG filters</p>
+                        <a href="pages/liquid-transition.html" class="card-link">View Demo →</a>
+                    </div>
+                </article>
+
+                <!-- Typewriter -->
+                <article class="showcase-card" data-animation="text">
+                    <div class="card-preview">
+                        <div class="preview-animation type-preview">
+                            <span class="typing-text">Hello World_</span>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <h3>Typewriter Effect</h3>
+                        <p>Classic terminal-style text animation</p>
+                        <a href="pages/typewriter.html" class="card-link">View Demo →</a>
+                    </div>
+                </article>
+
+                <!-- Mouse Follow -->
+                <article class="showcase-card" data-animation="interactive">
+                    <div class="card-preview">
+                        <div class="preview-animation mouse-preview">
+                            <div class="follow-cursor"></div>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <h3>Mouse Following</h3>
+                        <p>Elements that track and respond to cursor movement</p>
+                        <a href="pages/mouse-follow.html" class="card-link">View Demo →</a>
+                    </div>
+                </article>
+
+                <!-- Glitch Effect -->
+                <article class="showcase-card" data-animation="glitch">
+                    <div class="card-preview">
+                        <div class="preview-animation glitch-preview">
+                            <span class="glitch-text" data-text="GLITCH">GLITCH</span>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <h3>Glitch Effect</h3>
+                        <p>Cyberpunk-inspired distortion animations</p>
+                        <a href="pages/glitch-text.html" class="card-link">View Demo →</a>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <p>&copy; 2024 Karmakazi.org - Animation Showcase</p>
+            <p>Built with pure CSS & JavaScript</p>
+        </div>
+    </footer>
+
+    <script src="scripts/main.js"></script>
+    <script src="scripts/navigation.js"></script>
+</body>
+</html>
