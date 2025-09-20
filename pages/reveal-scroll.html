@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reveal on Scroll - Karmakazi</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        body {
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            overflow-x: hidden;
+        }
+        
+        .reveal-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 100px 20px;
+        }
+        
+        .reveal-header {
+            text-align: center;
+            margin-bottom: 6rem;
+        }
+        
+        .reveal-title {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            opacity: 0;
+            animation: fadeInDown 1s forwards;
+        }
+        
+        @keyframes fadeInDown {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+        }
+        
+        /* Reveal Elements */
+        .reveal-element {
+            opacity: 0;
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .reveal-element.revealed {
+            opacity: 1;
+        }
+        
+        /* Fade animations */
+        .fade-up {
+            transform: translateY(50px);
+        }
+        .fade-up.revealed {
+            transform: translateY(0);
+        }
+        
+        .fade-down {
+            transform: translateY(-50px);
+        }
+        .fade-down.revealed {
+            transform: translateY(0);
+        }
+        
+        .fade-left {
+            transform: translateX(50px);
+        }
+        .fade-left.revealed {
+            transform: translateX(0);
+        }
+        
+        .fade-right {
+            transform: translateX(-50px);
+        }
+        .fade-right.revealed {
+            transform: translateX(0);
+        }
+        
+        /* Scale animations */
+        .scale-up {
+            transform: scale(0.8);
+        }
+        .scale-up.revealed {
+            transform: scale(1);
+        }
+        
+        .scale-down {
+            transform: scale(1.2);
+        }
+        .scale-down.revealed {
+            transform: scale(1);
+        }
+        
+        /* Rotate animations */
+        .rotate-in {
+            transform: rotate(45deg) scale(0.8);
+        }
+        .rotate-in.revealed {
+            transform: rotate(0) scale(1);
+        }
+        
+        /* Flip animations */
+        .flip-x {
+            transform: perspective(600px) rotateX(90deg);
+        }
+        .flip-x.revealed {
+            transform: perspective(600px) rotateX(0);
+        }
+        
+        .flip-y {
+            transform: perspective(600px) rotateY(90deg);
+        }
+        .flip-y.revealed {
+            transform: perspective(600px) rotateY(0);
+        }
+        
+        /* Blur animation */
+        .blur-in {
+            filter: blur(10px);
+        }
+        .blur-in.revealed {
+            filter: blur(0);
+        }
+        
+        /* Content sections */
+        .demo-section {
+            margin: 4rem 0;
+        }
+        
+        .section-title {
+            font-size: 2rem;
+            color: #f1f5f9;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+        
+        .demo-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .demo-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+        
+        .demo-text {
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+        
+        .text-reveal {
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .text-reveal .word {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(100%);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .text-reveal.revealed .word {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .stagger-container {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 3rem 0;
+        }
+        
+        .stagger-item {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+            border-radius: 0.5rem;
+            opacity: 0;
+            transform: translateY(30px) rotate(45deg);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .stagger-container.revealed .stagger-item {
+            opacity: 1;
+            transform: translateY(0) rotate(0);
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 2rem 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6366f1, #ec4899);
+            width: 0;
+            transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .progress-bar.revealed .progress-fill {
+            width: 100%;
+        }
+        
+        .back-button {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(10px);
+            color: #f1f5f9;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .back-button:hover {
+            background: rgba(99, 102, 241, 0.2);
+            transform: translateX(-5px);
+        }
+        
+        .back-button::before {
+            content: '←';
+            font-size: 1.25rem;
+        }
+        
+        .code-section {
+            margin-top: 6rem;
+            padding: 2rem;
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 1rem;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="back-button">Back to Gallery</a>
+    
+    <div class="reveal-container">
+        <div class="reveal-header">
+            <h1 class="reveal-title">REVEAL ON SCROLL</h1>
+            <p class="reveal-element fade-up" style="color: #94a3b8; font-size: 1.25rem;">
+                Watch elements animate into view as you scroll
+            </p>
+        </div>
+        
+        <!-- Fade Directions Demo -->
+        <section class="demo-section">
+            <h2 class="section-title reveal-element fade-up">Directional Fades</h2>
+            <div class="demo-grid">
+                <div class="demo-card reveal-element fade-up">
+                    <div class="demo-icon">↑</div>
+                    <h3 style="color: #f1f5f9;">Fade Up</h3>
+                    <p class="demo-text">Elements slide up as they fade in</p>
+                </div>
+                <div class="demo-card reveal-element fade-down">
+                    <div class="demo-icon">↓</div>
+                    <h3 style="color: #f1f5f9;">Fade Down</h3>
+                    <p class="demo-text">Elements slide down as they appear</p>
+                </div>
+                <div class="demo-card reveal-element fade-left">
+                    <div class="demo-icon">←</div>
+                    <h3 style="color: #f1f5f9;">Fade Left</h3>
+                    <p class="demo-text">Sliding in from the right</p>
+                </div>
+                <div class="demo-card reveal-element fade-right">
+                    <div class="demo-icon">→</div>
+                    <h3 style="color: #f1f5f9;">Fade Right</h3>
+                    <p class="demo-text">Sliding in from the left</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Scale Animations -->
+        <section class="demo-section">
+            <h2 class="section-title reveal-element scale-up">Scale Effects</h2>
+            <div class="demo-grid">
+                <div class="demo-card reveal-element scale-up">
+                    <div class="demo-icon">⬆</div>
+                    <h3 style="color: #f1f5f9;">Scale Up</h3>
+                    <p class="demo-text">Growing from smaller size</p>
+                </div>
+                <div class="demo-card reveal-element scale-down">
+                    <div class="demo-icon">⬇</div>
+                    <h3 style="color: #f1f5f9;">Scale Down</h3>
+                    <p class="demo-text">Shrinking from larger size</p>
+                </div>
+                <div class="demo-card reveal-element rotate-in">
+                    <div class="demo-icon">↻</div>
+                    <h3 style="color: #f1f5f9;">Rotate In</h3>
+                    <p class="demo-text">Rotating while scaling</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 3D Flips -->
+        <section class="demo-section">
+            <h2 class="section-title reveal-element flip-x">3D Transformations</h2>
+            <div class="demo-grid">
+                <div class="demo-card reveal-element flip-x">
+                    <div class="demo-icon">↕</div>
+                    <h3 style="color: #f1f5f9;">Flip X</h3>
+                    <p class="demo-text">3D horizontal flip effect</p>
+                </div>
+                <div class="demo-card reveal-element flip-y">
+                    <div class="demo-icon">↔</div>
+                    <h3 style="color: #f1f5f9;">Flip Y</h3>
+                    <p class="demo-text">3D vertical flip effect</p>
+                </div>
+                <div class="demo-card reveal-element blur-in">
+                    <div class="demo-icon">◉</div>
+                    <h3 style="color: #f1f5f9;">Blur In</h3>
+                    <p class="demo-text">From blurred to sharp</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Stagger Animation -->
+        <section class="demo-section">
+            <h2 class="section-title reveal-element fade-up">Staggered Animation</h2>
+            <div class="stagger-container reveal-element">
+                <div class="stagger-item"></div>
+                <div class="stagger-item"></div>
+                <div class="stagger-item"></div>
+                <div class="stagger-item"></div>
+                <div class="stagger-item"></div>
+                <div class="stagger-item"></div>
+            </div>
+        </section>
+        
+        <!-- Progress Bar -->
+        <section class="demo-section">
+            <h2 class="section-title reveal-element fade-up">Animated Progress</h2>
+            <div class="progress-bar reveal-element">
+                <div class="progress-fill"></div>
+            </div>
+        </section>
+        
+        <!-- Text Reveal -->
+        <section class="demo-section">
+            <h2 class="section-title reveal-element fade-up">Text Animation</h2>
+            <div style="text-align: center; font-size: 2rem; color: #f1f5f9;">
+                <div class="text-reveal reveal-element">
+                    <span class="word">Every</span>
+                    <span class="word">word</span>
+                    <span class="word">appears</span>
+                    <span class="word">with</span>
+                    <span class="word">style</span>
+                </div>
+            </div>
+        </section>
+        
+        <div class="code-section reveal-element fade-up">
+            <h3 style="color: #f1f5f9; margin-bottom: 1rem;">Implementation Code</h3>
+            <pre style="background: #0f172a; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; color: #94a3b8;"><code>// Intersection Observer for Reveal Animations
+const revealElements = document.querySelectorAll('.reveal-element');
+
+const revealObserver = new IntersectionObserver(
+    (entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('revealed');
+                
+                // Stagger children if present
+                const children = entry.target.querySelectorAll('.stagger-item, .word');
+                children.forEach((child, index) => {
+                    setTimeout(() => {
+                        child.style.transitionDelay = `${index * 100}ms`;
+                    }, 0);
+                });
+                
+                // Optional: Stop observing after reveal
+                observer.unobserve(entry.target);
+            }
+        });
+    },
+    {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    }
+);
+
+// Start observing all elements
+revealElements.forEach(element => {
+    revealObserver.observe(element);
+});</code></pre>
+        </div>
+    </div>
+    
+    <script>
+        // Reveal on Scroll Implementation
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get all reveal elements
+            const revealElements = document.querySelectorAll('.reveal-element');
+            
+            // Create intersection observer
+            const revealObserver = new IntersectionObserver(
+                (entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            // Add revealed class
+                            entry.target.classList.add('revealed');
+                            
+                            // Handle staggered animations
+                            if (entry.target.classList.contains('stagger-container')) {
+                                const items = entry.target.querySelectorAll('.stagger-item');
+                                items.forEach((item, index) => {
+                                    item.style.transitionDelay = `${index * 100}ms`;
+                                });
+                            }
+                            
+                            // Handle text reveal
+                            if (entry.target.classList.contains('text-reveal')) {
+                                const words = entry.target.querySelectorAll('.word');
+                                words.forEach((word, index) => {
+                                    word.style.transitionDelay = `${index * 150}ms`;
+                                });
+                            }
+                            
+                            // Stop observing after reveal (optional)
+                            // observer.unobserve(entry.target);
+                        }
+                    });
+                },
+                {
+                    threshold: 0.1,
+                    rootMargin: '0px 0px -50px 0px'
+                }
+            );
+            
+            // Start observing all elements
+            revealElements.forEach(element => {
+                revealObserver.observe(element);
+            });
+            
+            // Add some dynamic elements to demonstrate
+            let dynamicCount = 0;
+            window.addEventListener('scroll', () => {
+                const scrollPercent = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+                
+                // Update progress indicators
+                const progressBars = document.querySelectorAll('.progress-fill');
+                progressBars.forEach(bar => {
+                    if (bar.parentElement.classList.contains('revealed')) {
+                        bar.style.background = `linear-gradient(90deg, 
+                            hsl(${scrollPercent * 3.6}, 70%, 50%), 
+                            hsl(${(scrollPercent * 3.6 + 60) % 360}, 70%, 50%))`;
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
