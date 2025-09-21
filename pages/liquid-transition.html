@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liquid Transition - Karmakazi</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        body {
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+        }
+        
+        .container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        /* SVG Filter */
+        .liquid-filter {
+            position: absolute;
+            width: 0;
+            height: 0;
+        }
+        
+        /* Panels */
+        .panel {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+        
+        .panel.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .panel-1 { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .panel-2 { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .panel-3 { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .panel-4 { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .panel-5 { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        
+        .panel-content {
+            text-align: center;
+            color: white;
+            z-index: 10;
+            padding: 2rem;
+        }
+        
+        .panel-title {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .panel-subtitle {
+            font-size: 1.5rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+        
+        /* Liquid Transition Effect */
+        .liquid-transition {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+        
+        .liquid-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: url(#liquid);
+            background: white;
+            transform: translate(-50%, -50%) scale(0);
+            opacity: 0;
+        }
+        
+        .liquid-blob.animating {
+            animation: liquid-expand 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        @keyframes liquid-expand {
+            0% {
+                transform: translate(-50%, -50%) scale(0);
+                opacity: 1;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(30);
+                opacity: 0;
+            }
+        }
+        
+        /* Morph Blobs */
+        .morph-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        .morph-blob {
+            position: absolute;
+            filter: url(#morph);
+            opacity: 0.6;
+            animation: float 20s infinite ease-in-out;
+        }
+        
+        .morph-blob-1 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+            top: -200px;
+            left: -200px;
+        }
+        
+        .morph-blob-2 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+            bottom: -150px;
+            right: -150px;
+            animation-delay: -7s;
+        }
+        
+        .morph-blob-3 {
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: -14s;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translate(0, 0) scale(1) rotate(0deg);
+            }
+            25% {
+                transform: translate(100px, -100px) scale(1.1) rotate(90deg);
+            }
+            50% {
+                transform: translate(-50px, 50px) scale(0.9) rotate(180deg);
+            }
+            75% {
+                transform: translate(50px, 100px) scale(1.05) rotate(270deg);
+            }
+        }
+        
+        /* Water Ripple Effect */
+        .ripple-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        
+        .water-ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 70%);
+            transform: translate(-50%, -50%) scale(0);
+            animation: ripple-out 2s ease-out;
+        }
+        
+        @keyframes ripple-out {
+            to {
+                transform: translate(-50%, -50%) scale(4);
+                opacity: 0;
+            }
+        }
+        
+        /* Navigation */
+        .nav-dots {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            z-index: 200;
+        }
+        
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .dot:hover {
+            background: rgba(255, 255, 255, 0.5);
+            transform: scale(1.2);
+        }
+        
+        .dot.active {
+            background: white;
+            transform: scale(1.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        /* Controls */
+        .controls {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 200;
+        }
+        
+        .prev-btn, .next-btn {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.5rem;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .prev-btn {
+            left: 2rem;
+        }
+        
+        .next-btn {
+            right: 2rem;
+        }
+        
+        .prev-btn:hover, .next-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+        
+        /* Transition Types */
+        .transition-selector {
+            position: absolute;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            z-index: 200;
+        }
+        
+        .transition-btn {
+            padding: 0.75rem 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .transition-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .transition-btn.active {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: white;
+        }
+        
+        /* Back Button */
+        .back-button {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .back-button:hover {
+            background: white;
+            transform: translateX(-5px);
+        }
+        
+        .back-button::before {
+            content: '←';
+            font-size: 1.25rem;
+        }
+        
+        /* Demo Section */
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            max-width: 600px;
+            margin: 2rem auto;
+        }
+        
+        .demo-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            filter: url(#liquid);
+        }
+        
+        .demo-card:hover {
+            transform: scale(1.05);
+            background: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- SVG Filters -->
+        <svg class="liquid-filter">
+            <defs>
+                <filter id="liquid">
+                    <feTurbulence type="fractalNoise" baseFrequency="0.01" numOctaves="2" result="turbulence"/>
+                    <feColorMatrix in="turbulence" type="saturate" values="2"/>
+                    <feGaussianBlur stdDeviation="10"/>
+                    <feComposite operator="over"/>
+                </filter>
+                
+                <filter id="morph">
+                    <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="1" result="turbulence">
+                        <animate attributeName="baseFrequency" 
+                            values="0.02;0.03;0.02" 
+                            dur="10s" 
+                            repeatCount="indefinite"/>
+                    </feTurbulence>
+                    <feDisplacementMap in2="turbulence" in="SourceGraphic" scale="30"/>
+                    <feGaussianBlur stdDeviation="2"/>
+                </filter>
+            </defs>
+        </svg>
+        
+        <a href="../index.html" class="back-button">Back to Gallery</a>
+        
+        <!-- Transition Type Selector -->
+        <div class="transition-selector">
+            <button class="transition-btn active" onclick="setTransitionType('liquid')">Liquid</button>
+            <button class="transition-btn" onclick="setTransitionType('morph')">Morph</button>
+            <button class="transition-btn" onclick="setTransitionType('ripple')">Ripple</button>
+            <button class="transition-btn" onclick="setTransitionType('splash')">Splash</button>
+        </div>
+        
+        <!-- Morph Blobs Background -->
+        <div class="morph-container">
+            <div class="morph-blob morph-blob-1"></div>
+            <div class="morph-blob morph-blob-2"></div>
+            <div class="morph-blob morph-blob-3"></div>
+        </div>
+        
+        <!-- Panels -->
+        <div class="panel panel-1 active" id="panel-1">
+            <div class="panel-content">
+                <h1 class="panel-title">LIQUID TRANSITIONS</h1>
+                <p class="panel-subtitle">Fluid morphing effects</p>
+                <div class="demo-grid">
+                    <div class="demo-card" onclick="triggerLiquid(event)">
+                        <span style="font-size: 2rem;">💧</span>
+                        <p style="color: white; margin: 0.5rem 0 0;">Click Me</p>
+                    </div>
+                    <div class="demo-card" onclick="triggerLiquid(event)">
+                        <span style="font-size: 2rem;">🌊</span>
+                        <p style="color: white; margin: 0.5rem 0 0;">Splash</p>
+                    </div>
+                    <div class="demo-card" onclick="triggerLiquid(event)">
+                        <span style="font-size: 2rem;">💦</span>
+                        <p style="color: white; margin: 0.5rem 0 0;">Ripple</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="panel panel-2" id="panel-2">
+            <div class="panel-content">
+                <h1 class="panel-title">MORPH BLEND</h1>
+                <p class="panel-subtitle">Organic shape transformations</p>
+            </div>
+        </div>
+        
+        <div class="panel panel-3" id="panel-3">
+            <div class="panel-content">
+                <h1 class="panel-title">FLUID MOTION</h1>
+                <p class="panel-subtitle">Smooth flowing animations</p>
+            </div>
+        </div>
+        
+        <div class="panel panel-4" id="panel-4">
+            <div class="panel-content">
+                <h1 class="panel-title">WATER EFFECT</h1>
+                <p class="panel-subtitle">Natural water-like transitions</p>
+            </div>
+        </div>
+        
+        <div class="panel panel-5" id="panel-5">
+            <div class="panel-content">
+                <h1 class="panel-title">LIQUID GOLD</h1>
+                <p class="panel-subtitle">Premium fluid animations</p>
+            </div>
+        </div>
+        
+        <!-- Liquid Transition Layer -->
+        <div class="liquid-transition" id="liquidTransition"></div>
+        
+        <!-- Ripple Container -->
+        <div class="ripple-container" id="rippleContainer"></div>
+        
+        <!-- Navigation -->
+        <div class="controls">
+            <button class="prev-btn" onclick="navigate(-1)">‹</button>
+            <button class="next-btn" onclick="navigate(1)">›</button>
+        </div>
+        
+        <div class="nav-dots">
+            <div class="dot active" onclick="goToPanel(1)"></div>
+            <div class="dot" onclick="goToPanel(2)"></div>
+            <div class="dot" onclick="goToPanel(3)"></div>
+            <div class="dot" onclick="goToPanel(4)"></div>
+            <div class="dot" onclick="goToPanel(5)"></div>
+        </div>
+    </div>
+    
+    <script>
+        let currentPanel = 1;
+        let transitionType = 'liquid';
+        let isTransitioning = false;
+        
+        function setTransitionType(type) {
+            transitionType = type;
+            document.querySelectorAll('.transition-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+        
+        function navigate(direction) {
+            if (isTransitioning) return;
+            
+            const newPanel = currentPanel + direction;
+            if (newPanel >= 1 && newPanel <= 5) {
+                transitionToPanel(newPanel);
+            }
+        }
+        
+        function goToPanel(panel) {
+            if (isTransitioning || panel === currentPanel) return;
+            transitionToPanel(panel);
+        }
+        
+        function transitionToPanel(newPanel) {
+            isTransitioning = true;
+            
+            // Get click position (center if using navigation)
+            const x = event.clientX || window.innerWidth / 2;
+            const y = event.clientY || window.innerHeight / 2;
+            
+            // Apply selected transition effect
+            switch(transitionType) {
+                case 'liquid':
+                    liquidTransition(x, y, newPanel);
+                    break;
+                case 'morph':
+                    morphTransition(newPanel);
+                    break;
+                case 'ripple':
+                    rippleTransition(x, y, newPanel);
+                    break;
+                case 'splash':
+                    splashTransition(x, y, newPanel);
+                    break;
+            }
+            
+            // Update dots
+            document.querySelectorAll('.dot').forEach((dot, index) => {
+                dot.classList.toggle('active', index === newPanel - 1);
+            });
+        }
+        
+        function liquidTransition(x, y, newPanel) {
+            const liquidDiv = document.createElement('div');
+            liquidDiv.className = 'liquid-blob animating';
+            liquidDiv.style.left = x + 'px';
+            liquidDiv.style.top = y + 'px';
+            liquidDiv.style.width = '100px';
+            liquidDiv.style.height = '100px';
+            
+            // Get new panel color
+            const colors = [
+                'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+                'linear-gradient(135deg, #fa709a 0%, #fee140 100%)'
+            ];
+            liquidDiv.style.background = colors[newPanel - 1];
+            
+            document.getElementById('liquidTransition').appendChild(liquidDiv);
+            
+            setTimeout(() => {
+                // Switch panels
+                document.querySelector('.panel.active').classList.remove('active');
+                document.getElementById(`panel-${newPanel}`).classList.add('active');
+                currentPanel = newPanel;
+            }, 750);
+            
+            setTimeout(() => {
+                liquidDiv.remove();
+                isTransitioning = false;
+            }, 1500);
+        }
+        
+        function morphTransition(newPanel) {
+            // Morph existing blobs
+            const blobs = document.querySelectorAll('.morph-blob');
+            blobs.forEach(blob => {
+                blob.style.transform = 'scale(3)';
+                blob.style.transition = 'transform 1s ease';
+            });
+            
+            setTimeout(() => {
+                document.querySelector('.panel.active').classList.remove('active');
+                document.getElementById(`panel-${newPanel}`).classList.add('active');
+                currentPanel = newPanel;
+                
+                blobs.forEach(blob => {
+                    blob.style.transform = 'scale(1)';
+                });
+            }, 500);
+            
+            setTimeout(() => {
+                isTransitioning = false;
+            }, 1000);
+        }
+        
+        function rippleTransition(x, y, newPanel) {
+            // Create multiple ripples
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const ripple = document.createElement('div');
+                    ripple.className = 'water-ripple';
+                    ripple.style.left = x + 'px';
+                    ripple.style.top = y + 'px';
+                    ripple.style.width = '100px';
+                    ripple.style.height = '100px';
+                    
+                    document.getElementById('rippleContainer').appendChild(ripple);
+                    
+                    setTimeout(() => ripple.remove(), 2000);
+                }, i * 100);
+            }
+            
+            setTimeout(() => {
+                document.querySelector('.panel.active').classList.remove('active');
+                document.getElementById(`panel-${newPanel}`).classList.add('active');
+                currentPanel = newPanel;
+            }, 500);
+            
+            setTimeout(() => {
+                isTransitioning = false;
+            }, 1000);
+        }
+        
+        function splashTransition(x, y, newPanel) {
+            // Create splash particles
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.style.position = 'absolute';
+                particle.style.width = '10px';
+                particle.style.height = '10px';
+                particle.style.background = 'white';
+                particle.style.borderRadius = '50%';
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                particle.style.pointerEvents = 'none';
+                particle.style.zIndex = '300';
+                
+                const angle = (Math.PI * 2 * i) / 20;
+                const velocity = 5 + Math.random() * 10;
+                const vx = Math.cos(angle) * velocity;
+                const vy = Math.sin(angle) * velocity;
+                
+                document.body.appendChild(particle);
+                
+                let posX = x;
+                let posY = y;
+                let opacity = 1;
+                
+                const animate = () => {
+                    posX += vx;
+                    posY += vy;
+                    opacity -= 0.02;
+                    
+                    particle.style.left = posX + 'px';
+                    particle.style.top = posY + 'px';
+                    particle.style.opacity = opacity;
+                    
+                    if (opacity > 0) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        particle.remove();
+                    }
+                };
+                
+                requestAnimationFrame(animate);
+            }
+            
+            setTimeout(() => {
+                document.querySelector('.panel.active').classList.remove('active');
+                document.getElementById(`panel-${newPanel}`).classList.add('active');
+                currentPanel = newPanel;
+            }, 300);
+            
+            setTimeout(() => {
+                isTransitioning = false;
+            }, 1000);
+        }
+        
+        function triggerLiquid(event) {
+            event.stopPropagation();
+            
+            const rect = event.currentTarget.getBoundingClientRect();
+            const x = rect.left + rect.width / 2;
+            const y = rect.top + rect.height / 2;
+            
+            const liquidDiv = document.createElement('div');
+            liquidDiv.className = 'liquid-blob';
+            liquidDiv.style.left = x + 'px';
+            liquidDiv.style.top = y + 'px';
+            liquidDiv.style.width = '50px';
+            liquidDiv.style.height = '50px';
+            liquidDiv.style.background = 'rgba(255, 255, 255, 0.5)';
+            liquidDiv.style.animation = 'liquid-expand 1s ease-out forwards';
+            
+            document.getElementById('liquidTransition').appendChild(liquidDiv);
+            
+            setTimeout(() => liquidDiv.remove(), 1000);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') navigate(-1);
+            if (e.key === 'ArrowRight') navigate(1);
+        });
+        
+        // Touch/Swipe support
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+        
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+        
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+            
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0) {
+                    navigate(1); // Swipe left - go right
+                } else {
+                    navigate(-1); // Swipe right - go left
+                }
+            }
+        }
+        
+        // Auto-play option
+        let autoPlayInterval = null;
+        
+        function toggleAutoPlay() {
+            if (autoPlayInterval) {
+                clearInterval(autoPlayInterval);
+                autoPlayInterval = null;
+            } else {
+                autoPlayInterval = setInterval(() => {
+                    const next = currentPanel === 5 ? 1 : currentPanel + 1;
+                    goToPanel(next);
+                }, 3000);
+            }
+        }
+    </script>
+</body>
+</html>
