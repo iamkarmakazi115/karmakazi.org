@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Morph Transitions - Karmakazi</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 2rem 0;
+            background: rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .title {
+            font-size: clamp(2rem, 6vw, 4rem);
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            margin-bottom: 1rem;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 2rem;
+        }
+        
+        /* Demo Container */
+        .demo-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 3rem;
+            padding: 3rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .demo-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            min-height: 400px;
+        }
+        
+        .demo-title {
+            font-size: 1.5rem;
+            color: white;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        /* Morph Container */
+        .morph-container {
+            width: 100%;
+            height: 250px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            margin: 1rem 0;
+        }
+        
+        .morph-container:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Shape to Shape Morphing */
+        .shape-morph {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            transition: all 0.8s cubic-bezier(0.23, 1, 0.320, 1);
+            position: relative;
+        }
+        
+        .shape-morph.circle {
+            border-radius: 50%;
+        }
+        
+        .shape-morph.square {
+            border-radius: 0%;
+        }
+        
+        .shape-morph.triangle {
+            background: transparent;
+            width: 0;
+            height: 0;
+            border-left: 40px solid transparent;
+            border-right: 40px solid transparent;
+            border-bottom: 80px solid #ff6b6b;
+            border-radius: 0;
+        }
+        
+        .shape-morph.star {
+            background: transparent;
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+        
+        .shape-morph.star::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 40px solid transparent;
+            border-right: 40px solid transparent;
+            border-bottom: 30px solid #ff6b6b;
+        }
+        
+        .shape-morph.star::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 40px solid transparent;
+            border-right: 40px solid transparent;
+            border-top: 30px solid #ff6b6b;
+        }
+        
+        /* Button Morphing */
+        .button-morph {
+            padding: 1rem 2rem;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.320, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .button-morph.expanded {
+            padding: 1.5rem 4rem;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+        }
+        
+        .button-morph.minimal {
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            background: linear-gradient(45deg, #a55eea, #8c7ae6);
+        }
+        
+        /* Card Morphing */
+        .card-morph {
+            width: 200px;
+            height: 120px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            transition: all 0.8s cubic-bezier(0.23, 1, 0.320, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card-morph.expanded {
+            width: 280px;
+            height: 200px;
+            border-radius: 25px;
+            background: linear-gradient(135deg, #ff9a9e, #fecfef);
+        }
+        
+        .card-morph.compact {
+            width: 150px;
+            height: 80px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #a8edea, #fed6e3);
+        }
+        
+        /* Text Morphing */
+        .text-morph {
+            font-size: 2rem;
+            font-weight: 800;
+            color: white;
+            text-align: center;
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.320, 1);
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .text-morph.expanded {
+            font-size: 3rem;
+            letter-spacing: 0.2em;
+            transform: scale(1.2);
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+        
+        .text-morph.condensed {
+            font-size: 1.5rem;
+            letter-spacing: -0.05em;
+            transform: scale(0.8);
+            opacity: 0.7;
+        }
+        
+        /* Icon Morphing */
+        .icon-morph {
+            width: 60px;
+            height: 60px;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .icon-morph .bar {
+            width: 60px;
+            height: 8px;
+            background: white;
+            border-radius: 4px;
+            position: absolute;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+        }
+        
+        .icon-morph .bar:nth-child(1) {
+            top: 10px;
+        }
+        
+        .icon-morph .bar:nth-child(2) {
+            top: 26px;
+        }
+        
+        .icon-morph .bar:nth-child(3) {
+            top: 42px;
+        }
+        
+        /* Hamburger to X */
+        .icon-morph.active .bar:nth-child(1) {
+            transform: rotate(45deg) translate(13px, 13px);
+        }
+        
+        .icon-morph.active .bar:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .icon-morph.active .bar:nth-child(3) {
+            transform: rotate(-45deg) translate(13px, -13px);
+        }
+        
+        /* SVG Path Morphing */
+        .svg-morph {
+            width: 100px;
+            height: 100px;
+            cursor: pointer;
+        }
+        
+        .svg-morph path {
+            fill: white;
+            transition: all 0.8s cubic-bezier(0.23, 1, 0.320, 1);
+        }
+        
+        /* Liquid Morphing */
+        .liquid-morph {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            border-radius: 50%;
+            position: relative;
+            transition: all 1s cubic-bezier(0.23, 1, 0.320, 1);
+            cursor: pointer;
+        }
+        
+        .liquid-morph.morphed {
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            transform: rotate(180deg);
+            background: linear-gradient(45deg, #ff9a9e, #fecfef);
+        }
+        
+        .liquid-morph.blob {
+            border-radius: 63% 37% 54% 46% / 55% 48% 52% 45%;
+            transform: rotate(90deg) scale(1.2);
+            background: linear-gradient(45deg, #a8edea, #fed6e3);
+        }
+        
+        /* Container Morphing */
+        .container-morph {
+            width: 250px;
+            height: 150px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            transition: all 0.8s cubic-bezier(0.23, 1, 0.320, 1);
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+        }
+        
+        .container-morph.wide {
+            width: 350px;
+            height: 100px;
+            border-radius: 50px;
+        }
+        
+        .container-morph.tall {
+            width: 150px;
+            height: 250px;
+            border-radius: 10px;
+        }
+        
+        .container-morph.circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+        }
+        
+        /* Layout Morphing */
+        .layout-morph {
+            display: flex;
+            gap: 10px;
+            transition: all 0.8s cubic-bezier(0.23, 1, 0.320, 1);
+            cursor: pointer;
+        }
+        
+        .layout-item {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 10px;
+            transition: all 0.8s cubic-bezier(0.23, 1, 0.320, 1);
+        }
+        
+        .layout-morph.vertical {
+            flex-direction: column;
+        }
+        
+        .layout-morph.grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            width: 130px;
+        }
+        
+        .layout-morph.single .layout-item:not(:first-child) {
+            width: 0;
+            height: 0;
+            opacity: 0;
+        }
+        
+        .layout-morph.single .layout-item:first-child {
+            width: 120px;
+            height: 120px;
+        }
+        
+        /* Color Morphing */
+        .color-morph {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            border-radius: 15px;
+            transition: all 1s cubic-bezier(0.23, 1, 0.320, 1);
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .color-morph.blue {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+        }
+        
+        .color-morph.green {
+            background: linear-gradient(45deg, #1dd1a1, #10ac84);
+        }
+        
+        .color-morph.purple {
+            background: linear-gradient(45deg, #a55eea, #8c7ae6);
+        }
+        
+        /* Controls */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .control-btn {
+            padding: 0.6rem 1.2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            font-size: 0.9rem;
+        }
+        
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .control-btn.active {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.7);
+        }
+        
+        /* Slider Controls */
+        .slider-control {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1rem 0;
+            color: white;
+        }
+        
+        .slider {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Animation Controls */
+        .animation-control {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            color: white;
+        }
+        
+        .progress-bar {
+            flex: 1;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .demo-container {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+                gap: 2rem;
+            }
+            
+            .morph-container {
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="title">Morph Transitions</h1>
+        <p class="subtitle">Smooth shape, layout, and element transformations</p>
+    </div>
+
+    <div class="demo-container">
+        <!-- Shape Morphing -->
+        <div class="demo-card">
+            <h3 class="demo-title">Shape Morphing</h3>
+            <div class="morph-container" onclick="morphShape()">
+                <div class="shape-morph circle" id="shapeMorph"></div>
+            </div>
+            <div class="controls">
+                <button class="control-btn active" onclick="setShape('circle')">Circle</button>
+                <button class="control-btn" onclick="setShape('square')">Square</button>
+                <button class="control-btn" onclick="setShape('triangle')">Triangle</button>
+                <button class="control-btn" onclick="setShape('star')">Star</button>
+            </div>
+            <div class="slider-control">
+                <span>Animation Speed:</span>
+                <input type="range" class="slider" min="0.2" max="2" step="0.1" value="0.8" 
+                       onchange="setShapeSpeed(this.value)" id="shapeSpeed">
+                <span id="shapeSpeedValue">0.8s</span>
+            </div>
+        </div>
+
+        <!-- Button Morphing -->
+        <div class="demo-card">
+            <h3 class="demo-title">Button Morphing</h3>
+            <div class="morph-container" onclick="morphButton()">
+                <button class="button-morph" id="buttonMorph">Click Me</button>
+            </div>
+            <div class="controls">
+                <button class="control-btn active" onclick="setButtonState('normal')">Normal</button>
+                <button class="control-btn" onclick="setButtonState('expanded')">Expanded</button>
+                <button class="control-btn" onclick="setButtonState('minimal')">Minimal</button>
+                <button class="control-btn" onclick="animateButtonSequence()">Sequence</button>
+            </div>
+            <div class="slider-control">
+                <span>Morph Intensity:</span>
+                <input type="range" class="slider" min="0.5" max="2" step="0.1" value="1" 
+                       onchange="setButtonIntensity(this.value)" id="buttonIntensity">
+                <span id="buttonIntensityValue">1x</span>
+            </div>
+        </div>
+
+        <!-- Card Morphing -->
+        <div class="demo-card">
+            <h3 class="demo-title">Card Morphing</h3>
+            <div class="morph-container" onclick="morphCard()">
+                <div class="card-morph" id="cardMorph">Card Content</div>
+            </div>
+            <div class="controls">
+                <button class="control-btn active" onclick="setCardState('normal')">Normal</button>
+                <button class="control-btn" onclick="setCardState('expanded')">Expanded</button>
+                <button class="control-btn" onclick="setCardState('compact')">Compact</button>
+                <button class="control-btn" onclick="cycleCardStates()">Cycle</button>
+            </div>
+            <div class="animation-control">
+                <span>Progress:</span>
+                <div class="progress-bar" onclick="seekCardAnimation(event)">
+                    <div class="progress-fill" id="cardProgress"></div>
+                </div>
+                <button class="control-btn" onclick="playCardAnimation()">▶️</button>
+            </div>
+        </div>
+
+        <!-- Text Morphing -->
+        <div class="demo-card">
+            <h3 class="demo-title">Text Morphing</h3>
+            <div class="morph-container" onclick="morphText()">
+                <div class="text-morph" id="textMorph">MORPH</div>
+            </div>
+            <div class="controls">
+                <button class="control-btn active" onclick="setTextState('normal')">Normal</button>
+                <button class="control-btn" onclick="setTextState('expanded')">Expanded</button>
+                <button class="control-btn" onclick="setTextState('condensed')">Condensed</button>
+                <button class="control-btn" onclick="changeTextContent()">Change Text</button>
+            </div>
+            <div class="slider-control">
+                <span>Letter Spacing:</span>
+                <input type="range" class="slider" min="-0.1" max="0.5" step="0.01" value="0" 
+                       onchange="setLetterSpacing(this.value)" id="letterSpacing">
+                <span id="letterSpacingValue">0em</span>
+            </div>
+        </div>
+
+        <!-- Icon Morphing -->
+        <div class="demo-card">
+            <h3 class="demo-title">Icon Morphing</h3>
+            <div class="morph-container" onclick="toggleIcon()">
+                <div class="icon-morph" id="iconMorph">
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="setIconState('hamburger')">Hamburger</button>
+                <button class="control-btn" onclick="setIconState('close')">Close</button>
+                <button class="control-btn" onclick="setIconState('arrow')">Arrow</button>
+                <button class="control-btn" onclick="animateIconSequence()">Sequence</button>
+            </div>
+            <div class="slider-control">
+                <span>Animation Duration:</span>
+                <input type="range" class="slider" min="0.1" max="1" step="0.05" value="0.3" 
+                       onchange="setIconDuration(this.value)" id="iconDuration">
+                <span id="iconDurationValue">0.3s</span>
+            </div>
+        </div>
+
+        <!-- SVG Path Morphing -->
+        <div class="demo-card">
+            <h3 class="demo-title">SVG Path Morphing</h3>
+            <div class="morph-container" onclick="morphSVGPath()">
+                <svg class="svg-morph" viewBox="0 0 100 100" id="svgMorph">
+                    <path d="M50,10 L90,50 L50,90 L10,50 Z" id="svgPath"></path>
+                </svg>
+            </div>
+            <div class="controls">
+                <button class="control-btn active" onclick="setSVGShape('diamond')">Diamond</button>
+                <button class="control-btn" onclick="setSVGShape('circle')">Circle</button>
+                <button class="control-btn" onclick="setSVGShape('star')">Star</button>
+                <button class="control-btn" onclick="setSVGShape('heart')">Heart</button>
+            </div>
+            <div class="slider-control">
+                <span>Smoothness:</span>
+                <input type="range" class="slider" min="0" max="20" value="0" 
+                       onchange="setSVGSmoothness(this.value)" id="svgSmoothness">
+                <span id="svgSmoothnessValue">0</span>
+            </div>
+        </div>
+
+        <!-- Liquid Morphing -->
+        <div class="demo-card">
+            <h3 class="demo-title">Liquid Morphing</h3>
+            <div class="morph-container" onclick="morphLiquid()">
+                <div class="liquid-morph" id="liquidMorph"></div>
+            </div>
+            <div class="controls">
+                <button class="control-btn active" onclick="setLiquidState('circle')">Circle</button>
+                <button class="control-btn" onclick="setLiquidState('morphed')">Morphed</button>
+                <button class="control-btn" onclick="setLiquidState('blob')">Blob</button>
+                <button class="control-btn" onclick="randomLiquidShape()">Random</button>
+            </div>
+            <div class="slider-control">
+                <span>Fluidity:</span>
+                <input type="range" class="slider" min="0.5" max="3" step="0.1" value="1" 
+                       onchange="setLiquidFluidity(this.value)" id="liquidFluidity">
+                <span id="liquidFluidityValue">1s</span>
+            </div>
+        </div>
+
+        <!-- Container Morphing -->
+        <div class="demo-card">
+            <h3 class="demo-title">Container Morphing</h3>
+            <div class="morph-container" onclick="morphContainer()">
+                <div class="container-morph" id="containerMorph">Container</div>
+            </div>
+            <div class="controls">
+                <button class="control-btn active" onclick="setContainerState('normal')">Normal</button>
+                <button class="control-btn" onclick="setContainerState('wide')">Wide</button>
+                <button class="control-btn" onclick="setContainerState('tall')">Tall</button>
+                <button class="control-btn" onclick="setContainerState('circle')">Circle</button>
+            </div>
+            <div class="slider-control">
+                <span>Border Radius:</span>
+                <input type="range" class="slider" min="0" max="50" value="15" 
+                       onchange="setContainerRadius(this.value)" id="containerRadius">
+                <span id="containerRadiusValue">15px</span>
+            </div>
+        </div>
+
+        <!-- Layout Morphing -->
+        <div class="demo-card">
+            <h3 class="demo-title">Layout Morphing</h3>
+            <div class="morph-container" onclick="morphLayout()">
+                <div class="layout-morph" id="layoutMorph">
+                    <div class="layout-item"></div>
+                    <div class="layout-item"></div>
+                    <div class="layout-item"></div>
+                    <div class="layout-item"></div>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="control-btn active" onclick="setLayoutState('horizontal')">Horizontal</button>
+                <button class="control-btn" onclick="setLayoutState('vertical')">Vertical</button>
+                <button class="control-btn" onclick="setLayoutState('grid')">Grid</button>
+                <button class="control-btn" onclick="setLayoutState('single')">Single</button>
+            </div>
+            <div class="slider-control">
+                <span>Item Spacing:</span>
+                <input type="range" class="slider" min="5" max="30" value="10" 
+                       onchange="setLayoutSpacing(this.value)" id="layoutSpacing">
+                <span id="layoutSpacingValue">10px</span>
+            </div>
+        </div>
+
+        <!-- Color Morphing -->
+        <div class="demo-card">
+            <h3 class="demo-title">Color Morphing</h3>
+            <div class="morph-container" onclick="morphColor()">
+                <div class="color-morph" id="colorMorph"></div>
+            </div>
+            <div class="controls">
+                <button class="control-btn active" onclick="setColorState('red')">Red</button>
+                <button class="control-btn" onclick="setColorState('blue')">Blue</button>
+                <button class="control-btn" onclick="setColorState('green')">Green</button>
+                <button class="control-btn" onclick="setColorState('purple')">Purple</button>
+            </div>
+            <div class="slider-control">
+                <span>Transition Speed:</span>
+                <input type="range" class="slider" min="0.2" max="3" step="0.1" value="1" 
+                       onchange="setColorSpeed(this.value)" id="colorSpeed">
+                <span id="colorSpeedValue">1s</span>
+            </div>
+        </div>
+
+        <!-- Multi-Element Morphing -->
+        <div class="demo-card">
+            <h3 class="demo-title">Multi-Element Morphing</h3>
+            <div class="morph-container" id="multiMorphContainer">
+                <div class="shape-morph circle" style="position: absolute; top: 20%; left: 20%;"></div>
+                <div class="liquid-morph" style="position: absolute; top: 20%; right: 20%; width: 60px; height: 60px;"></div>
+                <div class="container-morph" style="position: absolute; bottom: 20%; left: 50%; transform: translateX(-50%); width: 150px; height: 80px; font-size: 0.8rem;"></div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="morphAllElements()">Morph All</button>
+                <button class="control-btn" onclick="sequentialMorph()">Sequential</button>
+                <button class="control-btn" onclick="randomMorph()">Random</button>
+                <button class="control-btn" onclick="resetAllElements()">Reset</button>
+            </div>
+            <div class="slider-control">
+                <span>Synchronization:</span>
+                <input type="range" class="slider" min="0" max="1000" value="0" 
+                       onchange="setSynchronization(this.value)" id="synchronization">
+                <span id="synchronizationValue">0ms</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentStates = {
+            shape: 'circle',
+            button: 'normal',
+            card: 'normal',
+            text: 'normal',
+            icon: 'hamburger',
+            svg: 'diamond',
+            liquid: 'circle',
+            container: 'normal',
+            layout: 'horizontal',
+            color: 'red'
+        };
+        
+        let animationQueue = [];
+        let isAnimating = false;
+        let synchronizationDelay = 0;
+        
+        // Shape Morphing
+        function morphShape() {
+            const shapes = ['circle', 'square', 'triangle', 'star'];
+            const currentIndex = shapes.indexOf(currentStates.shape);
+            const nextIndex = (currentIndex + 1) % shapes.length;
+            setShape(shapes[nextIndex]);
+        }
+        
+        function setShape(shape) {
+            const element = document.getElementById('shapeMorph');
+            element.className = `shape-morph ${shape}`;
+            currentStates.shape = shape;
+            
+            // Update active button
+            updateActiveButton(event?.target || document.querySelector(`[onclick="setShape('${shape}')"]`));
+        }
+        
+        function setShapeSpeed(value) {
+            const element = document.getElementById('shapeMorph');
+            element.style.transitionDuration = value + 's';
+            document.getElementById('shapeSpeedValue').textContent = value + 's';
+        }
+        
+        // Button Morphing
+        function morphButton() {
+            const states = ['normal', 'expanded', 'minimal'];
+            const currentIndex = states.indexOf(currentStates.button);
+            const nextIndex = (currentIndex + 1) % states.length;
+            setButtonState(states[nextIndex]);
+        }
+        
+        function setButtonState(state) {
+            const element = document.getElementById('buttonMorph');
+            element.className = `button-morph ${state}`;
+            currentStates.button = state;
+            
+            // Update button text
+            const texts = {
+                normal: 'Click Me',
+                expanded: 'Expanded Button',
+                minimal: 'Min'
+            };
+            element.textContent = texts[state];
+            
+            updateActiveButton(event?.target || document.querySelector(`[onclick="setButtonState('${state}')"]`));
+        }
+        
+        function setButtonIntensity(value) {
+            const element = document.getElementById('buttonMorph');
+            const scale = parseFloat(value);
+            element.style.transform = `scale(${scale})`;
+            document.getElementById('buttonIntensityValue').textContent = value + 'x';
+        }
+        
+        function animateButtonSequence() {
+            const states = ['normal', 'expanded', 'minimal', 'normal'];
+            let index = 0;
+            
+            const interval = setInterval(() => {
+                setButtonState(states[index]);
+                index++;
+                
+                if (index >= states.length) {
+                    clearInterval(interval);
+                }
+            }, 800);
+        }
+        
+        // Card Morphing
+        function morphCard() {
+            const states = ['normal', 'expanded', 'compact'];
+            const currentIndex = states.indexOf(currentStates.card);
+            const nextIndex = (currentIndex + 1) % states.length;
+            setCardState(states[nextIndex]);
+        }
+        
+        function setCardState(state) {
+            const element = document.getElementById('cardMorph');
+            element.className = `card-morph ${state}`;
+            currentStates.card = state;
+            
+            updateActiveButton(event?.target || document.querySelector(`[onclick="setCardState('${state}')"]`));
+        }
+        
+        function cycleCardStates() {
+            const states = ['normal', 'expanded', 'compact'];
+            let index = 0;
+            
+            const interval = setInterval(() => {
+                setCardState(states[index]);
+                updateCardProgress((index + 1) / states.length * 100);
+                index++;
+                
+                if (index >= states.length) {
+                    clearInterval(interval);
+                    updateCardProgress(0);
+                }
+            }, 1000);
+        }
+        
+        function updateCardProgress(percentage) {
+            document.getElementById('cardProgress').style.width = percentage + '%';
+        }
+        
+        function seekCardAnimation(event) {
+            const progressBar = event.currentTarget;
+            const rect = progressBar.getBoundingClientRect();
+            const clickPosition = (event.clientX - rect.left) / rect.width;
+            const states = ['normal', 'expanded', 'compact'];
+            const stateIndex = Math.floor(clickPosition * states.length);
+            
+            if (stateIndex < states.length) {
+                setCardState(states[stateIndex]);
+                updateCardProgress(clickPosition * 100);
+            }
+        }
+        
+        function playCardAnimation() {
+            cycleCardStates();
+        }
+        
+        // Text Morphing
+        function morphText() {
+            const states = ['normal', 'expanded', 'condensed'];
+            const currentIndex = states.indexOf(currentStates.text);
+            const nextIndex = (currentIndex + 1) % states.length;
+            setTextState(states[nextIndex]);
+        }
+        
+        function setTextState(state) {
+            const element = document.getElementById('textMorph');
+            element.className = `text-morph ${state}`;
+            currentStates.text = state;
+            
+            updateActiveButton(event?.target || document.querySelector(`[onclick="setTextState('${state}')"]`));
+        }
+        
+        function setLetterSpacing(value) {
+            const element = document.getElementById('textMorph');
+            element.style.letterSpacing = value + 'em';
+            document.getElementById('letterSpacingValue').textContent = value + 'em';
+        }
+        
+        function changeTextContent() {
+            const element = document.getElementById('textMorph');
+            const texts = ['MORPH', 'TRANSFORM', 'CHANGE', 'EVOLVE', 'SHIFT'];
+            const currentText = element.textContent;
+            const currentIndex = texts.indexOf(currentText);
+            const nextIndex = (currentIndex + 1) % texts.length;
+            
+            element.textContent = texts[nextIndex];
+        }
+        
+        // Icon Morphing
+        function toggleIcon() {
+            const element = document.getElementById('iconMorph');
+            element.classList.toggle('active');
+        }
+        
+        function setIconState(state) {
+            const element = document.getElementById('iconMorph');
+            const bars = element.querySelectorAll('.bar');
+            
+            // Reset all transformations
+            bars.forEach(bar => {
+                bar.style.transform = '';
+                bar.style.opacity = '';
+            });
+            
+            switch(state) {
+                case 'hamburger':
+                    element.classList.remove('active');
+                    break;
+                case 'close':
+                    element.classList.add('active');
+                    break;
+                case 'arrow':
+                    bars[0].style.transform = 'rotate(45deg) translate(13px, 13px)';
+                    bars[1].style.transform = 'translateX(10px)';
+                    bars[2].style.transform = 'rotate(-45deg) translate(13px, -13px)';
+                    break;
+            }
+            
+            currentStates.icon = state;
+        }
+        
+        function setIconDuration(value) {
+            const bars = document.querySelectorAll('#iconMorph .bar');
+            bars.forEach(bar => {
+                bar.style.transitionDuration = value + 's';
+            });
+            document.getElementById('iconDurationValue').textContent = value + 's';
+        }
+        
+        function animateIconSequence() {
+            const states = ['hamburger', 'close', 'arrow', 'hamburger'];
+            let index = 0;
+            
+            const interval = setInterval(() => {
+                setIconState(states[index]);
+                index++;
+                
+                if (index >= states.length) {
+                    clearInterval(interval);
+                }
+            }, 600);
+        }
+        
+        // SVG Path Morphing
+        function morphSVGPath() {
+            const shapes = ['diamond', 'circle', 'star', 'heart'];
+            const currentIndex = shapes.indexOf(currentStates.svg);
+            const nextIndex = (currentIndex + 1) % shapes.length;
+            setSVGShape(shapes[nextIndex]);
+        }
+        
+        function setSVGShape(shape) {
+            const path = document.getElementById('svgPath');
+            const paths = {
+                diamond: 'M50,10 L90,50 L50,90 L10,50 Z',
+                circle: 'M50,10 A40,40 0 1,1 49.9,10 Z',
+                star: 'M50,5 L62,35 L95,35 L72,55 L82,90 L50,70 L18,90 L28,55 L5,35 L38,35 Z',
+                heart: 'M50,85 C50,85 20,60 20,40 C20,25 30,15 45,20 C50,15 50,15 55,20 C70,15 80,25 80,40 C80,60 50,85 50,85 Z'
+            };
+            
+            path.style.d = `path("${paths[shape]}")`;
+            path.setAttribute('d', paths[shape]);
+            currentStates.svg = shape;
+            
+            updateActiveButton(event?.target || document.querySelector(`[onclick="setSVGShape('${shape}')"]`));
+        }
+        
+        function setSVGSmoothness(value) {
+            // This would typically require more complex SVG manipulation
+            document.getElementById('svgSmoothnessValue').textContent = value;
+        }
+        
+        // Liquid Morphing
+        function morphLiquid() {
+            const states = ['circle', 'morphed', 'blob'];
+            const currentIndex = states.indexOf(currentStates.liquid);
+            const nextIndex = (currentIndex + 1) % states.length;
+            setLiquidState(states[nextIndex]);
+        }
+        
+        function setLiquidState(state) {
+            const element = document.getElementById('liquidMorph');
+            element.className = `liquid-morph ${state}`;
+            currentStates.liquid = state;
+            
+            updateActiveButton(event?.target || document.querySelector(`[onclick="setLiquidState('${state}')"]`));
+        }
+        
+        function setLiquidFluidity(value) {
+            const element = document.getElementById('liquidMorph');
+            element.style.transitionDuration = value + 's';
+            document.getElementById('liquidFluidityValue').textContent = value + 's';
+        }
+        
+        function randomLiquidShape() {
+            const element = document.getElementById('liquidMorph');
+            const randomRadius = () => Math.random() * 30 + 30;
+            const borderRadius = `${randomRadius()}% ${randomRadius()}% ${randomRadius()}% ${randomRadius()}% / ${randomRadius()}% ${randomRadius()}% ${randomRadius()}% ${randomRadius()}%`;
+            
+            element.style.borderRadius = borderRadius;
+            element.style.transform = `rotate(${Math.random() * 360}deg) scale(${0.8 + Math.random() * 0.4})`;
+        }
+        
+        // Container Morphing
+        function morphContainer() {
+            const states = ['normal', 'wide', 'tall', 'circle'];
+            const currentIndex = states.indexOf(currentStates.container);
+            const nextIndex = (currentIndex + 1) % states.length;
+            setContainerState(states[nextIndex]);
+        }
+        
+        function setContainerState(state) {
+            const element = document.getElementById('containerMorph');
+            element.className = `container-morph ${state}`;
+            currentStates.container = state;
+            
+            updateActiveButton(event?.target || document.querySelector(`[onclick="setContainerState('${state}')"]`));
+        }
+        
+        function setContainerRadius(value) {
+            const element = document.getElementById('containerMorph');
+            element.style.borderRadius = value + 'px';
+            document.getElementById('containerRadiusValue').textContent = value + 'px';
+        }
+        
+        // Layout Morphing
+        function morphLayout() {
+            const states = ['horizontal', 'vertical', 'grid', 'single'];
+            const currentIndex = states.indexOf(currentStates.layout);
+            const nextIndex = (currentIndex + 1) % states.length;
+            setLayoutState(states[nextIndex]);
+        }
+        
+        function setLayoutState(state) {
+            const element = document.getElementById('layoutMorph');
+            element.className = `layout-morph ${state}`;
+            currentStates.layout = state;
+            
+            updateActiveButton(event?.target || document.querySelector(`[onclick="setLayoutState('${state}')"]`));
+        }
+        
+        function setLayoutSpacing(value) {
+            const element = document.getElementById('layoutMorph');
+            element.style.gap = value + 'px';
+            document.getElementById('layoutSpacingValue').textContent = value + 'px';
+        }
+        
+        // Color Morphing
+        function morphColor() {
+            const states = ['red', 'blue', 'green', 'purple'];
+            const currentIndex = states.indexOf(currentStates.color);
+            const nextIndex = (currentIndex + 1) % states.length;
+            setColorState(states[nextIndex]);
+        }
+        
+        function setColorState(state) {
+            const element = document.getElementById('colorMorph');
+            element.className = `color-morph ${state}`;
+            currentStates.color = state;
+            
+            updateActiveButton(event?.target || document.querySelector(`[onclick="setColorState('${state}')"]`));
+        }
+        
+        function setColorSpeed(value) {
+            const element = document.getElementById('colorMorph');
+            element.style.transitionDuration = value + 's';
+            document.getElementById('colorSpeedValue').textContent = value + 's';
+        }
+        
+        // Multi-Element Morphing
+        function morphAllElements() {
+            const container = document.getElementById('multiMorphContainer');
+            const elements = container.children;
+            
+            Array.from(elements).forEach((element, index) => {
+                setTimeout(() => {
+                    element.style.transform += ' scale(1.2) rotate(180deg)';
+                    setTimeout(() => {
+                        element.style.transform = element.style.transform.replace(' scale(1.2) rotate(180deg)', '');
+                    }, 800);
+                }, index * synchronizationDelay);
+            });
+        }
+        
+        function sequentialMorph() {
+            const container = document.getElementById('multiMorphContainer');
+            const elements = container.children;
+            
+            Array.from(elements).forEach((element, index) => {
+                setTimeout(() => {
+                    element.style.transform += ' translateY(-20px)';
+                    setTimeout(() => {
+                        element.style.transform = element.style.transform.replace(' translateY(-20px)', '');
+                    }, 400);
+                }, index * 200);
+            });
+        }
+        
+        function randomMorph() {
+            const container = document.getElementById('multiMorphContainer');
+            const elements = container.children;
+            
+            Array.from(elements).forEach(element => {
+                const randomX = (Math.random() - 0.5) * 100;
+                const randomY = (Math.random() - 0.5) * 100;
+                const randomRotation = Math.random() * 360;
+                const randomScale = 0.5 + Math.random() * 1;
+                
+                element.style.transform += ` translate(${randomX}px, ${randomY}px) rotate(${randomRotation}deg) scale(${randomScale})`;
+                
+                setTimeout(() => {
+                    element.style.transform = element.style.transform.replace(
+                        ` translate(${randomX}px, ${randomY}px) rotate(${randomRotation}deg) scale(${randomScale})`, 
+                        ''
+                    );
+                }, 2000);
+            });
+        }
+        
+        function resetAllElements() {
+            const container = document.getElementById('multiMorphContainer');
+            const elements = container.children;
+            
+            Array.from(elements).forEach(element => {
+                element.style.transform = '';
+            });
+        }
+        
+        function setSynchronization(value) {
+            synchronizationDelay = parseInt(value);
+            document.getElementById('synchronizationValue').textContent = value + 'ms';
+        }
+        
+        // Utility Functions
+        function updateActiveButton(target) {
+            if (!target) return;
+            
+            const parentControls = target.closest('.controls');
+            if (parentControls) {
+                parentControls.querySelectorAll('.control-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                target.classList.add('active');
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set initial states
+            Object.keys(currentStates).forEach(key => {
+                const functionName = `set${key.charAt(0).toUpperCase() + key.slice(1)}State`;
+                if (window[functionName]) {
+                    window[functionName](currentStates[key]);
+                }
+            });
+        });
+        
+        // Add smooth scroll behavior for progress bars
+        document.querySelectorAll('.progress-bar').forEach(bar => {
+            bar.addEventListener('click', (e) => {
+                const rect = bar.getBoundingClientRect();
+                const clickPosition = (e.clientX - rect.left) / rect.width;
+                const fill = bar.querySelector('.progress-fill');
+                fill.style.width = (clickPosition * 100) + '%';
+            });
+        });
+    </script>
+</body>
+</html>
