@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics Simulation - Karmakazi</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        /* Header */
+        .header {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 100;
+            pointer-events: none;
+        }
+        
+        .title {
+            font-size: 3rem;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            margin: 0;
+        }
+        
+        .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            margin-top: 0.5rem;
+        }
+        
+        /* Canvas */
+        #physicsCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            cursor: crosshair;
+        }
+        
+        /* Control Panel */
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            border-radius: 1rem;
+            z-index: 100;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .btn.active {
+            background: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Settings Panel */
+        .settings {
+            position: absolute;
+            right: 20px;
+            top: 100px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            min-width: 250px;
+            z-index: 100;
+        }
+        
+        .setting-group {
+            margin-bottom: 1rem;
+        }
+        
+        .setting-label {
+            color: white;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        
+        .slider {
+            width: 100%;
+            -webkit-appearance: none;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            outline: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .value-display {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.8rem;
+            text-align: right;
+            margin-top: 0.25rem;
+        }
+        
+        /* Info Panel */
+        .info {
+            position: absolute;
+            left: 20px;
+            top: 100px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            color: white;
+            min-width: 200px;
+            z-index: 100;
+        }
+        
+        .info-item {
+            margin: 0.5rem 0;
+            font-size: 0.9rem;
+        }
+        
+        .info-label {
+            opacity: 0.7;
+        }
+        
+        .info-value {
+            font-weight: 600;
+        }
+        
+        /* Back Button */
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .back-button:hover {
+            background: white;
+            transform: translateX(-5px);
+        }
+        
+        .back-button::before {
+            content: '←';
+            font-size: 1.25rem;
+        }
+        
+        /* Mode Indicator */
+        .mode-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            color: white;
+            font-weight: 600;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../index.html" class="back-button">Back to Gallery</a>
+        
+        <div class="header">
+            <h1 class="title">PHYSICS SIMULATION</h1>
+            <p class="subtitle">Click to create objects • Drag to throw</p>
+        </div>
+        
+        <div class="mode-indicator" id="modeIndicator">Mode: Balls</div>
+        
+        <canvas id="physicsCanvas"></canvas>
+        
+        <!-- Info Panel -->
+        <div class="info">
+            <h3 style="margin-top: 0;">Statistics</h3>
+            <div class="info-item">
+                <span class="info-label">Objects:</span>
+                <span class="info-value" id="objectCount">0</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">FPS:</span>
+                <span class="info-value" id="fps">60</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Collisions:</span>
+                <span class="info-value" id="collisions">0</span>
+            </div>
+        </div>
+        
+        <!-- Settings Panel -->
+        <div class="settings">
+            <h3 style="color: white; margin-top: 0;">Settings</h3>
+            
+            <div class="setting-group">
+                <label class="setting-label">Gravity</label>
+                <input type="range" class="slider" id="gravitySlider" min="0" max="2" step="0.1" value="0.5">
+                <div class="value-display" id="gravityValue">0.5</div>
+            </div>
+            
+            <div class="setting-group">
+                <label class="setting-label">Bounce</label>
+                <input type="range" class="slider" id="bounceSlider" min="0" max="1" step="0.1" value="0.8">
+                <div class="value-display" id="bounceValue">0.8</div>
+            </div>
+            
+            <div class="setting-group">
+                <label class="setting-label">Friction</label>
+                <input type="range" class="slider" id="frictionSlider" min="0" max="1" step="0.05" value="0.98">
+                <div class="value-display" id="frictionValue">0.98</div>
+            </div>
+            
+            <div class="setting-group">
+                <label class="setting-label">Object Size</label>
+                <input type="range" class="slider" id="sizeSlider" min="10" max="50" step="5" value="20">
+                <div class="value-display" id="sizeValue">20</div>
+            </div>
+        </div>
+        
+        <!-- Controls -->
+        <div class="controls">
+            <button class="btn active" onclick="setMode('balls')">Balls</button>
+            <button class="btn" onclick="setMode('boxes')">Boxes</button>
+            <button class="btn" onclick="setMode('mixed')">Mixed</button>
+            <button class="btn" onclick="toggleGravity()">Toggle Gravity</button>
+            <button class="btn" onclick="toggleWalls()">Toggle Walls</button>
+            <button class="btn" onclick="addExplosion()">Explosion</button>
+            <button class="btn" onclick="addBlackHole()">Black Hole</button>
+            <button class="btn" onclick="clearAll()">Clear All</button>
+        </div>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById('physicsCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Canvas setup
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        // Physics settings
+        let gravity = 0.5;
+        let bounce = 0.8;
+        let friction = 0.98;
+        let defaultSize = 20;
+        let wallsEnabled = true;
+        let gravityEnabled = true;
+        let currentMode = 'balls';
+        
+        // Objects array
+        const objects = [];
+        let blackHoles = [];
+        
+        // Stats
+        let fps = 60;
+        let lastTime = performance.now();
+        let collisionCount = 0;
+        
+        // Mouse tracking
+        let mouseX = 0;
+        let mouseY = 0;
+        let isDragging = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+        
+        // Physics Object Class
+        class PhysicsObject {
+            constructor(x, y, type = 'ball') {
+                this.x = x;
+                this.y = y;
+                this.vx = (Math.random() - 0.5) * 5;
+                this.vy = (Math.random() - 0.5) * 5;
+                this.radius = defaultSize + Math.random() * 20;
+                this.type = type;
+                this.color = `hsl(${Math.random() * 360}, 70%, 60%)`;
+                this.rotation = 0;
+                this.angularVelocity = (Math.random() - 0.5) * 0.2;
+                this.mass = this.radius;
+            }
+            
+            update() {
+                // Apply gravity
+                if (gravityEnabled) {
+                    this.vy += gravity;
+                }
+                
+                // Apply black hole attraction
+                blackHoles.forEach(hole => {
+                    const dx = hole.x - this.x;
+                    const dy = hole.y - this.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance > hole.radius && distance < hole.radius * 10) {
+                        const force = (hole.mass * this.mass) / (distance * distance);
+                        this.vx += (dx / distance) * force * 0.001;
+                        this.vy += (dy / distance) * force * 0.001;
+                    }
+                });
+                
+                // Apply velocity
+                this.x += this.vx;
+                this.y += this.vy;
+                
+                // Apply friction
+                this.vx *= friction;
+                this.vy *= friction;
+                this.angularVelocity *= friction;
+                
+                // Update rotation
+                this.rotation += this.angularVelocity;
+                
+                // Wall collisions
+                if (wallsEnabled) {
+                    if (this.x - this.radius < 0 || this.x + this.radius > canvas.width) {
+                        this.vx *= -bounce;
+                        this.x = this.x - this.radius < 0 ? this.radius : canvas.width - this.radius;
+                        this.angularVelocity *= -1;
+                    }
+                    
+                    if (this.y - this.radius < 0 || this.y + this.radius > canvas.height) {
+                        this.vy *= -bounce;
+                        this.y = this.y - this.radius < 0 ? this.radius : canvas.height - this.radius;
+                        this.angularVelocity = this.vx * 0.01;
+                    }
+                } else {
+                    // Wrap around edges
+                    if (this.x < -this.radius) this.x = canvas.width + this.radius;
+                    if (this.x > canvas.width + this.radius) this.x = -this.radius;
+                    if (this.y < -this.radius) this.y = canvas.height + this.radius;
+                    if (this.y > canvas.height + this.radius) this.y = -this.radius;
+                }
+            }
+            
+            checkCollision(other) {
+                const dx = other.x - this.x;
+                const dy = other.y - this.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < this.radius + other.radius) {
+                    // Collision detected
+                    collisionCount++;
+                    
+                    // Calculate collision response
+                    const nx = dx / distance;
+                    const ny = dy / distance;
+                    
+                    // Relative velocity
+                    const dvx = other.vx - this.vx;
+                    const dvy = other.vy - this.vy;
+                    
+                    // Relative velocity along collision normal
+                    const dvn = dvx * nx + dvy * ny;
+                    
+                    // Don't resolve if objects are moving apart
+                    if (dvn > 0) return;
+                    
+                    // Calculate impulse
+                    const impulse = 2 * dvn / (this.mass + other.mass);
+                    
+                    // Apply impulse
+                    this.vx += impulse * other.mass * nx * bounce;
+                    this.vy += impulse * other.mass * ny * bounce;
+                    other.vx -= impulse * this.mass * nx * bounce;
+                    other.vy -= impulse * this.mass * ny * bounce;
+                    
+                    // Separate objects
+                    const overlap = this.radius + other.radius - distance;
+                    const separationX = nx * overlap * 0.5;
+                    const separationY = ny * overlap * 0.5;
+                    this.x -= separationX;
+                    this.y -= separationY;
+                    other.x += separationX;
+                    other.y += separationY;
+                    
+                    // Add rotation
+                    this.angularVelocity += (Math.random() - 0.5) * 0.2;
+                    other.angularVelocity += (Math.random() - 0.5) * 0.2;
+                }
+            }
+            
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                
+                if (this.type === 'ball') {
+                    // Draw ball
+                    ctx.beginPath();
+                    ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = this.color;
+                    ctx.fill();
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    
+                    // Add highlight
+                    ctx.beginPath();
+                    ctx.arc(-this.radius * 0.3, -this.radius * 0.3, this.radius * 0.3, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                    ctx.fill();
+                } else if (this.type === 'box') {
+                    // Draw box
+                    ctx.fillStyle = this.color;
+                    ctx.fillRect(-this.radius, -this.radius, this.radius * 2, this.radius * 2);
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(-this.radius, -this.radius, this.radius * 2, this.radius * 2);
+                }
+                
+                ctx.restore();
+            }
+        }
+        
+        // Black Hole Class
+        class BlackHole {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.radius = 30;
+                this.mass = 1000;
+                this.lifetime = 300; // frames
+            }
+            
+            update() {
+                this.lifetime--;
+                if (this.lifetime <= 0) {
+                    const index = blackHoles.indexOf(this);
+                    if (index > -1) blackHoles.splice(index, 1);
+                }
+            }
+            
+            draw() {
+                const opacity = this.lifetime / 300;
+                ctx.save();
+                
+                // Draw black hole
+                const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius * 3);
+                gradient.addColorStop(0, `rgba(0, 0, 0, ${opacity})`);
+                gradient.addColorStop(0.3, `rgba(50, 0, 100, ${opacity * 0.8})`);
+                gradient.addColorStop(0.6, `rgba(100, 0, 200, ${opacity * 0.4})`);
+                gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                
+                ctx.fillStyle = gradient;
+                ctx.fillRect(this.x - this.radius * 3, this.y - this.radius * 3, this.radius * 6, this.radius * 6);
+                
+                // Draw swirl effect
+                ctx.strokeStyle = `rgba(150, 100, 255, ${opacity * 0.5})`;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                const time = Date.now() * 0.002;
+                for (let i = 0; i < 100; i++) {
+                    const angle = i * 0.1 + time;
+                    const r = i * 0.5;
+                    const x = this.x + Math.cos(angle) * r;
+                    const y = this.y + Math.sin(angle) * r;
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+                
+                ctx.restore();
+            }
+        }
+        
+        // Event listeners
+        canvas.addEventListener('mousedown', (e) => {
+            dragStartX = e.clientX;
+            dragStartY = e.clientY;
+            isDragging = true;
+        });
+        
+        canvas.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+        
+        canvas.addEventListener('mouseup', (e) => {
+            if (isDragging) {
+                const vx = (e.clientX - dragStartX) * 0.1;
+                const vy = (e.clientY - dragStartY) * 0.1;
+                
+                const type = currentMode === 'mixed' ? 
+                    (Math.random() > 0.5 ? 'ball' : 'box') : 
+                    (currentMode === 'boxes' ? 'box' : 'ball');
+                
+                const obj = new PhysicsObject(dragStartX, dragStartY, type);
+                obj.vx = vx;
+                obj.vy = vy;
+                objects.push(obj);
+            }
+            isDragging = false;
+        });
+        
+        canvas.addEventListener('click', (e) => {
+            if (!isDragging) {
+                const type = currentMode === 'mixed' ? 
+                    (Math.random() > 0.5 ? 'ball' : 'box') : 
+                    (currentMode === 'boxes' ? 'box' : 'ball');
+                
+                objects.push(new PhysicsObject(e.clientX, e.clientY, type));
+            }
+        });
+        
+        // Control functions
+        function setMode(mode) {
+            currentMode = mode;
+            document.getElementById('modeIndicator').textContent = `Mode: ${mode.charAt(0).toUpperCase() + mode.slice(1)}`;
+            
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+        
+        function toggleGravity() {
+            gravityEnabled = !gravityEnabled;
+            event.target.classList.toggle('active');
+        }
+        
+        function toggleWalls() {
+            wallsEnabled = !wallsEnabled;
+            event.target.classList.toggle('active');
+        }
+        
+        function addExplosion() {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            
+            objects.forEach(obj => {
+                const dx = obj.x - centerX;
+                const dy = obj.y - centerY;
+                const distance = Math.sqrt(dx * dx + dy * dy) + 1;
+                const force = 1000 / distance;
+                
+                obj.vx += (dx / distance) * force;
+                obj.vy += (dy / distance) * force;
+            });
+            
+            // Visual effect
+            for (let i = 0; i < 20; i++) {
+                const particle = new PhysicsObject(centerX, centerY, 'ball');
+                particle.radius = 5 + Math.random() * 10;
+                particle.vx = (Math.random() - 0.5) * 30;
+                particle.vy = (Math.random() - 0.5) * 30;
+                particle.color = `hsl(${30 + Math.random() * 30}, 100%, 50%)`;
+                objects.push(particle);
+            }
+        }
+        
+        function addBlackHole() {
+            blackHoles.push(new BlackHole(canvas.width / 2, canvas.height / 2));
+        }
+        
+        function clearAll() {
+            objects.length = 0;
+            blackHoles.length = 0;
+            collisionCount = 0;
+        }
+        
+        // Settings listeners
+        document.getElementById('gravitySlider').addEventListener('input', (e) => {
+            gravity = parseFloat(e.target.value);
+            document.getElementById('gravityValue').textContent = gravity;
+        });
+        
+        document.getElementById('bounceSlider').addEventListener('input', (e) => {
+            bounce = parseFloat(e.target.value);
+            document.getElementById('bounceValue').textContent = bounce;
+        });
+        
+        document.getElementById('frictionSlider').addEventListener('input', (e) => {
+            friction = parseFloat(e.target.value);
+            document.getElementById('frictionValue').textContent = friction;
+        });
+        
+        document.getElementById('sizeSlider').addEventListener('input', (e) => {
+            defaultSize = parseInt(e.target.value);
+            document.getElementById('sizeValue').textContent = defaultSize;
+        });
+        
+        // Animation loop
+        function animate() {
+            // Clear canvas
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Update and draw black holes
+            blackHoles.forEach(hole => {
+                hole.update();
+                hole.draw();
+            });
+            
+            // Update and draw objects
+            for (let i = 0; i < objects.length; i++) {
+                objects[i].update();
+                
+                // Check collisions
+                for (let j = i + 1; j < objects.length; j++) {
+                    objects[i].checkCollision(objects[j]);
+                }
+                
+                objects[i].draw();
+            }
+            
+            // Draw drag line
+            if (isDragging) {
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ctx.moveTo(dragStartX, dragStartY);
+                ctx.lineTo(mouseX, mouseY);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                
+                // Draw preview
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.beginPath();
+                ctx.arc(dragStartX, dragStartY, defaultSize, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // Update stats
+            const currentTime = performance.now();
+            const deltaTime = currentTime - lastTime;
+            fps = Math.round(1000 / deltaTime);
+            lastTime = currentTime;
+            
+            document.getElementById('objectCount').textContent = objects.length;
+            document.getElementById('fps').textContent = fps;
+            document.getElementById('collisions').textContent = collisionCount;
+            
+            requestAnimationFrame(animate);
+        }
+        
+        // Start animation
+        animate();
+        
+        // Add some initial objects
+        for (let i = 0; i < 10; i++) {
+            objects.push(new PhysicsObject(
+                Math.random() * canvas.width,
+                Math.random() * canvas.height / 2,
+                'ball'
+            ));
+        }
+    </script>
+</body>
+</html>
