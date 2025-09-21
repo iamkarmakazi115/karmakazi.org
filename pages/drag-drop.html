@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drag & Drop - Karmakazi</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            padding: 100px 20px 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .title {
+            font-size: clamp(3rem, 8vw, 5rem);
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+        }
+        
+        /* Drag Drop Zones */
+        .demo-section {
+            margin-bottom: 4rem;
+        }
+        
+        .section-title {
+            font-size: 2rem;
+            color: white;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        /* Sortable List */
+        .sortable-list {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            padding: 1rem;
+        }
+        
+        .sortable-item {
+            background: white;
+            padding: 1rem 1.5rem;
+            margin: 0.5rem 0;
+            border-radius: 0.5rem;
+            cursor: move;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .sortable-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .sortable-item.dragging {
+            opacity: 0.5;
+            transform: scale(1.05);
+        }
+        
+        .sortable-item.over {
+            border-top: 3px solid #667eea;
+        }
+        
+        .drag-handle {
+            color: #999;
+            font-size: 1.5rem;
+            cursor: grab;
+        }
+        
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+        
+        .item-content {
+            flex: 1;
+        }
+        
+        .item-number {
+            background: #667eea;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        
+        /* Kanban Board */
+        .kanban-board {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .kanban-column {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            padding: 1rem;
+            min-height: 400px;
+        }
+        
+        .kanban-header {
+            color: white;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            text-align: center;
+        }
+        
+        .kanban-items {
+            min-height: 350px;
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+        }
+        
+        .kanban-items.drag-over {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: white;
+        }
+        
+        .kanban-item {
+            background: white;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-radius: 0.5rem;
+            cursor: move;
+            transition: all 0.3s ease;
+        }
+        
+        .kanban-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .kanban-item.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+        
+        .priority-high {
+            border-left: 4px solid #ff4757;
+        }
+        
+        .priority-medium {
+            border-left: 4px solid #ffa502;
+        }
+        
+        .priority-low {
+            border-left: 4px solid #26de81;
+        }
+        
+        /* File Upload */
+        .upload-zone {
+            max-width: 800px;
+            margin: 2rem auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 3px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 1rem;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-zone.drag-over {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: white;
+            transform: scale(1.02);
+        }
+        
+        .upload-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        
+        .upload-text {
+            color: white;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+        
+        .upload-hint {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .file-list {
+            max-width: 800px;
+            margin: 2rem auto;
+        }
+        
+        .file-item {
+            background: white;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .file-icon {
+            font-size: 1.5rem;
+        }
+        
+        .file-info {
+            flex: 1;
+        }
+        
+        .file-name {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .file-size {
+            font-size: 0.875rem;
+            color: #666;
+        }
+        
+        .file-remove {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .file-remove:hover {
+            background: #ff3838;
+        }
+        
+        /* Puzzle Game */
+        .puzzle-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1rem;
+            border-radius: 1rem;
+        }
+        
+        .puzzle-piece {
+            aspect-ratio: 1;
+            background: white;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+            cursor: move;
+            transition: all 0.3s ease;
+        }
+        
+        .puzzle-piece:hover {
+            transform: scale(1.05);
+        }
+        
+        .puzzle-piece.dragging {
+            opacity: 0.5;
+        }
+        
+        .puzzle-piece.correct {
+            background: #26de81;
+            color: white;
+        }
+        
+        .empty-slot {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+        }
+        
+        /* Controls */
+        .controls {
+            text-align: center;
+            margin: 2rem 0;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 0.5rem;
+        }
+        
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        /* Back Button */
+        .back-button {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .back-button:hover {
+            background: white;
+            transform: translateX(-5px);
+        }
+        
+        .back-button::before {
+            content: '←';
+            font-size: 1.25rem;
+        }
+        
+        /* Ghost Image */
+        .ghost-image {
+            position: fixed;
+            pointer-events: none;
+            opacity: 0.7;
+            transform: rotate(5deg);
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="back-button">Back to Gallery</a>
+    
+    <div class="container">
+        <div class="header">
+            <h1 class="title">DRAG & DROP</h1>
+            <p style="color: white; font-size: 1.25rem; opacity: 0.9;">
+                Interactive drag and drop interfaces
+            </p>
+        </div>
+        
+        <!-- Sortable List -->
+        <div class="demo-section">
+            <h2 class="section-title">Sortable List</h2>
+            <div class="sortable-list" id="sortableList">
+                <div class="sortable-item" draggable="true" data-id="1">
+                    <span class="drag-handle">≡</span>
+                    <span class="item-number">1</span>
+                    <div class="item-content">
+                        <strong>First Item</strong>
+                        <div style="font-size: 0.875rem; color: #666;">Drag me to reorder</div>
+                    </div>
+                </div>
+                <div class="sortable-item" draggable="true" data-id="2">
+                    <span class="drag-handle">≡</span>
+                    <span class="item-number">2</span>
+                    <div class="item-content">
+                        <strong>Second Item</strong>
+                        <div style="font-size: 0.875rem; color: #666;">Move me around</div>
+                    </div>
+                </div>
+                <div class="sortable-item" draggable="true" data-id="3">
+                    <span class="drag-handle">≡</span>
+                    <span class="item-number">3</span>
+                    <div class="item-content">
+                        <strong>Third Item</strong>
+                        <div style="font-size: 0.875rem; color: #666;">Rearrange the order</div>
+                    </div>
+                </div>
+                <div class="sortable-item" draggable="true" data-id="4">
+                    <span class="drag-handle">≡</span>
+                    <span class="item-number">4</span>
+                    <div class="item-content">
+                        <strong>Fourth Item</strong>
+                        <div style="font-size: 0.875rem; color: #666;">Drop me anywhere</div>
+                    </div>
+                </div>
+                <div class="sortable-item" draggable="true" data-id="5">
+                    <span class="drag-handle">≡</span>
+                    <span class="item-number">5</span>
+                    <div class="item-content">
+                        <strong>Fifth Item</strong>
+                        <div style="font-size: 0.875rem; color: #666;">Sort the list</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Kanban Board -->
+        <div class="demo-section">
+            <h2 class="section-title">Kanban Board</h2>
+            <div class="kanban-board">
+                <div class="kanban-column">
+                    <div class="kanban-header">📝 To Do</div>
+                    <div class="kanban-items" data-status="todo">
+                        <div class="kanban-item priority-high" draggable="true">
+                            <strong>Design Homepage</strong>
+                            <div style="font-size: 0.875rem; color: #666; margin-top: 0.5rem;">Create wireframes and mockups</div>
+                        </div>
+                        <div class="kanban-item priority-medium" draggable="true">
+                            <strong>Setup Database</strong>
+                            <div style="font-size: 0.875rem; color: #666; margin-top: 0.5rem;">Configure MongoDB</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="kanban-column">
+                    <div class="kanban-header">⚡ In Progress</div>
+                    <div class="kanban-items" data-status="progress">
+                        <div class="kanban-item priority-high" draggable="true">
+                            <strong>API Development</strong>
+                            <div style="font-size: 0.875rem; color: #666; margin-top: 0.5rem;">Build REST endpoints</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="kanban-column">
+                    <div class="kanban-header">✅ Done</div>
+                    <div class="kanban-items" data-status="done">
+                        <div class="kanban-item priority-low" draggable="true">
+                            <strong>Project Setup</strong>
+                            <div style="font-size: 0.875rem; color: #666; margin-top: 0.5rem;">Initialize repository</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- File Upload -->
+        <div class="demo-section">
+            <h2 class="section-title">File Upload Zone</h2>
+            <div class="upload-zone" id="uploadZone">
+                <div class="upload-icon">📁</div>
+                <div class="upload-text">Drag & Drop files here</div>
+                <div class="upload-hint">or click to browse</div>
+                <input type="file" id="fileInput" multiple style="display: none;">
+            </div>
+            <div class="file-list" id="fileList"></div>
+        </div>
+        
+        <!-- Puzzle Game -->
+        <div class="demo-section">
+            <h2 class="section-title">Number Puzzle</h2>
+            <div class="controls">
+                <button class="btn" onclick="shufflePuzzle()">Shuffle</button>
+                <button class="btn" onclick="checkPuzzle()">Check Solution</button>
+            </div>
+            <div class="puzzle-container" id="puzzleContainer">
+                <div class="puzzle-piece" draggable="true" data-value="1">1</div>
+                <div class="puzzle-piece" draggable="true" data-value="2">2</div>
+                <div class="puzzle-piece" draggable="true" data-value="3">3</div>
+                <div class="puzzle-piece" draggable="true" data-value="4">4</div>
+                <div class="puzzle-piece" draggable="true" data-value="5">5</div>
+                <div class="puzzle-piece" draggable="true" data-value="6">6</div>
+                <div class="puzzle-piece" draggable="true" data-value="7">7</div>
+                <div class="puzzle-piece" draggable="true" data-value="8">8</div>
+                <div class="puzzle-piece empty-slot" data-value="9"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Sortable List
+        const sortableList = document.getElementById('sortableList');
+        let draggedElement = null;
+        
+        sortableList.addEventListener('dragstart', (e) => {
+            if (e.target.classList.contains('sortable-item')) {
+                draggedElement = e.target;
+                e.target.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+            }
+        });
+        
+        sortableList.addEventListener('dragend', (e) => {
+            if (e.target.classList.contains('sortable-item')) {
+                e.target.classList.remove('dragging');
+            }
+        });
+        
+        sortableList.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            const afterElement = getDragAfterElement(sortableList, e.clientY);
+            if (afterElement == null) {
+                sortableList.appendChild(draggedElement);
+            } else {
+                sortableList.insertBefore(draggedElement, afterElement);
+            }
+        });
+        
+        sortableList.addEventListener('drop', (e) => {
+            e.preventDefault();
+            updateNumbers();
+        });
+        
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.sortable-item:not(.dragging)')];
+            
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+        
+        function updateNumbers() {
+            const items = sortableList.querySelectorAll('.sortable-item');
+            items.forEach((item, index) => {
+                const number = item.querySelector('.item-number');
+                if (number) {
+                    number.textContent = index + 1;
+                }
+            });
+        }
+        
+        // Kanban Board
+        const kanbanItems = document.querySelectorAll('.kanban-item');
+        const kanbanColumns = document.querySelectorAll('.kanban-items');
+        
+        kanbanItems.forEach(item => {
+            item.addEventListener('dragstart', (e) => {
+                draggedElement = e.target;
+                e.target.classList.add('dragging');
+            });
+            
+            item.addEventListener('dragend', (e) => {
+                e.target.classList.remove('dragging');
+            });
+        });
+        
+        kanbanColumns.forEach(column => {
+            column.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                column.classList.add('drag-over');
+            });
+            
+            column.addEventListener('dragleave', (e) => {
+                column.classList.remove('drag-over');
+            });
+            
+            column.addEventListener('drop', (e) => {
+                e.preventDefault();
+                column.classList.remove('drag-over');
+                
+                if (draggedElement && draggedElement.classList.contains('kanban-item')) {
+                    column.appendChild(draggedElement);
+                    
+                    // Animate the drop
+                    draggedElement.style.animation = 'none';
+                    setTimeout(() => {
+                        draggedElement.style.animation = 'slideIn 0.3s ease';
+                    }, 10);
+                }
+            });
+        });
+        
+        // File Upload
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList');
+        
+        uploadZone.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('drag-over');
+        });
+        
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('drag-over');
+        });
+        
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('drag-over');
+            handleFiles(e.dataTransfer.files);
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+        
+        function handleFiles(files) {
+            Array.from(files).forEach(file => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                
+                const icon = getFileIcon(file.type);
+                const sizeInKB = (file.size / 1024).toFixed(2);
+                
+                fileItem.innerHTML = `
+                    <span class="file-icon">${icon}</span>
+                    <div class="file-info">
+                        <div class="file-name">${file.name}</div>
+                        <div class="file-size">${sizeInKB} KB</div>
+                    </div>
+                    <button class="file-remove" onclick="this.parentElement.remove()">Remove</button>
+                `;
+                
+                fileList.appendChild(fileItem);
+            });
+        }
+        
+        function getFileIcon(type) {
+            if (type.startsWith('image/')) return '🖼️';
+            if (type.startsWith('video/')) return '🎥';
+            if (type.startsWith('audio/')) return '🎵';
+            if (type.includes('pdf')) return '📄';
+            if (type.includes('zip') || type.includes('rar')) return '📦';
+            return '📎';
+        }
+        
+        // Puzzle Game
+        const puzzleContainer = document.getElementById('puzzleContainer');
+        const puzzlePieces = puzzleContainer.querySelectorAll('.puzzle-piece');
+        
+        puzzlePieces.forEach(piece => {
+            piece.addEventListener('dragstart', (e) => {
+                if (!piece.classList.contains('empty-slot')) {
+                    draggedElement = e.target;
+                    e.target.classList.add('dragging');
+                }
+            });
+            
+            piece.addEventListener('dragend', (e) => {
+                e.target.classList.remove('dragging');
+            });
+            
+            piece.addEventListener('dragover', (e) => {
+                e.preventDefault();
+            });
+            
+            piece.addEventListener('drop', (e) => {
+                e.preventDefault();
+                
+                if (draggedElement && draggedElement !== e.target) {
+                    // Swap pieces
+                    const draggedValue = draggedElement.dataset.value;
+                    const draggedText = draggedElement.textContent;
+                    const targetValue = e.target.dataset.value;
+                    const targetText = e.target.textContent;
+                    
+                    draggedElement.dataset.value = targetValue;
+                    draggedElement.textContent = targetText;
+                    e.target.dataset.value = draggedValue;
+                    e.target.textContent = draggedText;
+                    
+                    // Swap empty slot class
+                    if (draggedElement.classList.contains('empty-slot')) {
+                        draggedElement.classList.remove('empty-slot');
+                        e.target.classList.add('empty-slot');
+                    } else if (e.target.classList.contains('empty-slot')) {
+                        e.target.classList.remove('empty-slot');
+                        draggedElement.classList.add('empty-slot');
+                    }
+                    
+                    checkPuzzle();
+                }
+            });
+        });
+        
+        function shufflePuzzle() {
+            const pieces = Array.from(puzzleContainer.children);
+            const values = pieces.map(p => ({
+                value: p.dataset.value,
+                text: p.textContent,
+                isEmpty: p.classList.contains('empty-slot')
+            }));
+            
+            // Fisher-Yates shuffle
+            for (let i = values.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [values[i], values[j]] = [values[j], values[i]];
+            }
+            
+            pieces.forEach((piece, index) => {
+                piece.dataset.value = values[index].value;
+                piece.textContent = values[index].text;
+                piece.classList.toggle('empty-slot', values[index].isEmpty);
+                piece.classList.remove('correct');
+            });
+        }
+        
+        function checkPuzzle() {
+            const pieces = Array.from(puzzleContainer.children);
+            let isCorrect = true;
+            
+            pieces.forEach((piece, index) => {
+                const expectedValue = index + 1;
+                if (parseInt(piece.dataset.value) === expectedValue) {
+                    piece.classList.add('correct');
+                } else {
+                    piece.classList.remove('correct');
+                    isCorrect = false;
+                }
+            });
+            
+            if (isCorrect) {
+                setTimeout(() => {
+                    alert('Congratulations! Puzzle solved! 🎉');
+                }, 300);
+            }
+        }
+        
+        // Touch support for mobile
+        function addTouchSupport(element) {
+            let touchItem = null;
+            let touchOffset = { x: 0, y: 0 };
+            
+            element.addEventListener('touchstart', (e) => {
+                touchItem = e.target;
+                const touch = e.touches[0];
+                const rect = touchItem.getBoundingClientRect();
+                touchOffset.x = touch.clientX - rect.left;
+                touchOffset.y = touch.clientY - rect.top;
+                touchItem.style.position = 'fixed';
+                touchItem.style.zIndex = '1000';
+            });
+            
+            element.addEventListener('touchmove', (e) => {
+                if (touchItem) {
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    touchItem.style.left = (touch.clientX - touchOffset.x) + 'px';
+                    touchItem.style.top = (touch.clientY - touchOffset.y) + 'px';
+                }
+            });
+            
+            element.addEventListener('touchend', (e) => {
+                if (touchItem) {
+                    touchItem.style.position = '';
+                    touchItem.style.zIndex = '';
+                    touchItem = null;
+                }
+            });
+        }
+        
+        // Add touch support to all draggable elements
+        document.querySelectorAll('[draggable="true"]').forEach(addTouchSupport);
+</body>
+</html>
