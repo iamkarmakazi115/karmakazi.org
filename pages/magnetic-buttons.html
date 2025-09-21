@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magnetic Buttons - Karmakazi</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 2rem 0;
+            background: rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .title {
+            font-size: clamp(2rem, 6vw, 4rem);
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            margin-bottom: 1rem;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 2rem;
+        }
+        
+        /* Demo Container */
+        .demo-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 3rem;
+            padding: 3rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .demo-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            min-height: 350px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .demo-title {
+            font-size: 1.5rem;
+            color: white;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        /* Button Container */
+        .button-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: center;
+            align-items: center;
+            min-height: 200px;
+            padding: 2rem;
+            position: relative;
+        }
+        
+        /* Basic Magnetic Button */
+        .magnetic-btn {
+            padding: 1rem 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            transform-origin: center;
+        }
+        
+        .magnetic-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .magnetic-btn:hover::before {
+            opacity: 1;
+        }
+        
+        /* Glow Magnetic Button */
+        .glow-magnetic {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            border: none;
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.3);
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+        }
+        
+        .glow-magnetic:hover {
+            box-shadow: 0 0 40px rgba(255, 107, 107, 0.6);
+        }
+        
+        /* Neon Magnetic Button */
+        .neon-magnetic {
+            background: transparent;
+            border: 2px solid #00ffff;
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff;
+            box-shadow: 
+                0 0 10px #00ffff,
+                inset 0 0 10px rgba(0, 255, 255, 0.1);
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+        }
+        
+        .neon-magnetic:hover {
+            background: rgba(0, 255, 255, 0.1);
+            box-shadow: 
+                0 0 20px #00ffff,
+                0 0 40px #00ffff,
+                inset 0 0 20px rgba(0, 255, 255, 0.2);
+        }
+        
+        /* Gradient Magnetic Button */
+        .gradient-magnetic {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            background-size: 200% 200%;
+            animation: gradientShift 3s ease infinite;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+        }
+        
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        /* Liquid Magnetic Button */
+        .liquid-magnetic {
+            background: #4ecdc4;
+            border: none;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+        }
+        
+        .liquid-magnetic::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .liquid-magnetic:hover::before {
+            left: 100%;
+        }
+        
+        /* Morphing Magnetic Button */
+        .morph-magnetic {
+            background: #a55eea;
+            border: none;
+            border-radius: 10px;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+        }
+        
+        .morph-magnetic:hover {
+            border-radius: 50px;
+            background: #8c7ae6;
+            transform: scale(1.1);
+        }
+        
+        /* 3D Magnetic Button */
+        .threed-magnetic {
+            background: linear-gradient(145deg, #667eea, #764ba2);
+            border: none;
+            box-shadow: 
+                20px 20px 60px rgba(102, 126, 234, 0.2),
+                -20px -20px 60px rgba(118, 75, 162, 0.2);
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+        }
+        
+        .threed-magnetic:hover {
+            box-shadow: 
+                10px 10px 30px rgba(102, 126, 234, 0.4),
+                -10px -10px 30px rgba(118, 75, 162, 0.4);
+        }
+        
+        /* Particle Magnetic Button */
+        .particle-magnetic {
+            background: #ff9ff3;
+            border: none;
+            position: relative;
+            overflow: visible;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+        }
+        
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+        }
+        
+        /* Ripple Effect */
+        .ripple-magnetic {
+            background: #1dd1a1;
+            border: none;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+        }
+        
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(0);
+            animation: rippleEffect 0.6s linear;
+            pointer-events: none;
+        }
+        
+        @keyframes rippleEffect {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+        
+        /* Magnetic Field Visualization */
+        .magnetic-field {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .magnetic-field.active {
+            opacity: 1;
+        }
+        
+        /* Floating Elements */
+        .floating-element {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+        }
+        
+        /* Controls */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .control-btn {
+            padding: 0.8rem 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+        
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .control-btn.active {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.7);
+        }
+        
+        /* Slider Controls */
+        .slider-control {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1rem 0;
+            color: white;
+            width: 100%;
+        }
+        
+        .slider {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Custom Cursor */
+        .custom-cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transition: all 0.1s ease;
+            transform: translate(-50%, -50%);
+        }
+        
+        .cursor-trail {
+            position: fixed;
+            width: 6px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .demo-container {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+                gap: 2rem;
+            }
+            
+            .button-container {
+                min-height: 150px;
+                padding: 1rem;
+            }
+            
+            .magnetic-btn {
+                padding: 0.8rem 1.5rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="custom-cursor" id="customCursor"></div>
+
+    <div class="header">
+        <h1 class="title">Magnetic Buttons</h1>
+        <p class="subtitle">Interactive buttons with magnetic attraction effects</p>
+    </div>
+
+    <div class="demo-container">
+        <!-- Basic Magnetic -->
+        <div class="demo-card">
+            <h3 class="demo-title">Basic Magnetic</h3>
+            <div class="button-container">
+                <button class="magnetic-btn" data-magnetic="true">Hover Me</button>
+                <div class="magnetic-field"></div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="toggleMagneticField(this)">Show Field</button>
+                <button class="control-btn" onclick="changeMagneticStrength('basic', 'weak')">Weak</button>
+                <button class="control-btn active" onclick="changeMagneticStrength('basic', 'normal')">Normal</button>
+                <button class="control-btn" onclick="changeMagneticStrength('basic', 'strong')">Strong</button>
+            </div>
+            <div class="slider-control">
+                <span>Attraction Range:</span>
+                <input type="range" class="slider" min="50" max="200" value="100" 
+                       onchange="setAttractionRange('basic', this.value)" id="basicRange">
+                <span id="basicRangeValue">100px</span>
+            </div>
+        </div>
+
+        <!-- Glow Magnetic -->
+        <div class="demo-card">
+            <h3 class="demo-title">Glow Effect</h3>
+            <div class="button-container">
+                <button class="magnetic-btn glow-magnetic" data-magnetic="true">Glowing Button</button>
+                <div class="floating-element" style="top: 20%; left: 20%;"></div>
+                <div class="floating-element" style="top: 70%; right: 30%;"></div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="changeGlowColor('red')">Red Glow</button>
+                <button class="control-btn" onclick="changeGlowColor('blue')">Blue Glow</button>
+                <button class="control-btn" onclick="changeGlowColor('green')">Green Glow</button>
+                <button class="control-btn" onclick="toggleFloatingElements()">Toggle Elements</button>
+            </div>
+            <div class="slider-control">
+                <span>Glow Intensity:</span>
+                <input type="range" class="slider" min="10" max="60" value="40" 
+                       onchange="setGlowIntensity(this.value)" id="glowIntensity">
+                <span id="glowIntensityValue">40px</span>
+            </div>
+        </div>
+
+        <!-- Neon Magnetic -->
+        <div class="demo-card">
+            <h3 class="demo-title">Neon Attraction</h3>
+            <div class="button-container">
+                <button class="magnetic-btn neon-magnetic" data-magnetic="true">Neon Style</button>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="changeNeonColor('cyan')">Cyan</button>
+                <button class="control-btn" onclick="changeNeonColor('pink')">Pink</button>
+                <button class="control-btn" onclick="changeNeonColor('green')">Green</button>
+                <button class="control-btn" onclick="toggleNeonPulse()">Pulse Effect</button>
+            </div>
+            <div class="slider-control">
+                <span>Neon Brightness:</span>
+                <input type="range" class="slider" min="5" max="30" value="10" 
+                       onchange="setNeonBrightness(this.value)" id="neonBrightness">
+                <span id="neonBrightnessValue">10px</span>
+            </div>
+        </div>
+
+        <!-- Gradient Magnetic -->
+        <div class="demo-card">
+            <h3 class="demo-title">Gradient Flow</h3>
+            <div class="button-container">
+                <button class="magnetic-btn gradient-magnetic" data-magnetic="true">Gradient Flow</button>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="changeGradientStyle('ocean')">Ocean</button>
+                <button class="control-btn" onclick="changeGradientStyle('sunset')">Sunset</button>
+                <button class="control-btn" onclick="changeGradientStyle('forest')">Forest</button>
+                <button class="control-btn" onclick="toggleGradientAnimation()">Toggle Animation</button>
+            </div>
+            <div class="slider-control">
+                <span>Animation Speed:</span>
+                <input type="range" class="slider" min="1" max="6" value="3" 
+                       onchange="setGradientSpeed(this.value)" id="gradientSpeed">
+                <span id="gradientSpeedValue">3s</span>
+            </div>
+        </div>
+
+        <!-- Liquid Magnetic -->
+        <div class="demo-card">
+            <h3 class="demo-title">Liquid Ripple</h3>
+            <div class="button-container">
+                <button class="magnetic-btn liquid-magnetic" data-magnetic="true">Liquid Effect</button>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="changeLiquidColor('blue')">Blue</button>
+                <button class="control-btn" onclick="changeLiquidColor('purple')">Purple</button>
+                <button class="control-btn" onclick="changeLiquidColor('teal')">Teal</button>
+                <button class="control-btn" onclick="triggerLiquidWave()">Manual Wave</button>
+            </div>
+            <div class="slider-control">
+                <span>Wave Speed:</span>
+                <input type="range" class="slider" min="0.2" max="1" step="0.1" value="0.5" 
+                       onchange="setLiquidSpeed(this.value)" id="liquidSpeed">
+                <span id="liquidSpeedValue">0.5s</span>
+            </div>
+        </div>
+
+        <!-- Morphing Magnetic -->
+        <div class="demo-card">
+            <h3 class="demo-title">Morphing Shape</h3>
+            <div class="button-container">
+                <button class="magnetic-btn morph-magnetic" data-magnetic="true">Morph Me</button>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="setMorphShape('rounded')">Rounded</button>
+                <button class="control-btn" onclick="setMorphShape('square')">Square</button>
+                <button class="control-btn" onclick="setMorphShape('pill')">Pill</button>
+                <button class="control-btn" onclick="setMorphShape('circle')">Circle</button>
+            </div>
+            <div class="slider-control">
+                <span>Morph Speed:</span>
+                <input type="range" class="slider" min="0.1" max="1" step="0.1" value="0.4" 
+                       onchange="setMorphSpeed(this.value)" id="morphSpeed">
+                <span id="morphSpeedValue">0.4s</span>
+            </div>
+        </div>
+
+        <!-- 3D Magnetic -->
+        <div class="demo-card">
+            <h3 class="demo-title">3D Neumorphism</h3>
+            <div class="button-container">
+                <button class="magnetic-btn threed-magnetic" data-magnetic="true">3D Button</button>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="change3DStyle('raised')">Raised</button>
+                <button class="control-btn" onclick="change3DStyle('pressed')">Pressed</button>
+                <button class="control-btn" onclick="change3DStyle('floating')">Floating</button>
+                <button class="control-btn" onclick="toggle3DRotation()">Rotate</button>
+            </div>
+            <div class="slider-control">
+                <span>Shadow Depth:</span>
+                <input type="range" class="slider" min="10" max="60" value="20" 
+                       onchange="set3DDepth(this.value)" id="threeDDepth">
+                <span id="threeDDepthValue">20px</span>
+            </div>
+        </div>
+
+        <!-- Particle Magnetic -->
+        <div class="demo-card">
+            <h3 class="demo-title">Particle Attraction</h3>
+            <div class="button-container">
+                <button class="magnetic-btn particle-magnetic" data-magnetic="true">Particle Magic</button>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="setParticleType('sparkles')">Sparkles</button>
+                <button class="control-btn" onclick="setParticleType('dots')">Dots</button>
+                <button class="control-btn" onclick="setParticleType('stars')">Stars</button>
+                <button class="control-btn" onclick="triggerParticleBurst()">Burst</button>
+            </div>
+            <div class="slider-control">
+                <span>Particle Count:</span>
+                <input type="range" class="slider" min="5" max="30" value="15" 
+                       onchange="setParticleCount(this.value)" id="particleCount">
+                <span id="particleCountValue">15</span>
+            </div>
+        </div>
+
+        <!-- Ripple Magnetic -->
+        <div class="demo-card">
+            <h3 class="demo-title">Ripple Waves</h3>
+            <div class="button-container">
+                <button class="magnetic-btn ripple-magnetic" data-magnetic="true">Click Ripple</button>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="changeRippleColor('white')">White</button>
+                <button class="control-btn" onclick="changeRippleColor('blue')">Blue</button>
+                <button class="control-btn" onclick="changeRippleColor('gold')">Gold</button>
+                <button class="control-btn" onclick="toggleAutoRipple()">Auto Ripple</button>
+            </div>
+            <div class="slider-control">
+                <span>Ripple Size:</span>
+                <input type="range" class="slider" min="2" max="8" value="4" 
+                       onchange="setRippleSize(this.value)" id="rippleSize">
+                <span id="rippleSizeValue">4x</span>
+            </div>
+        </div>
+
+        <!-- Multi-Button Magnetic Field -->
+        <div class="demo-card">
+            <h3 class="demo-title">Magnetic Field</h3>
+            <div class="button-container" style="min-height: 250px;">
+                <button class="magnetic-btn" data-magnetic="true" style="position: absolute; top: 20px; left: 50px;">Button 1</button>
+                <button class="magnetic-btn glow-magnetic" data-magnetic="true" style="position: absolute; top: 80px; right: 60px;">Button 2</button>
+                <button class="magnetic-btn neon-magnetic" data-magnetic="true" style="position: absolute; bottom: 70px; left: 80px;">Button 3</button>
+                <button class="magnetic-btn morph-magnetic" data-magnetic="true" style="position: absolute; bottom: 20px; right: 40px;">Button 4</button>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="enableMagneticField()">Enable Field</button>
+                <button class="control-btn" onclick="disableMagneticField()">Disable Field</button>
+                <button class="control-btn" onclick="randomizePositions()">Randomize</button>
+                <button class="control-btn" onclick="toggleCustomCursor()">Custom Cursor</button>
+            </div>
+            <div class="slider-control">
+                <span>Field Strength:</span>
+                <input type="range" class="slider" min="0.5" max="3" step="0.1" value="1.5" 
+                       onchange="setFieldStrength(this.value)" id="fieldStrength">
+                <span id="fieldStrengthValue">1.5x</span>
+            </div>
+        </div>
+
+        <!-- Custom Interactive -->
+        <div class="demo-card">
+            <h3 class="demo-title">Custom Interactive</h3>
+            <div class="button-container">
+                <button class="magnetic-btn" data-magnetic="true" id="customButton">Custom Button</button>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="customizeButton()">Customize</button>
+                <button class="control-btn" onclick="addTrailEffect()">Trail Effect</button>
+                <button class="control-btn" onclick="toggleGravityMode()">Gravity Mode</button>
+                <button class="control-btn" onclick="resetCustomButton()">Reset</button>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0;">
+                <div class="slider-control">
+                    <span>Gravity:</span>
+                    <input type="range" class="slider" min="0" max="5" step="0.1" value="0" 
+                           onchange="setGravity(this.value)" id="gravity">
+                </div>
+                <div class="slider-control">
+                    <span>Friction:</span>
+                    <input type="range" class="slider" min="0.8" max="0.99" step="0.01" value="0.95" 
+                           onchange="setFriction(this.value)" id="friction">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let magneticButtons = [];
+        let customCursorEnabled = false;
+        let magneticFieldEnabled = true;
+        let cursorTrails = [];
+        let gravityMode = false;
+        let gravity = 0;
+        let friction = 0.95;
+        
+        // Settings
+        let attractionRange = 100;
+        let magneticStrength = 1.5;
+        let particleCount = 15;
+        let currentParticleType = 'sparkles';
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeMagneticButtons();
+            setupCustomCursor();
+            setupEventListeners();
+        });
+        
+        function initializeMagneticButtons() {
+            magneticButtons = document.querySelectorAll('[data-magnetic="true"]');
+            
+            magneticButtons.forEach(button => {
+                button.addEventListener('mouseenter', handleMouseEnter);
+                button.addEventListener('mousemove', handleMouseMove);
+                button.addEventListener('mouseleave', handleMouseLeave);
+                button.addEventListener('click', handleClick);
+            });
+        }
+        
+        function handleMouseEnter(e) {
+            const button = e.currentTarget;
+            if (!magneticFieldEnabled) return;
+            
+            // Show magnetic field if enabled
+            const field = button.parentElement.querySelector('.magnetic-field');
+            if (field) {
+                field.classList.add('active');
+                field.style.left = '50%';
+                field.style.top = '50%';
+                field.style.transform = 'translate(-50%, -50%)';
+            }
+            
+            // Trigger particle effect for particle buttons
+            if (button.classList.contains('particle-magnetic')) {
+                createParticles(button);
+            }
+        }
+        
+        function handleMouseMove(e) {
+            const button = e.currentTarget;
+            if (!magneticFieldEnabled) return;
+            
+            const rect = button.getBoundingClientRect();
+            const buttonCenterX = rect.left + rect.width / 2;
+            const buttonCenterY = rect.top + rect.height / 2;
+            
+            const mouseX = e.clientX;
+            const mouseY = e.clientY;
+            
+            const deltaX = mouseX - buttonCenterX;
+            const deltaY = mouseY - buttonCenterY;
+            const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+            
+            if (distance < attractionRange) {
+                const attraction = (attractionRange - distance) / attractionRange;
+                const moveX = deltaX * attraction * 0.3 * magneticStrength;
+                const moveY = deltaY * attraction * 0.3 * magneticStrength;
+                
+                button.style.transform = `translate(${moveX}px, ${moveY}px) scale(${1 + attraction * 0.1})`;
+                
+                // Update floating elements
+                updateFloatingElements(button.parentElement, mouseX, mouseY);
+            }
+        }
+        
+        function handleMouseLeave(e) {
+            const button = e.currentTarget;
+            
+            // Reset button position
+            button.style.transform = 'translate(0px, 0px) scale(1)';
+            
+            // Hide magnetic field
+            const field = button.parentElement.querySelector('.magnetic-field');
+            if (field) {
+                field.classList.remove('active');
+            }
+            
+            // Reset floating elements
+            resetFloatingElements(button.parentElement);
+        }
+        
+        function handleClick(e) {
+            const button = e.currentTarget;
+            
+            // Create ripple effect for ripple buttons
+            if (button.classList.contains('ripple-magnetic')) {
+                createRipple(e, button);
+            }
+            
+            // Trigger particle burst
+            if (button.classList.contains('particle-magnetic')) {
+                triggerParticleBurst(button);
+            }
+            
+            // Add click feedback
+            button.style.transform += ' scale(0.95)';
+            setTimeout(() => {
+                button.style.transform = button.style.transform.replace(' scale(0.95)', '');
+            }, 150);
+        }
+        
+        // Magnetic Field Controls
+        function toggleMagneticField(btn) {
+            magneticFieldEnabled = !magneticFieldEnabled;
+            btn.classList.toggle('active');
+            btn.textContent = magneticFieldEnabled ? 'Hide Field' : 'Show Field';
+        }
+        
+        function changeMagneticStrength(type, strength) {
+            const buttons = document.querySelectorAll('.control-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            switch(strength) {
+                case 'weak': magneticStrength = 0.8; break;
+                case 'normal': magneticStrength = 1.5; break;
+                case 'strong': magneticStrength = 2.5; break;
+            }
+        }
+        
+        function setAttractionRange(type, value) {
+            attractionRange = parseInt(value);
+            document.getElementById('basicRangeValue').textContent = value + 'px';
+        }
+        
+        // Glow Controls
+        function changeGlowColor(color) {
+            const button = document.querySelector('.glow-magnetic');
+            let gradient;
+            
+            switch(color) {
+                case 'red':
+                    gradient = 'linear-gradient(45deg, #ff6b6b, #ee5a24)';
+                    break;
+                case 'blue':
+                    gradient = 'linear-gradient(45deg, #667eea, #764ba2)';
+                    break;
+                case 'green':
+                    gradient = 'linear-gradient(45deg, #1dd1a1, #10ac84)';
+                    break;
+            }
+            
+            button.style.background = gradient;
+        }
+        
+        function setGlowIntensity(value) {
+            const button = document.querySelector('.glow-magnetic');
+            button.style.boxShadow = `0 0 ${value}px rgba(255, 107, 107, 0.6)`;
+            document.getElementById('glowIntensityValue').textContent = value + 'px';
+        }
+        
+        function toggleFloatingElements() {
+            const elements = document.querySelectorAll('.floating-element');
+            elements.forEach(el => {
+                el.style.display = el.style.display === 'none' ? 'block' : 'none';
+            });
+        }
+        
+        // Neon Controls
+        function changeNeonColor(color) {
+            const button = document.querySelector('.neon-magnetic');
+            let neonColor;
+            
+            switch(color) {
+                case 'cyan': neonColor = '#00ffff'; break;
+                case 'pink': neonColor = '#ff00ff'; break;
+                case 'green': neonColor = '#00ff00'; break;
+            }
+            
+            button.style.borderColor = neonColor;
+            button.style.color = neonColor;
+            button.style.textShadow = `0 0 10px ${neonColor}`;
+            button.style.boxShadow = `0 0 10px ${neonColor}, inset 0 0 10px ${neonColor}40`;
+        }
+        
+        function setNeonBrightness(value) {
+            const button = document.querySelector('.neon-magnetic');
+            const color = getComputedStyle(button).borderColor;
+            button.style.textShadow = `0 0 ${value}px ${color}`;
+            document.getElementById('neonBrightnessValue').textContent = value + 'px';
+        }
+        
+        function toggleNeonPulse() {
+            const button = document.querySelector('.neon-magnetic');
+            const isPulsing = button.style.animation.includes('pulse');
+            
+            if (isPulsing) {
+                button.style.animation = '';
+            } else {
+                button.style.animation = 'neonPulse 2s ease-in-out infinite';
+            }
+        }
+        
+        // Gradient Controls
+        function changeGradientStyle(style) {
+            const button = document.querySelector('.gradient-magnetic');
+            let gradient;
+            
+            switch(style) {
+                case 'ocean':
+                    gradient = 'linear-gradient(45deg, #667eea, #764ba2)';
+                    break;
+                case 'sunset':
+                    gradient = 'linear-gradient(45deg, #ff9a9e, #fecfef)';
+                    break;
+                case 'forest':
+                    gradient = 'linear-gradient(45deg, #1dd1a1, #10ac84)';
+                    break;
+            }
+            
+            button.style.background = gradient;
+            button.style.backgroundSize = '200% 200%';
+        }
+        
+        function setGradientSpeed(value) {
+            const button = document.querySelector('.gradient-magnetic');
+            button.style.animationDuration = value + 's';
+            document.getElementById('gradientSpeedValue').textContent = value + 's';
+        }
+        
+        function toggleGradientAnimation() {
+            const button = document.querySelector('.gradient-magnetic');
+            const isAnimating = button.style.animationPlayState !== 'paused';
+            button.style.animationPlayState = isAnimating ? 'paused' : 'running';
+        }
+        
+        // Liquid Controls
+        function changeLiquidColor(color) {
+            const button = document.querySelector('.liquid-magnetic');
+            let bgColor;
+            
+            switch(color) {
+                case 'blue': bgColor = '#4ecdc4'; break;
+                case 'purple': bgColor = '#a55eea'; break;
+                case 'teal': bgColor = '#1dd1a1'; break;
+            }
+            
+            button.style.background = bgColor;
+        }
+        
+        function setLiquidSpeed(value) {
+            const button = document.querySelector('.liquid-magnetic');
+            button.querySelector('::before').style.transitionDuration = value + 's';
+            document.getElementById('liquidSpeedValue').textContent = value + 's';
+        }
+        
+        function triggerLiquidWave() {
+            const button = document.querySelector('.liquid-magnetic');
+            button.style.animation = 'liquidWave 0.6s ease';
+            setTimeout(() => {
+                button.style.animation = '';
+            }, 600);
+        }
+        
+        // Morphing Controls
+        function setMorphShape(shape) {
+            const button = document.querySelector('.morph-magnetic');
+            
+            switch(shape) {
+                case 'rounded':
+                    button.style.borderRadius = '10px';
+                    break;
+                case 'square':
+                    button.style.borderRadius = '0px';
+                    break;
+                case 'pill':
+                    button.style.borderRadius = '50px';
+                    break;
+                case 'circle':
+                    button.style.borderRadius = '50%';
+                    button.style.aspectRatio = '1';
+                    break;
+            }
+        }
+        
+        function setMorphSpeed(value) {
+            const button = document.querySelector('.morph-magnetic');
+            button.style.transitionDuration = value + 's';
+            document.getElementById('morphSpeedValue').textContent = value + 's';
+        }
+        
+        // 3D Controls
+        function change3DStyle(style) {
+            const button = document.querySelector('.threed-magnetic');
+            
+            switch(style) {
+                case 'raised':
+                    button.style.boxShadow = '20px 20px 60px rgba(102, 126, 234, 0.2), -20px -20px 60px rgba(118, 75, 162, 0.2)';
+                    break;
+                case 'pressed':
+                    button.style.boxShadow = 'inset 20px 20px 60px rgba(102, 126, 234, 0.2), inset -20px -20px 60px rgba(118, 75, 162, 0.2)';
+                    break;
+                case 'floating':
+                    button.style.boxShadow = '0 20px 40px rgba(102, 126, 234, 0.4), 0 -5px 20px rgba(118, 75, 162, 0.2)';
+                    break;
+            }
+        }
+        
+        function set3DDepth(value) {
+            const button = document.querySelector('.threed-magnetic');
+            button.style.boxShadow = `${value}px ${value}px ${value * 3}px rgba(102, 126, 234, 0.2), -${value}px -${value}px ${value * 3}px rgba(118, 75, 162, 0.2)`;
+            document.getElementById('threeDDepthValue').textContent = value + 'px';
+        }
+        
+        function toggle3DRotation() {
+            const button = document.querySelector('.threed-magnetic');
+            const isRotating = button.style.animation.includes('rotate');
+            
+            if (isRotating) {
+                button.style.animation = '';
+            } else {
+                button.style.animation = 'rotate3D 4s linear infinite';
+            }
+        }
+        
+        // Particle Effects
+        function createParticles(button) {
+            for (let i = 0; i < particleCount; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    
+                    const x = Math.random() * 200 - 100;
+                    const y = Math.random() * 200 - 100;
+                    
+                    particle.style.left = '50%';
+                    particle.style.top = '50%';
+                    particle.style.transform = `translate(${x}px, ${y}px)`;
+                    particle.style.opacity = '1';
+                    particle.style.transition = 'all 2s ease-out';
+                    
+                    button.appendChild(particle);
+                    
+                    setTimeout(() => {
+                        particle.style.opacity = '0';
+                        particle.style.transform = `translate(${x * 2}px, ${y * 2}px) scale(0)`;
+                    }, 50);
+                    
+                    setTimeout(() => {
+                        if (particle.parentNode) {
+                            particle.parentNode.removeChild(particle);
+                        }
+                    }, 2000);
+                }, i * 50);
+            }
+        }
+        
+        function setParticleCount(value) {
+            particleCount = parseInt(value);
+            document.getElementById('particleCountValue').textContent = value;
+        }
+        
+        function setParticleType(type) {
+            currentParticleType = type;
+        }
+        
+        function triggerParticleBurst(button = null) {
+            const targetButton = button || document.querySelector('.particle-magnetic');
+            createParticles(targetButton);
+        }
+        
+        // Ripple Effects
+        function createRipple(e, button) {
+            const rect = button.getBoundingClientRect();
+            const ripple = document.createElement('span');
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+            
+            ripple.className = 'ripple';
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            
+            button.appendChild(ripple);
+            
+            setTimeout(() => {
+                if (ripple.parentNode) {
+                    ripple.parentNode.removeChild(ripple);
+                }
+            }, 600);
+        }
+        
+        function changeRippleColor(color) {
+            const style = document.createElement('style');
+            let rippleColor;
+            
+            switch(color) {
+                case 'white': rippleColor = 'rgba(255, 255, 255, 0.3)'; break;
+                case 'blue': rippleColor = 'rgba(102, 126, 234, 0.3)'; break;
+                case 'gold': rippleColor = 'rgba(255, 215, 0, 0.3)'; break;
+            }
+            
+            style.textContent = `.ripple { background: ${rippleColor} !important; }`;
+            document.head.appendChild(style);
+        }
+        
+        function setRippleSize(value) {
+            const style = document.createElement('style');
+            style.textContent = `.ripple { transform: scale(${value}) !important; }`;
+            document.head.appendChild(style);
+            document.getElementById('rippleSizeValue').textContent = value + 'x';
+        }
+        
+        function toggleAutoRipple() {
+            const button = document.querySelector('.ripple-magnetic');
+            const isAuto = button.hasAttribute('data-auto-ripple');
+            
+            if (isAuto) {
+                button.removeAttribute('data-auto-ripple');
+                clearInterval(button.autoRippleInterval);
+            } else {
+                button.setAttribute('data-auto-ripple', 'true');
+                button.autoRippleInterval = setInterval(() => {
+                    const rect = button.getBoundingClientRect();
+                    const fakeEvent = {
+                        clientX: rect.left + rect.width / 2,
+                        clientY: rect.top + rect.height / 2
+                    };
+                    createRipple(fakeEvent, button);
+                }, 1500);
+            }
+        }
+        
+        // Multi-button field controls
+        function enableMagneticField() {
+            magneticFieldEnabled = true;
+        }
+        
+        function disableMagneticField() {
+            magneticFieldEnabled = false;
+            // Reset all button positions
+            magneticButtons.forEach(btn => {
+                btn.style.transform = 'translate(0px, 0px) scale(1)';
+            });
+        }
+        
+        function randomizePositions() {
+            const container = document.querySelector('.demo-card:last-of-type .button-container');
+            const buttons = container.querySelectorAll('.magnetic-btn');
+            
+            buttons.forEach(btn => {
+                const x = Math.random() * (container.clientWidth - 120);
+                const y = Math.random() * (container.clientHeight - 50);
+                btn.style.position = 'absolute';
+                btn.style.left = x + 'px';
+                btn.style.top = y + 'px';
+            });
+        }
+        
+        function setFieldStrength(value) {
+            magneticStrength = parseFloat(value);
+            document.getElementById('fieldStrengthValue').textContent = value + 'x';
+        }
+        
+        // Custom cursor
+        function setupCustomCursor() {
+            const cursor = document.getElementById('customCursor');
+            
+            document.addEventListener('mousemove', (e) => {
+                if (customCursorEnabled) {
+                    cursor.style.left = e.clientX + 'px';
+                    cursor.style.top = e.clientY + 'px';
+                    cursor.style.opacity = '1';
+                    
+                    // Create trail effect
+                    createCursorTrail(e.clientX, e.clientY);
+                } else {
+                    cursor.style.opacity = '0';
+                }
+            });
+        }
+        
+        function toggleCustomCursor() {
+            customCursorEnabled = !customCursorEnabled;
+            document.body.style.cursor = customCursorEnabled ? 'none' : 'auto';
+        }
+        
+        function createCursorTrail(x, y) {
+            const trail = document.createElement('div');
+            trail.className = 'cursor-trail';
+            trail.style.left = x + 'px';
+            trail.style.top = y + 'px';
+            trail.style.transform = 'translate(-50%, -50%)';
+            
+            document.body.appendChild(trail);
+            
+            setTimeout(() => {
+                trail.style.opacity = '0';
+                trail.style.transform = 'translate(-50%, -50%) scale(0)';
+            }, 100);
+            
+            setTimeout(() => {
+                if (trail.parentNode) {
+                    trail.parentNode.removeChild(trail);
+                }
+            }, 500);
+        }
+        
+        // Utility functions
+        function updateFloatingElements(container, mouseX, mouseY) {
+            const elements = container.querySelectorAll('.floating-element');
+            elements.forEach(el => {
+                const rect = el.getBoundingClientRect();
+                const deltaX = mouseX - (rect.left + rect.width / 2);
+                const deltaY = mouseY - (rect.top + rect.height / 2);
+                const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+                
+                if (distance < 150) {
+                    const attraction = (150 - distance) / 150;
+                    const moveX = deltaX * attraction * 0.2;
+                    const moveY = deltaY * attraction * 0.2;
+                    el.style.transform = `translate(${moveX}px, ${moveY}px)`;
+                }
+            });
+        }
+        
+        function resetFloatingElements(container) {
+            const elements = container.querySelectorAll('.floating-element');
+            elements.forEach(el => {
+                el.style.transform = 'translate(0px, 0px)';
+            });
+        }
+        
+        function setupEventListeners() {
+            // Add keyframe animations
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes neonPulse {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0.7; }
+                }
+                
+                @keyframes rotate3D {
+                    0% { transform: rotateY(0deg); }
+                    100% { transform: rotateY(360deg); }
+                }
+                
+                @keyframes liquidWave {
+                    0% { transform: translateX(0); }
+                    50% { transform: translateX(10px); }
+                    100% { transform: translateX(0); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        // Custom button controls
+        function customizeButton() {
+            const button = document.getElementById('customButton');
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffeaa7', '#dda0dd'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            button.style.background = `linear-gradient(45deg, ${randomColor}, ${randomColor}dd)`;
+            button.style.borderRadius = Math.random() * 30 + 10 + 'px';
+        }
+        
+        function addTrailEffect() {
+            const button = document.getElementById('customButton');
+            button.setAttribute('data-trail', 'true');
+        }
+        
+        function toggleGravityMode() {
+            gravityMode = !gravityMode;
+            event.target.classList.toggle('active');
+        }
+        
+        function setGravity(value) {
+            gravity = parseFloat(value);
+        }
+        
+        function setFriction(value) {
+            friction = parseFloat(value);
+        }
+        
+        function resetCustomButton() {
+            const button = document.getElementById('customButton');
+            button.style.background = '';
+            button.style.borderRadius = '';
+            button.removeAttribute('data-trail');
+            gravityMode = false;
+            gravity = 0;
+            friction = 0.95;
+        }
+    </script>
+</body>
+</html>
