@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Visualizer - Karmakazi</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            color: white;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 2rem 0;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        .title {
+            font-size: clamp(2rem, 6vw, 4rem);
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            margin-bottom: 1rem;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 2rem;
+        }
+        
+        /* Demo Container */
+        .demo-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 3rem;
+            padding: 3rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .demo-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-height: 400px;
+        }
+        
+        .demo-title {
+            font-size: 1.5rem;
+            color: white;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        /* Canvas Containers */
+        .visualizer-container {
+            width: 100%;
+            height: 250px;
+            border-radius: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .visualizer-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        
+        /* Audio Controls */
+        .audio-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .audio-input-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .audio-input {
+            padding: 0.8rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 0.9rem;
+        }
+        
+        .audio-input::file-selector-button {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            margin-right: 1rem;
+            cursor: pointer;
+        }
+        
+        .audio-player {
+            width: 100%;
+            height: 40px;
+            border-radius: 10px;
+        }
+        
+        /* Controls */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .control-btn {
+            padding: 0.6rem 1.2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            font-size: 0.9rem;
+        }
+        
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .control-btn.active {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.7);
+        }
+        
+        /* Slider Controls */
+        .slider-control {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1rem 0;
+            color: white;
+            font-size: 0.9rem;
+        }
+        
+        .slider {
+            flex: 1;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Demo Instructions */
+        .demo-instruction {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-align: center;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .demo-container {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+                gap: 2rem;
+            }
+            
+            .visualizer-container {
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="title">Audio Visualizer</h1>
+        <p class="subtitle">Real-time audio analysis and visual effects</p>
+    </div>
+
+    <div class="demo-container">
+        <!-- Frequency Bars Visualizer -->
+        <div class="demo-card">
+            <h3 class="demo-title">Frequency Bars</h3>
+            <div class="visualizer-container">
+                <canvas class="visualizer-canvas" id="barsCanvas"></canvas>
+            </div>
+            <div class="audio-controls">
+                <div class="audio-input-container">
+                    <input type="file" class="audio-input" id="audioFile1" accept="audio/*">
+                    <audio class="audio-player" id="audioPlayer1" controls></audio>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="control-btn active" onclick="setBarsStyle('classic')">Classic</button>
+                <button class="control-btn" onclick="setBarsStyle('neon')">Neon</button>
+                <button class="control-btn" onclick="setBarsStyle('gradient')">Gradient</button>
+                <button class="control-btn" onclick="toggleMicrophone('bars')">Microphone</button>
+            </div>
+            <div class="slider-control">
+                <span>Bars:</span>
+                <input type="range" class="slider" min="32" max="256" value="128" id="barsCount">
+                <span id="barsCountValue">128</span>
+            </div>
+            <div class="demo-instruction">
+                Upload an audio file or use your microphone to see the frequency visualization
+            </div>
+        </div>
+
+        <!-- Circular Visualizer -->
+        <div class="demo-card">
+            <h3 class="demo-title">Circular Spectrum</h3>
+            <div class="visualizer-container">
+                <canvas class="visualizer-canvas" id="circularCanvas"></canvas>
+            </div>
+            <div class="audio-controls">
+                <div class="audio-input-container">
+                    <input type="file" class="audio-input" id="audioFile2" accept="audio/*">
+                    <audio class="audio-player" id="audioPlayer2" controls></audio>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="control-btn active" onclick="setCircularStyle('bars')">Bars</button>
+                <button class="control-btn" onclick="setCircularStyle('dots')">Dots</button>
+                <button class="control-btn" onclick="setCircularStyle('wave')">Wave</button>
+                <button class="control-btn" onclick="toggleMicrophone('circular')">Microphone</button>
+            </div>
+            <div class="slider-control">
+                <span>Radius:</span>
+                <input type="range" class="slider" min="30" max="100" value="60" id="circularRadius">
+                <span id="circularRadiusValue">60</span>
+            </div>
+        </div>
+
+        <!-- Waveform Visualizer -->
+        <div class="demo-card">
+            <h3 class="demo-title">Waveform</h3>
+            <div class="visualizer-container">
+                <canvas class="visualizer-canvas" id="waveformCanvas"></canvas>
+            </div>
+            <div class="audio-controls">
+                <div class="audio-input-container">
+                    <input type="file" class="audio-input" id="audioFile3" accept="audio/*">
+                    <audio class="audio-player" id="audioPlayer3" controls></audio>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="control-btn active" onclick="setWaveformStyle('line')">Line</button>
+                <button class="control-btn" onclick="setWaveformStyle('filled')">Filled</button>
+                <button class="control-btn" onclick="setWaveformStyle('mirror')">Mirror</button>
+                <button class="control-btn" onclick="toggleMicrophone('waveform')">Microphone</button>
+            </div>
+            <div class="slider-control">
+                <span>Sensitivity:</span>
+                <input type="range" class="slider" min="0.1" max="5" step="0.1" value="2" id="waveformSensitivity">
+                <span id="waveformSensitivityValue">2</span>
+            </div>
+        </div>
+
+        <!-- 3D Spectrum -->
+        <div class="demo-card">
+            <h3 class="demo-title">3D Spectrum</h3>
+            <div class="visualizer-container">
+                <canvas class="visualizer-canvas" id="spectrum3dCanvas"></canvas>
+            </div>
+            <div class="audio-controls">
+                <div class="audio-input-container">
+                    <input type="file" class="audio-input" id="audioFile4" accept="audio/*">
+                    <audio class="audio-player" id="audioPlayer4" controls></audio>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="control-btn active" onclick="set3DStyle('bars')">3D Bars</button>
+                <button class="control-btn" onclick="set3DStyle('cubes')">Cubes</button>
+                <button class="control-btn" onclick="set3DStyle('waves')">Waves</button>
+                <button class="control-btn" onclick="toggleMicrophone('3d')">Microphone</button>
+            </div>
+            <div class="slider-control">
+                <span>Depth:</span>
+                <input type="range" class="slider" min="0.5" max="3" step="0.1" value="1.5" id="spectrum3dDepth">
+                <span id="spectrum3dDepthValue">1.5</span>
+            </div>
+        </div>
+
+        <!-- Particle Visualizer -->
+        <div class="demo-card">
+            <h3 class="demo-title">Particle System</h3>
+            <div class="visualizer-container">
+                <canvas class="visualizer-canvas" id="particleCanvas"></canvas>
+            </div>
+            <div class="audio-controls">
+                <div class="audio-input-container">
+                    <input type="file" class="audio-input" id="audioFile5" accept="audio/*">
+                    <audio class="audio-player" id="audioPlayer5" controls></audio>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="control-btn active" onclick="setParticleStyle('explosion')">Explosion</button>
+                <button class="control-btn" onclick="setParticleStyle('rain')">Rain</button>
+                <button class="control-btn" onclick="setParticleStyle('spiral')">Spiral</button>
+                <button class="control-btn" onclick="toggleMicrophone('particle')">Microphone</button>
+            </div>
+            <div class="slider-control">
+                <span>Particles:</span>
+                <input type="range" class="slider" min="50" max="500" value="200" id="particleCount">
+                <span id="particleCountValue">200</span>
+            </div>
+        </div>
+
+        <!-- Oscilloscope -->
+        <div class="demo-card">
+            <h3 class="demo-title">Oscilloscope</h3>
+            <div class="visualizer-container">
+                <canvas class="visualizer-canvas" id="oscilloscopeCanvas"></canvas>
+            </div>
+            <div class="audio-controls">
+                <div class="audio-input-container">
+                    <input type="file" class="audio-input" id="audioFile6" accept="audio/*">
+                    <audio class="audio-player" id="audioPlayer6" controls></audio>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="control-btn active" onclick="setOscilloscopeStyle('line')">Line</button>
+                <button class="control-btn" onclick="setOscilloscopeStyle('dots')">Dots</button>
+                <button class="control-btn" onclick="setOscilloscopeStyle('glow')">Glow</button>
+                <button class="control-btn" onclick="toggleMicrophone('oscilloscope')">Microphone</button>
+            </div>
+            <div class="slider-control">
+                <span>Time Scale:</span>
+                <input type="range" class="slider" min="0.1" max="5" step="0.1" value="1" id="oscilloscopeTimeScale">
+                <span id="oscilloscopeTimeScaleValue">1</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let audioContexts = {};
+        let analysers = {};
+        let dataArrays = {};
+        let animationFrames = {};
+        let microphoneStreams = {};
+        let isUsingMicrophone = {};
+        
+        // Visualizer settings
+        let barsStyle = 'classic';
+        let circularStyle = 'bars';
+        let waveformStyle = 'line';
+        let spectrum3dStyle = 'bars';
+        let particleStyle = 'explosion';
+        let oscilloscopeStyle = 'line';
+        
+        let barsCount = 128;
+        let circularRadius = 60;
+        let waveformSensitivity = 2;
+        let spectrum3dDepth = 1.5;
+        let particleCount = 200;
+        let oscilloscopeTimeScale = 1;
+        
+        // Initialize all visualizers
+        function initializeVisualizers() {
+            const visualizers = ['bars', 'circular', 'waveform', '3d', 'particle', 'oscilloscope'];
+            
+            visualizers.forEach(type => {
+                setupAudioContext(type);
+                setupFileInput(type);
+                startVisualization(type);
+            });
+        }
+        
+        // Setup audio context for each visualizer
+        function setupAudioContext(type) {
+            audioContexts[type] = new (window.AudioContext || window.webkitAudioContext)();
+            analysers[type] = audioContexts[type].createAnalyser();
+            analysers[type].fftSize = 2048;
+            dataArrays[type] = new Uint8Array(analysers[type].frequencyBinCount);
+            isUsingMicrophone[type] = false;
+        }
+        
+        // Setup file input handlers
+        function setupFileInput(type) {
+            const fileInput = document.getElementById(`audioFile${getFileInputNumber(type)}`);
+            const audioPlayer = document.getElementById(`audioPlayer${getFileInputNumber(type)}`);
+            
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const url = URL.createObjectURL(file);
+                    audioPlayer.src = url;
+                    connectAudioElement(audioPlayer, type);
+                }
+            });
+            
+            audioPlayer.addEventListener('play', () => {
+                if (audioContexts[type].state === 'suspended') {
+                    audioContexts[type].resume();
+                }
+            });
+        }
+        
+        function getFileInputNumber(type) {
+            const mapping = { 'bars': 1, 'circular': 2, 'waveform': 3, '3d': 4, 'particle': 5, 'oscilloscope': 6 };
+            return mapping[type];
+        }
+        
+        // Connect audio element to analyser
+        function connectAudioElement(audioElement, type) {
+            const source = audioContexts[type].createMediaElementSource(audioElement);
+            source.connect(analysers[type]);
+            analysers[type].connect(audioContexts[type].destination);
+        }
+        
+        // Toggle microphone input
+        async function toggleMicrophone(type) {
+            if (isUsingMicrophone[type]) {
+                // Stop microphone
+                if (microphoneStreams[type]) {
+                    microphoneStreams[type].getTracks().forEach(track => track.stop());
+                    microphoneStreams[type] = null;
+                }
+                isUsingMicrophone[type] = false;
+            } else {
+                // Start microphone
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    microphoneStreams[type] = stream;
+                    const source = audioContexts[type].createMediaStreamSource(stream);
+                    source.connect(analysers[type]);
+                    isUsingMicrophone[type] = true;
+                } catch (error) {
+                    console.error('Error accessing microphone:', error);
+                    alert('Could not access microphone. Please check permissions.');
+                }
+            }
+        }
+        
+        // Frequency Bars Visualizer
+        function drawBars() {
+            const canvas = document.getElementById('barsCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            
+            analysers.bars.getByteFrequencyData(dataArrays.bars);
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const barWidth = canvas.width / barsCount;
+            
+            for (let i = 0; i < barsCount; i++) {
+                const barHeight = (dataArrays.bars[i] / 255) * canvas.height;
+                const x = i * barWidth;
+                const y = canvas.height - barHeight;
+                
+                switch (barsStyle) {
+                    case 'classic':
+                        ctx.fillStyle = `hsl(${i * 2}, 70%, 50%)`;
+                        break;
+                    case 'neon':
+                        ctx.fillStyle = `hsl(${i * 2}, 100%, 50%)`;
+                        ctx.shadowBlur = 10;
+                        ctx.shadowColor = `hsl(${i * 2}, 100%, 50%)`;
+                        break;
+                    case 'gradient':
+                        const gradient = ctx.createLinearGradient(0, y, 0, canvas.height);
+                        gradient.addColorStop(0, `hsl(${i * 2}, 70%, 70%)`);
+                        gradient.addColorStop(1, `hsl(${i * 2}, 70%, 30%)`);
+                        ctx.fillStyle = gradient;
+                        break;
+                }
+                
+                ctx.fillRect(x, y, barWidth - 1, barHeight);
+            }
+            
+            animationFrames.bars = requestAnimationFrame(drawBars);
+        }
+        
+        // Circular Spectrum Visualizer
+        function drawCircular() {
+            const canvas = document.getElementById('circularCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            
+            analysers.circular.getByteFrequencyData(dataArrays.circular);
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = circularRadius;
+            
+            const barCount = 128;
+            const angleStep = (Math.PI * 2) / barCount;
+            
+            for (let i = 0; i < barCount; i++) {
+                const angle = i * angleStep;
+                const barHeight = (dataArrays.circular[i] / 255) * 100;
+                
+                const x1 = centerX + Math.cos(angle) * radius;
+                const y1 = centerY + Math.sin(angle) * radius;
+                const x2 = centerX + Math.cos(angle) * (radius + barHeight);
+                const y2 = centerY + Math.sin(angle) * (radius + barHeight);
+                
+                ctx.strokeStyle = `hsl(${i * 3}, 70%, 50%)`;
+                ctx.lineWidth = 3;
+                
+                switch (circularStyle) {
+                    case 'bars':
+                        ctx.beginPath();
+                        ctx.moveTo(x1, y1);
+                        ctx.lineTo(x2, y2);
+                        ctx.stroke();
+                        break;
+                    case 'dots':
+                        ctx.fillStyle = `hsl(${i * 3}, 70%, 50%)`;
+                        ctx.beginPath();
+                        ctx.arc(x2, y2, 3, 0, Math.PI * 2);
+                        ctx.fill();
+                        break;
+                    case 'wave':
+                        if (i === 0) ctx.beginPath();
+                        if (i === 0) ctx.moveTo(x2, y2);
+                        else ctx.lineTo(x2, y2);
+                        if (i === barCount - 1) {
+                            ctx.strokeStyle = '#00ffff';
+                            ctx.lineWidth = 2;
+                            ctx.stroke();
+                        }
+                        break;
+                }
+            }
+            
+            animationFrames.circular = requestAnimationFrame(drawCircular);
+        }
+        
+        // Waveform Visualizer
+        function drawWaveform() {
+            const canvas = document.getElementById('waveformCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            
+            analysers.waveform.getByteTimeDomainData(dataArrays.waveform);
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.strokeStyle = '#00ffff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            const sliceWidth = canvas.width / dataArrays.waveform.length;
+            let x = 0;
+            
+            for (let i = 0; i < dataArrays.waveform.length; i++) {
+                const v = (dataArrays.waveform[i] / 128.0) * waveformSensitivity;
+                const y = (v * canvas.height) / 2;
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+                
+                x += sliceWidth;
+            }
+            
+            switch (waveformStyle) {
+                case 'line':
+                    ctx.stroke();
+                    break;
+                case 'filled':
+                    ctx.lineTo(canvas.width, canvas.height);
+                    ctx.lineTo(0, canvas.height);
+                    ctx.closePath();
+                    ctx.fillStyle = 'rgba(0, 255, 255, 0.3)';
+                    ctx.fill();
+                    ctx.stroke();
+                    break;
+                case 'mirror':
+                    ctx.stroke();
+                    // Draw mirror
+                    ctx.beginPath();
+                    x = 0;
+                    for (let i = 0; i < dataArrays.waveform.length; i++) {
+                        const v = (dataArrays.waveform[i] / 128.0) * waveformSensitivity;
+                        const y = canvas.height - (v * canvas.height) / 2;
+                        
+                        if (i === 0) {
+                            ctx.moveTo(x, y);
+                        } else {
+                            ctx.lineTo(x, y);
+                        }
+                        
+                        x += sliceWidth;
+                    }
+                    ctx.strokeStyle = 'rgba(0, 255, 255, 0.5)';
+                    ctx.stroke();
+                    break;
+            }
+            
+            animationFrames.waveform = requestAnimationFrame(drawWaveform);
+        }
+        
+        // 3D Spectrum Visualizer
+        function draw3DSpectrum() {
+            const canvas = document.getElementById('spectrum3dCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            
+            analysers['3d'].getByteFrequencyData(dataArrays['3d']);
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const barCount = 64;
+            const barWidth = canvas.width / barCount;
+            
+            for (let i = 0; i < barCount; i++) {
+                const barHeight = (dataArrays['3d'][i] / 255) * canvas.height * 0.8;
+                const x = i * barWidth;
+                const y = canvas.height - barHeight;
+                
+                // 3D effect
+                const depthOffset = barHeight * spectrum3dDepth * 0.3;
+                
+                switch (spectrum3dStyle) {
+                    case 'bars':
+                        // Front face
+                        ctx.fillStyle = `hsl(${i * 4}, 70%, 50%)`;
+                        ctx.fillRect(x, y, barWidth - 2, barHeight);
+                        
+                        // Top face
+                        ctx.fillStyle = `hsl(${i * 4}, 70%, 70%)`;
+                        ctx.beginPath();
+                        ctx.moveTo(x, y);
+                        ctx.lineTo(x + depthOffset, y - depthOffset);
+                        ctx.lineTo(x + barWidth + depthOffset, y - depthOffset);
+                        ctx.lineTo(x + barWidth, y);
+                        ctx.closePath();
+                        ctx.fill();
+                        
+                        // Side face
+                        ctx.fillStyle = `hsl(${i * 4}, 70%, 30%)`;
+                        ctx.beginPath();
+                        ctx.moveTo(x + barWidth, y);
+                        ctx.lineTo(x + barWidth + depthOffset, y - depthOffset);
+                        ctx.lineTo(x + barWidth + depthOffset, canvas.height - depthOffset);
+                        ctx.lineTo(x + barWidth, canvas.height);
+                        ctx.closePath();
+                        ctx.fill();
+                        break;
+                        
+                    case 'cubes':
+                        const cubeSize = Math.min(barWidth - 2, barHeight / 3);
+                        const cubesPerBar = Math.floor(barHeight / cubeSize);
+                        
+                        for (let j = 0; j < cubesPerBar; j++) {
+                            const cubeY = canvas.height - (j + 1) * cubeSize;
+                            const cubeDepth = cubeSize * 0.3;
+                            
+                            // Front face
+                            ctx.fillStyle = `hsl(${i * 4 + j * 10}, 70%, 50%)`;
+                            ctx.fillRect(x, cubeY, cubeSize, cubeSize);
+                            
+                            // Top face
+                            ctx.fillStyle = `hsl(${i * 4 + j * 10}, 70%, 70%)`;
+                            ctx.beginPath();
+                            ctx.moveTo(x, cubeY);
+                            ctx.lineTo(x + cubeDepth, cubeY - cubeDepth);
+                            ctx.lineTo(x + cubeSize + cubeDepth, cubeY - cubeDepth);
+                            ctx.lineTo(x + cubeSize, cubeY);
+                            ctx.closePath();
+                            ctx.fill();
+                            
+                            // Side face
+                            ctx.fillStyle = `hsl(${i * 4 + j * 10}, 70%, 30%)`;
+                            ctx.beginPath();
+                            ctx.moveTo(x + cubeSize, cubeY);
+                            ctx.lineTo(x + cubeSize + cubeDepth, cubeY - cubeDepth);
+                            ctx.lineTo(x + cubeSize + cubeDepth, cubeY + cubeSize - cubeDepth);
+                            ctx.lineTo(x + cubeSize, cubeY + cubeSize);
+                            ctx.closePath();
+                            ctx.fill();
+                        }
+                        break;
+                        
+                    case 'waves':
+                        ctx.strokeStyle = `hsl(${i * 4}, 70%, 50%)`;
+                        ctx.lineWidth = 3;
+                        ctx.beginPath();
+                        ctx.moveTo(x, canvas.height);
+                        ctx.quadraticCurveTo(x + barWidth/2, y, x + barWidth, canvas.height);
+                        ctx.stroke();
+                        
+                        // 3D wave effect
+                        ctx.strokeStyle = `hsl(${i * 4}, 70%, 30%)`;
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.moveTo(x + depthOffset, canvas.height - depthOffset);
+                        ctx.quadraticCurveTo(x + barWidth/2 + depthOffset, y - depthOffset, x + barWidth + depthOffset, canvas.height - depthOffset);
+                        ctx.stroke();
+                        break;
+                }
+            }
+            
+            animationFrames['3d'] = requestAnimationFrame(draw3DSpectrum);
+        }
+        
+        // Particle System Visualizer
+        function drawParticles() {
+            const canvas = document.getElementById('particleCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            
+            analysers.particle.getByteFrequencyData(dataArrays.particle);
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            
+            // Calculate average frequency for particle intensity
+            const average = dataArrays.particle.reduce((a, b) => a + b, 0) / dataArrays.particle.length;
+            const intensity = average / 255;
+            
+            switch (particleStyle) {
+                case 'explosion':
+                    for (let i = 0; i < particleCount; i++) {
+                        const angle = (i / particleCount) * Math.PI * 2;
+                        const distance = intensity * 100;
+                        const x = centerX + Math.cos(angle) * distance;
+                        const y = centerY + Math.sin(angle) * distance;
+                        
+                        ctx.fillStyle = `hsl(${i % 360}, 70%, 50%)`;
+                        ctx.beginPath();
+                        ctx.arc(x, y, intensity * 3 + 1, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                    break;
+                    
+                case 'rain':
+                    for (let i = 0; i < particleCount; i++) {
+                        const x = (i / particleCount) * canvas.width;
+                        const y = Math.random() * canvas.height;
+                        const size = (dataArrays.particle[i % dataArrays.particle.length] / 255) * 5;
+                        
+                        ctx.fillStyle = `hsl(${200 + i % 60}, 70%, 50%)`;
+                        ctx.beginPath();
+                        ctx.arc(x, y, size, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                    break;
+                    
+                case 'spiral':
+                    for (let i = 0; i < particleCount; i++) {
+                        const angle = (i / particleCount) * Math.PI * 8;
+                        const distance = (i / particleCount) * 100 * intensity;
+                        const x = centerX + Math.cos(angle) * distance;
+                        const y = centerY + Math.sin(angle) * distance;
+                        
+                        ctx.fillStyle = `hsl(${angle * 20}, 70%, 50%)`;
+                        ctx.beginPath();
+                        ctx.arc(x, y, intensity * 2 + 1, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                    break;
+            }
+            
+            animationFrames.particle = requestAnimationFrame(drawParticles);
+        }
+        
+        // Oscilloscope Visualizer
+        function drawOscilloscope() {
+            const canvas = document.getElementById('oscilloscopeCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            
+            analysers.oscilloscope.getByteTimeDomainData(dataArrays.oscilloscope);
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            switch (oscilloscopeStyle) {
+                case 'line':
+                    ctx.strokeStyle = '#00ff00';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    
+                    const sliceWidth = canvas.width / dataArrays.oscilloscope.length;
+                    let x = 0;
+                    
+                    for (let i = 0; i < dataArrays.oscilloscope.length; i++) {
+                        const v = dataArrays.oscilloscope[i] / 128.0;
+                        const y = v * canvas.height / 2 * oscilloscopeTimeScale;
+                        
+                        if (i === 0) {
+                            ctx.moveTo(x, y);
+                        } else {
+                            ctx.lineTo(x, y);
+                        }
+                        
+                        x += sliceWidth;
+                    }
+                    
+                    ctx.stroke();
+                    break;
+                    
+                case 'dots':
+                    for (let i = 0; i < dataArrays.oscilloscope.length; i += 4) {
+                        const v = dataArrays.oscilloscope[i] / 128.0;
+                        const x = (i / dataArrays.oscilloscope.length) * canvas.width;
+                        const y = v * canvas.height / 2 * oscilloscopeTimeScale;
+                        
+                        ctx.fillStyle = `hsl(${i % 360}, 70%, 50%)`;
+                        ctx.beginPath();
+                        ctx.arc(x, y, 2, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                    break;
+                    
+                case 'glow':
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = '#00ff00';
+                    ctx.strokeStyle = '#00ff00';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    
+                    const glowSliceWidth = canvas.width / dataArrays.oscilloscope.length;
+                    let glowX = 0;
+                    
+                    for (let i = 0; i < dataArrays.oscilloscope.length; i++) {
+                        const v = dataArrays.oscilloscope[i] / 128.0;
+                        const y = v * canvas.height / 2 * oscilloscopeTimeScale;
+                        
+                        if (i === 0) {
+                            ctx.moveTo(glowX, y);
+                        } else {
+                            ctx.lineTo(glowX, y);
+                        }
+                        
+                        glowX += glowSliceWidth;
+                    }
+                    
+                    ctx.stroke();
+                    break;
+            }
+            
+            animationFrames.oscilloscope = requestAnimationFrame(drawOscilloscope);
+        }
+        
+        // Start visualization for each type
+        function startVisualization(type) {
+            switch (type) {
+                case 'bars':
+                    drawBars();
+                    break;
+                case 'circular':
+                    drawCircular();
+                    break;
+                case 'waveform':
+                    drawWaveform();
+                    break;
+                case '3d':
+                    draw3DSpectrum();
+                    break;
+                case 'particle':
+                    drawParticles();
+                    break;
+                case 'oscilloscope':
+                    drawOscilloscope();
+                    break;
+            }
+        }
+        
+        // Control functions
+        function setBarsStyle(style) {
+            barsStyle = style;
+        }
+        
+        function setCircularStyle(style) {
+            circularStyle = style;
+        }
+        
+        function setWaveformStyle(style) {
+            waveformStyle = style;
+        }
+        
+        function set3DStyle(style) {
+            spectrum3dStyle = style;
+        }
+        
+        function setParticleStyle(style) {
+            particleStyle = style;
+        }
+        
+        function setOscilloscopeStyle(style) {
+            oscilloscopeStyle = style;
+        }
+        
+        // Slider event listeners
+        document.getElementById('barsCount').addEventListener('input', (e) => {
+            barsCount = parseInt(e.target.value);
+            document.getElementById('barsCountValue').textContent = barsCount;
+        });
+        
+        document.getElementById('circularRadius').addEventListener('input', (e) => {
+            circularRadius = parseInt(e.target.value);
+            document.getElementById('circularRadiusValue').textContent = circularRadius;
+        });
+        
+        document.getElementById('waveformSensitivity').addEventListener('input', (e) => {
+            waveformSensitivity = parseFloat(e.target.value);
+            document.getElementById('waveformSensitivityValue').textContent = waveformSensitivity;
+        });
+        
+        document.getElementById('spectrum3dDepth').addEventListener('input', (e) => {
+            spectrum3dDepth = parseFloat(e.target.value);
+            document.getElementById('spectrum3dDepthValue').textContent = spectrum3dDepth;
+        });
+        
+        document.getElementById('particleCount').addEventListener('input', (e) => {
+            particleCount = parseInt(e.target.value);
+            document.getElementById('particleCountValue').textContent = particleCount;
+        });
+        
+        document.getElementById('oscilloscopeTimeScale').addEventListener('input', (e) => {
+            oscilloscopeTimeScale = parseFloat(e.target.value);
+            document.getElementById('oscilloscopeTimeScaleValue').textContent = oscilloscopeTimeScale;
+        });
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeVisualizers();
+        });
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            // Canvases will automatically resize on next frame
+        });
+    </script>
+</body>
+</html>
