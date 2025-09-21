@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glitch Text Effect - Karmakazi</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        /* Animated background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    rgba(0, 0, 0, 0) 0,
+                    rgba(0, 0, 0, 0) 2px,
+                    rgba(0, 255, 0, 0.03) 2px,
+                    rgba(0, 255, 0, 0.03) 4px
+                );
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .container {
+            position: relative;
+            z-index: 2;
+            padding: 100px 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+        
+        /* Main Glitch Title */
+        .glitch-title {
+            font-size: clamp(4rem, 10vw, 8rem);
+            font-weight: 700;
+            text-transform: uppercase;
+            position: relative;
+            color: #fff;
+            letter-spacing: 0.05em;
+            animation: glitch-skew 1s infinite linear alternate-reverse;
+        }
+        
+        .glitch-title::before,
+        .glitch-title::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .glitch-title::before {
+            animation: glitch-1 0.5s infinite;
+            color: #00ffff;
+            z-index: -1;
+        }
+        
+        .glitch-title::after {
+            animation: glitch-2 0.5s infinite;
+            color: #ff00ff;
+            z-index: -2;
+        }
+        
+        @keyframes glitch-1 {
+            0% {
+                clip-path: polygon(0 2%, 100% 2%, 100% 5%, 0 5%);
+                transform: translate(-2px);
+            }
+            10% {
+                clip-path: polygon(0 15%, 100% 15%, 100% 15%, 0 15%);
+                transform: translate(2px);
+            }
+            20% {
+                clip-path: polygon(0 10%, 100% 10%, 100% 20%, 0 20%);
+                transform: translate(-2px);
+            }
+            30% {
+                clip-path: polygon(0 1%, 100% 1%, 100% 2%, 0 2%);
+                transform: translate(0);
+            }
+            40% {
+                clip-path: polygon(0 33%, 100% 33%, 100% 33%, 0 33%);
+                transform: translate(2px);
+            }
+            50% {
+                clip-path: polygon(0 44%, 100% 44%, 100% 44%, 0 44%);
+                transform: translate(-1px);
+            }
+            60% {
+                clip-path: polygon(0 50%, 100% 50%, 100% 52%, 0 52%);
+                transform: translate(2px);
+            }
+            70% {
+                clip-path: polygon(0 70%, 100% 70%, 100% 70%, 0 70%);
+                transform: translate(-2px);
+            }
+            80% {
+                clip-path: polygon(0 80%, 100% 80%, 100% 80%, 0 80%);
+                transform: translate(2px);
+            }
+            90% {
+                clip-path: polygon(0 50%, 100% 50%, 100% 55%, 0 55%);
+                transform: translate(-1px);
+            }
+            100% {
+                clip-path: polygon(0 70%, 100% 70%, 100% 80%, 0 80%);
+                transform: translate(0);
+            }
+        }
+        
+        @keyframes glitch-2 {
+            0% {
+                clip-path: polygon(0 25%, 100% 25%, 100% 30%, 0 30%);
+                transform: translate(2px);
+            }
+            15% {
+                clip-path: polygon(0 3%, 100% 3%, 100% 3%, 0 3%);
+                transform: translate(-2px);
+            }
+            25% {
+                clip-path: polygon(0 5%, 100% 5%, 100% 20%, 0 20%);
+                transform: translate(2px);
+            }
+            35% {
+                clip-path: polygon(0 20%, 100% 20%, 100% 20%, 0 20%);
+                transform: translate(-2px);
+            }
+            45% {
+                clip-path: polygon(0 40%, 100% 40%, 100% 40%, 0 40%);
+                transform: translate(2px);
+            }
+            55% {
+                clip-path: polygon(0 60%, 100% 60%, 100% 60%, 0 60%);
+                transform: translate(-1px);
+            }
+            65% {
+                clip-path: polygon(0 30%, 100% 30%, 100% 35%, 0 35%);
+                transform: translate(1px);
+            }
+            75% {
+                clip-path: polygon(0 45%, 100% 45%, 100% 46%, 0 46%);
+                transform: translate(-2px);
+            }
+            85% {
+                clip-path: polygon(0 65%, 100% 65%, 100% 70%, 0 70%);
+                transform: translate(2px);
+            }
+            95% {
+                clip-path: polygon(0 80%, 100% 80%, 100% 85%, 0 85%);
+                transform: translate(-1px);
+            }
+            100% {
+                clip-path: polygon(0 90%, 100% 90%, 100% 95%, 0 95%);
+                transform: translate(0);
+            }
+        }
+        
+        @keyframes glitch-skew {
+            0% { transform: skew(0deg); }
+            10% { transform: skew(-1deg); }
+            20% { transform: skew(0deg); }
+            30% { transform: skew(1deg); }
+            40% { transform: skew(0deg); }
+            50% { transform: skew(-0.5deg); }
+            60% { transform: skew(0deg); }
+            70% { transform: skew(0.5deg); }
+            80% { transform: skew(0deg); }
+            90% { transform: skew(-1deg); }
+            100% { transform: skew(0deg); }
+        }
+        
+        /* Demo Sections */
+        .demo-section {
+            margin: 4rem 0;
+            padding: 2rem;
+            border: 1px solid #333;
+            background: rgba(0, 0, 0, 0.5);
+        }
+        
+        .demo-title {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: #0f0;
+            text-shadow: 0 0 10px #0f0;
+        }
+        
+        /* RGB Shift Glitch */
+        .rgb-glitch {
+            font-size: 3rem;
+            font-weight: 700;
+            text-align: center;
+            margin: 2rem 0;
+            animation: rgb-shift 2s infinite;
+        }
+        
+        @keyframes rgb-shift {
+            0%, 100% {
+                text-shadow: 
+                    -2px 0 #ff0000,
+                    2px 0 #00ffff;
+            }
+            25% {
+                text-shadow: 
+                    2px 0 #ff0000,
+                    -2px 0 #00ffff;
+            }
+            50% {
+                text-shadow: 
+                    -2px 2px #ff0000,
+                    2px -2px #00ffff;
+            }
+            75% {
+                text-shadow: 
+                    2px -2px #ff0000,
+                    -2px 2px #00ffff;
+            }
+        }
+        
+        /* Digital Glitch */
+        .digital-glitch {
+            font-size: 2rem;
+            text-align: center;
+            margin: 2rem 0;
+            position: relative;
+        }
+        
+        .digital-glitch span {
+            display: inline-block;
+            animation: digital-flicker 0.1s infinite;
+        }
+        
+        @keyframes digital-flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
+        /* Matrix Rain Effect */
+        .matrix-container {
+            position: relative;
+            height: 400px;
+            overflow: hidden;
+            background: #000;
+            margin: 2rem 0;
+        }
+        
+        .matrix-column {
+            position: absolute;
+            top: -100%;
+            font-size: 20px;
+            color: #0f0;
+            text-shadow: 0 0 10px #0f0;
+            animation: matrix-fall linear infinite;
+        }
+        
+        @keyframes matrix-fall {
+            to {
+                top: 100%;
+            }
+        }
+        
+        /* Corrupted Text */
+        .corrupted-text {
+            font-size: 1.5rem;
+            line-height: 1.8;
+            margin: 2rem 0;
+        }
+        
+        .corrupt {
+            display: inline-block;
+            position: relative;
+        }
+        
+        .corrupt:hover {
+            animation: corrupt 0.3s infinite;
+        }
+        
+        @keyframes corrupt {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-2px) scaleX(1.1); }
+            40% { transform: translateX(2px) scaleY(0.9); }
+            60% { transform: translateX(-1px) skew(1deg); }
+            80% { transform: translateX(1px) scaleX(0.95); }
+        }
+        
+        /* VHS Effect */
+        .vhs-text {
+            font-size: 3rem;
+            font-weight: 700;
+            text-align: center;
+            margin: 2rem 0;
+            animation: vhs-glitch 0.5s infinite;
+            position: relative;
+        }
+        
+        .vhs-text::before {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: -2px;
+            color: rgba(255, 0, 0, 0.7);
+            animation: vhs-glitch-1 0.5s infinite;
+        }
+        
+        .vhs-text::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 2px;
+            color: rgba(0, 255, 255, 0.7);
+            animation: vhs-glitch-2 0.5s infinite;
+        }
+        
+        @keyframes vhs-glitch {
+            0%, 100% { transform: translateY(0); }
+            20% { transform: translateY(2px); }
+            40% { transform: translateY(-2px); }
+            60% { transform: translateY(1px); }
+        }
+        
+        @keyframes vhs-glitch-1 {
+            0%, 100% { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
+            50% { clip-path: polygon(0 20%, 100% 20%, 100% 80%, 0 80%); }
+        }
+        
+        @keyframes vhs-glitch-2 {
+            0%, 100% { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
+            50% { clip-path: polygon(0 30%, 100% 30%, 100% 70%, 0 70%); }
+        }
+        
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 2rem 0;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: 1px solid #0f0;
+            color: #0f0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+        }
+        
+        .btn:hover {
+            background: #0f0;
+            color: #000;
+            box-shadow: 0 0 20px #0f0;
+        }
+        
+        /* Scanlines */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(
+                    transparent 50%,
+                    rgba(0, 0, 0, 0.25) 50%
+                );
+            background-size: 100% 4px;
+            pointer-events: none;
+            animation: scanlines 8s linear infinite;
+            z-index: 3;
+        }
+        
+        @keyframes scanlines {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 10px; }
+        }
+        
+        /* Input Field */
+        .glitch-input {
+            width: 100%;
+            max-width: 500px;
+            padding: 1rem;
+            background: #000;
+            border: 1px solid #0f0;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            margin: 1rem auto;
+            display: block;
+        }
+        
+        .glitch-input:focus {
+            outline: none;
+            box-shadow: 0 0 20px #0f0;
+            animation: input-glitch 0.3s;
+        }
+        
+        @keyframes input-glitch {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .back-button {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            background: #000;
+            border: 1px solid #0f0;
+            color: #0f0;
+            padding: 0.75rem 1.5rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .back-button:hover {
+            background: #0f0;
+            color: #000;
+            box-shadow: 0 0 20px #0f0;
+            transform: translateX(-5px);
+        }
+        
+        .back-button::before {
+            content: '←';
+            font-size: 1.25rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="scanlines"></div>
+    
+    <a href="../index.html" class="back-button">Back to Gallery</a>
+    
+    <div class="container">
+        <div class="header">
+            <h1 class="glitch-title" data-text="GLITCH EFFECT">GLITCH EFFECT</h1>
+            <p style="color: #0f0; font-size: 1.25rem; text-align: center;">
+                Cyberpunk-inspired distortion animations
+            </p>
+        </div>
+        
+        <!-- RGB Shift Demo -->
+        <div class="demo-section">
+            <h2 class="demo-title">&gt; RGB SHIFT</h2>
+            <div class="rgb-glitch">CHROMATIC ABERRATION</div>
+            <p style="color: #0f0; text-align: center;">
+                Classic RGB channel separation effect
+            </p>
+        </div>
+        
+        <!-- Digital Glitch Demo -->
+        <div class="demo-section">
+            <h2 class="demo-title">&gt; DIGITAL CORRUPTION</h2>
+            <div class="digital-glitch" id="digital-text"></div>
+            <div class="controls">
+                <button class="btn" onclick="startDigitalGlitch()">Activate</button>
+                <button class="btn" onclick="stopDigitalGlitch()">Stabilize</button>
+            </div>
+        </div>
+        
+        <!-- VHS Effect -->
+        <div class="demo-section">
+            <h2 class="demo-title">&gt; VHS TRACKING</h2>
+            <div class="vhs-text" data-text="RETRO WAVE">RETRO WAVE</div>
+            <p style="color: #0f0; text-align: center; margin-top: 1rem;">
+                Old school VHS tracking error simulation
+            </p>
+        </div>
+        
+        <!-- Matrix Rain -->
+        <div class="demo-section">
+            <h2 class="demo-title">&gt; MATRIX RAIN</h2>
+            <div class="matrix-container" id="matrix"></div>
+            <div class="controls">
+                <button class="btn" onclick="toggleMatrix()">Toggle Rain</button>
+                <button class="btn" onclick="changeMatrixSpeed()">Change Speed</button>
+            </div>
+        </div>
+        
+        <!-- Corrupted Text -->
+        <div class="demo-section">
+            <h2 class="demo-title">&gt; HOVER CORRUPTION</h2>
+            <div class="corrupted-text">
+                <span class="corrupt">Hover</span> 
+                <span class="corrupt">over</span> 
+                <span class="corrupt">these</span> 
+                <span class="corrupt">words</span> 
+                <span class="corrupt">to</span> 
+                <span class="corrupt">corrupt</span> 
+                <span class="corrupt">them.</span>
+                <span class="corrupt">Each</span>
+                <span class="corrupt">word</span>
+                <span class="corrupt">glitches</span>
+                <span class="corrupt">independently</span>
+                <span class="corrupt">when</span>
+                <span class="corrupt">touched.</span>
+            </div>
+        </div>
+        
+        <!-- Interactive Input -->
+        <div class="demo-section">
+            <h2 class="demo-title">&gt; GLITCH INPUT</h2>
+            <input type="text" class="glitch-input" id="glitchInput" placeholder="TYPE SOMETHING...">
+            <div style="text-align: center; margin-top: 2rem;">
+                <div id="glitchOutput" style="font-size: 2rem; color: #0f0;"></div>
+            </div>
+        </div>
+        
+        <!-- Code Display -->
+        <div class="demo-section">
+            <h2 class="demo-title">&gt; IMPLEMENTATION</h2>
+            <pre style="color: #0f0; overflow-x: auto;"><code>/* CSS Glitch Effect */
+.glitch {
+    position: relative;
+    color: white;
+    animation: glitch-skew 1s infinite;
+}
+
+.glitch::before,
+.glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.glitch::before {
+    animation: glitch-1 0.5s infinite;
+    color: #00ffff;
+    z-index: -1;
+}
+
+.glitch::after {
+    animation: glitch-2 0.5s infinite;
+    color: #ff00ff;
+    z-index: -2;
+}
+
+@keyframes glitch-1 {
+    0% {
+        clip-path: polygon(0 2%, 100% 2%, 100% 5%, 0 5%);
+        transform: translate(-2px);
+    }
+    /* ... more keyframes ... */
+}</code></pre>
+        </div>
+    </div>
+    
+    <script>
+        // Digital Glitch Effect
+        let digitalGlitchInterval;
+        const glitchChars = '!@#$%^&*()_+-=[]{}|;:,.<>?/~`';
+        
+        function startDigitalGlitch() {
+            const element = document.getElementById('digital-text');
+            const originalText = 'SYSTEM.ERROR.DETECTED';
+            
+            digitalGlitchInterval = setInterval(() => {
+                let glitchedText = '';
+                for (let i = 0; i < originalText.length; i++) {
+                    if (Math.random() > 0.7) {
+                        glitchedText += `<span style="color: #${Math.random() > 0.5 ? 'ff0000' : '00ffff'}">${
+                            glitchChars[Math.floor(Math.random() * glitchChars.length)]
+                        }</span>`;
+                    } else {
+                        glitchedText += originalText[i];
+                    }
+                }
+                element.innerHTML = glitchedText;
+            }, 50);
+        }
+        
+        function stopDigitalGlitch() {
+            clearInterval(digitalGlitchInterval);
+            document.getElementById('digital-text').innerHTML = 'SYSTEM.STABILIZED';
+        }
+        
+        // Matrix Rain Effect
+        let matrixInterval;
+        let matrixActive = false;
+        let matrixSpeed = 100;
+        
+        function createMatrixRain() {
+            const container = document.getElementById('matrix');
+            const width = container.offsetWidth;
+            const columnCount = Math.floor(width / 20);
+            
+            for (let i = 0; i < columnCount; i++) {
+                const column = document.createElement('div');
+                column.className = 'matrix-column';
+                column.style.left = i * 20 + 'px';
+                column.style.animationDuration = (Math.random() * 5 + 5) + 's';
+                column.style.animationDelay = Math.random() * 5 + 's';
+                
+                // Generate random characters
+                let text = '';
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()';
+                for (let j = 0; j < 30; j++) {
+                    text += chars[Math.floor(Math.random() * chars.length)] + '<br>';
+                }
+                column.innerHTML = text;
+                
+                container.appendChild(column);
+            }
+        }
+        
+        function toggleMatrix() {
+            const container = document.getElementById('matrix');
+            if (matrixActive) {
+                container.innerHTML = '';
+                matrixActive = false;
+            } else {
+                createMatrixRain();
+                matrixActive = true;
+            }
+        }
+        
+        function changeMatrixSpeed() {
+            const columns = document.querySelectorAll('.matrix-column');
+            columns.forEach(column => {
+                const newDuration = (Math.random() * 3 + 2) + 's';
+                column.style.animationDuration = newDuration;
+            });
+        }
+        
+        // Interactive Glitch Input
+        const glitchInput = document.getElementById('glitchInput');
+        const glitchOutput = document.getElementById('glitchOutput');
+        
+        glitchInput.addEventListener('input', (e) => {
+            const text = e.target.value;
+            let output = '';
+            
+            for (let i = 0; i < text.length; i++) {
+                if (Math.random() > 0.8) {
+                    // Glitch this character
+                    const effects = [
+                        `<span style="color: #ff0000; transform: translateY(-2px); display: inline-block;">${text[i]}</span>`,
+                        `<span style="color: #00ffff; transform: translateX(1px); display: inline-block;">${text[i]}</span>`,
+                        `<span style="color: #ff00ff; transform: scale(1.2); display: inline-block;">${text[i]}</span>`,
+                        `<span style="opacity: 0.5;">${text[i]}</span>`,
+                        `<span style="text-decoration: line-through;">${text[i]}</span>`
+                    ];
+                    output += effects[Math.floor(Math.random() * effects.length)];
+                } else {
+                    output += text[i];
+                }
+            }
+            
+            glitchOutput.innerHTML = output || 'START TYPING...';
+            
+            // Random glitch animation on the input
+            if (Math.random() > 0.9) {
+                glitchInput.style.transform = `translateX(${Math.random() * 4 - 2}px)`;
+                setTimeout(() => {
+                    glitchInput.style.transform = 'translateX(0)';
+                }, 100);
+            }
+        });
+        
+        // Auto-start matrix rain
+        window.addEventListener('load', () => {
+            createMatrixRain();
+            matrixActive = true;
+            
+            // Start digital glitch after delay
+            setTimeout(startDigitalGlitch, 1000);
+        });
+        
+        // Random page glitches
+        setInterval(() => {
+            if (Math.random() > 0.95) {
+                document.body.style.transform = `translateX(${Math.random() * 4 - 2}px)`;
+                setTimeout(() => {
+                    document.body.style.transform = 'translateX(0)';
+                }, 50);
+            }
+        }, 2000);
+        
+        // Hover effect enhancement
+        document.querySelectorAll('.corrupt').forEach(element => {
+            element.addEventListener('mouseenter', function() {
+                const originalText = this.textContent;
+                const glitchInterval = setInterval(() => {
+                    let newText = '';
+                    for (let i = 0; i < originalText.length; i++) {
+                        if (Math.random() > 0.7) {
+                            newText += glitchChars[Math.floor(Math.random() * glitchChars.length)];
+                        } else {
+                            newText += originalText[i];
+                        }
+                    }
+                    this.textContent = newText;
+                }, 50);
+                
+                this.addEventListener('mouseleave', function() {
+                    clearInterval(glitchInterval);
+                    this.textContent = originalText;
+                }, { once: true });
+            });
+        });
+    </script>
+</body>
+</html>
