@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scramble Text Effects - Karmakazi</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            color: white;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 2rem 0;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        .title {
+            font-size: clamp(2rem, 6vw, 4rem);
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            margin-bottom: 1rem;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 2rem;
+        }
+        
+        /* Demo Container */
+        .demo-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 3rem;
+            padding: 3rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .demo-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-height: 400px;
+        }
+        
+        .demo-title {
+            font-size: 1.5rem;
+            color: white;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        /* Text Container */
+        .text-container {
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            margin: 1rem 0;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .text-container:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Basic Scramble Text */
+        .scramble-text {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+            letter-spacing: 0.1em;
+            position: relative;
+        }
+        
+        /* Matrix Style */
+        .matrix-scramble {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #00ff41;
+            font-family: 'Courier New', monospace;
+            text-shadow: 
+                0 0 5px #00ff41,
+                0 0 10px #00ff41,
+                0 0 15px #00ff41;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 1rem;
+            border-radius: 10px;
+            letter-spacing: 0.15em;
+        }
+        
+        /* Glitch Style */
+        .glitch-scramble {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #ff0080;
+            font-family: 'Arial', sans-serif;
+            text-transform: uppercase;
+            position: relative;
+            animation: glitchFlicker 2s infinite;
+        }
+        
+        .glitch-scramble::before,
+        .glitch-scramble::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .glitch-scramble::before {
+            animation: glitchBefore 2s infinite;
+            color: #00ffff;
+            z-index: -1;
+        }
+        
+        .glitch-scramble::after {
+            animation: glitchAfter 2s infinite;
+            color: #ffff00;
+            z-index: -2;
+        }
+        
+        @keyframes glitchFlicker {
+            0%, 100% { opacity: 1; }
+            98% { opacity: 1; }
+            99% { opacity: 0.8; }
+        }
+        
+        @keyframes glitchBefore {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+        
+        @keyframes glitchAfter {
+            0% { transform: translate(0); }
+            20% { transform: translate(2px, -2px); }
+            40% { transform: translate(2px, 2px); }
+            60% { transform: translate(-2px, -2px); }
+            80% { transform: translate(-2px, 2px); }
+            100% { transform: translate(0); }
+        }
+        
+        /* Typewriter Style */
+        .typewriter-scramble {
+            font-size: 2rem;
+            font-weight: 500;
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+            border-right: 3px solid #ffffff;
+            animation: typingCursor 1s infinite;
+        }
+        
+        @keyframes typingCursor {
+            0%, 50% { border-color: transparent; }
+            51%, 100% { border-color: #ffffff; }
+        }
+        
+        /* Neon Style */
+        .neon-scramble {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #ff006e;
+            font-family: 'Arial', sans-serif;
+            text-transform: uppercase;
+            text-shadow: 
+                0 0 5px #ff006e,
+                0 0 10px #ff006e,
+                0 0 15px #ff006e,
+                0 0 20px #ff006e;
+            animation: neonPulse 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes neonPulse {
+            from {
+                text-shadow: 
+                    0 0 5px #ff006e,
+                    0 0 10px #ff006e,
+                    0 0 15px #ff006e,
+                    0 0 20px #ff006e;
+            }
+            to {
+                text-shadow: 
+                    0 0 2px #ff006e,
+                    0 0 5px #ff006e,
+                    0 0 8px #ff006e,
+                    0 0 12px #ff006e;
+            }
+        }
+        
+        /* Terminal Style */
+        .terminal-scramble {
+            font-size: 1.8rem;
+            font-weight: 400;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            background: #000000;
+            padding: 1rem;
+            border-radius: 10px;
+            border: 2px solid #00ff00;
+            position: relative;
+        }
+        
+        .terminal-scramble::before {
+            content: '> ';
+            color: #00ff00;
+        }
+        
+        /* Retro Style */
+        .retro-scramble {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #ffff00;
+            font-family: 'Arial', sans-serif;
+            text-transform: uppercase;
+            text-shadow: 
+                3px 3px 0 #ff0000,
+                6px 6px 0 #ff8000,
+                9px 9px 0 #ffff00;
+            transform: perspective(500px) rotateX(15deg);
+        }
+        
+        /* Digital Style */
+        .digital-scramble {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #00ffff;
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.1), transparent);
+            background-size: 200% 100%;
+            animation: digitalScan 3s linear infinite;
+            padding: 1rem;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 5px;
+        }
+        
+        @keyframes digitalScan {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        /* Controls */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .control-btn {
+            padding: 0.6rem 1.2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            font-size: 0.9rem;
+        }
+        
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .control-btn.active {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.7);
+        }
+        
+        /* Text Input */
+        .text-input {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            text-align: center;
+            margin: 1rem 0;
+            backdrop-filter: blur(5px);
+        }
+        
+        .text-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        /* Slider Controls */
+        .slider-control {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1rem 0;
+            color: white;
+        }
+        
+        .slider {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Character Pool Display */
+        .character-pool {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-align: center;
+            word-break: break-all;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .demo-container {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+                gap: 2rem;
+            }
+            
+            .text-container {
+                height: 150px;
+            }
+            
+            .scramble-text,
+            .glitch-scramble,
+            .neon-scramble,
+            .retro-scramble {
+                font-size: 1.8rem;
+            }
+            
+            .matrix-scramble,
+            .typewriter-scramble,
+            .digital-scramble {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="title">Scramble Text Effects</h1>
+        <p class="subtitle">Dynamic text scrambling and reveal animations</p>
+    </div>
+
+    <div class="demo-container">
+        <!-- Basic Scramble -->
+        <div class="demo-card">
+            <h3 class="demo-title">Basic Scramble</h3>
+            <div class="text-container" onclick="startScramble('basic')">
+                <div class="scramble-text" id="basicText">SCRAMBLE</div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="startScramble('basic')">Scramble</button>
+                <button class="control-btn" onclick="reveal('basic')">Reveal</button>
+                <button class="control-btn" onclick="toggleAutoScramble('basic')">Auto Mode</button>
+                <button class="control-btn" onclick="changeCharacterSet('basic', 'numbers')">Numbers</button>
+            </div>
+            <div class="slider-control">
+                <span>Speed:</span>
+                <input type="range" class="slider" min="50" max="500" value="100" 
+                       onchange="setScrambleSpeed('basic', this.value)" id="basicSpeed">
+                <span id="basicSpeedValue">100ms</span>
+            </div>
+            <div class="character-pool" id="basicPool">
+                Characters: ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*
+            </div>
+        </div>
+
+        <!-- Matrix Style -->
+        <div class="demo-card">
+            <h3 class="demo-title">Matrix Effect</h3>
+            <div class="text-container" onclick="startScramble('matrix')">
+                <div class="matrix-scramble" id="matrixText">THE MATRIX</div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="startScramble('matrix')">Hack</button>
+                <button class="control-btn" onclick="reveal('matrix')">Decode</button>
+                <button class="control-btn" onclick="matrixRain('matrix')">Rain Effect</button>
+                <button class="control-btn" onclick="changeMatrixStyle('green')">Green</button>
+                <button class="control-btn" onclick="changeMatrixStyle('red')">Red</button>
+            </div>
+            <div class="slider-control">
+                <span>Intensity:</span>
+                <input type="range" class="slider" min="1" max="10" value="5" 
+                       onchange="setMatrixIntensity(this.value)" id="matrixIntensity">
+                <span id="matrixIntensityValue">5</span>
+            </div>
+        </div>
+
+        <!-- Glitch Style -->
+        <div class="demo-card">
+            <h3 class="demo-title">Glitch Effect</h3>
+            <div class="text-container" onclick="startScramble('glitch')">
+                <div class="glitch-scramble" id="glitchText" data-text="GLITCH">GLITCH</div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="startScramble('glitch')">Glitch</button>
+                <button class="control-btn" onclick="reveal('glitch')">Fix</button>
+                <button class="control-btn" onclick="intensifyGlitch('glitch')">Intensify</button>
+                <button class="control-btn" onclick="toggleGlitchAnimation('glitch')">Toggle FX</button>
+            </div>
+            <div class="slider-control">
+                <span>Chaos Level:</span>
+                <input type="range" class="slider" min="1" max="20" value="10" 
+                       onchange="setGlitchChaos(this.value)" id="glitchChaos">
+                <span id="glitchChaosValue">10</span>
+            </div>
+        </div>
+
+        <!-- Typewriter Style -->
+        <div class="demo-card">
+            <h3 class="demo-title">Typewriter Reveal</h3>
+            <div class="text-container" onclick="startScramble('typewriter')">
+                <div class="typewriter-scramble" id="typewriterText">TYPEWRITER</div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="startScramble('typewriter')">Scramble</button>
+                <button class="control-btn" onclick="typewriterReveal('typewriter')">Type Out</button>
+                <button class="control-btn" onclick="backspace('typewriter')">Backspace</button>
+                <button class="control-btn" onclick="toggleCursor('typewriter')">Cursor</button>
+            </div>
+            <div class="slider-control">
+                <span>Typing Speed:</span>
+                <input type="range" class="slider" min="50" max="300" value="100" 
+                       onchange="setTypingSpeed('typewriter', this.value)" id="typewriterSpeed">
+                <span id="typewriterSpeedValue">100ms</span>
+            </div>
+        </div>
+
+        <!-- Neon Style -->
+        <div class="demo-card">
+            <h3 class="demo-title">Neon Scramble</h3>
+            <div class="text-container" onclick="startScramble('neon')">
+                <div class="neon-scramble" id="neonText">NEON LIGHTS</div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="startScramble('neon')">Scramble</button>
+                <button class="control-btn" onclick="reveal('neon')">Illuminate</button>
+                <button class="control-btn" onclick="changeNeonColor('pink')">Pink</button>
+                <button class="control-btn" onclick="changeNeonColor('blue')">Blue</button>
+                <button class="control-btn" onclick="changeNeonColor('green')">Green</button>
+            </div>
+            <div class="slider-control">
+                <span>Glow Intensity:</span>
+                <input type="range" class="slider" min="5" max="30" value="20" 
+                       onchange="setNeonGlow(this.value)" id="neonGlow">
+                <span id="neonGlowValue">20px</span>
+            </div>
+        </div>
+
+        <!-- Terminal Style -->
+        <div class="demo-card">
+            <h3 class="demo-title">Terminal Hack</h3>
+            <div class="text-container" onclick="startScramble('terminal')">
+                <div class="terminal-scramble" id="terminalText">ACCESS GRANTED</div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="startScramble('terminal')">Hack</button>
+                <button class="control-btn" onclick="reveal('terminal')">Execute</button>
+                <button class="control-btn" onclick="terminalSequence('terminal')">Boot Sequence</button>
+                <button class="control-btn" onclick="clearTerminal('terminal')">Clear</button>
+            </div>
+            <div class="slider-control">
+                <span>Hack Speed:</span>
+                <input type="range" class="slider" min="30" max="200" value="80" 
+                       onchange="setTerminalSpeed(this.value)" id="terminalSpeed">
+                <span id="terminalSpeedValue">80ms</span>
+            </div>
+        </div>
+
+        <!-- Retro Style -->
+        <div class="demo-card">
+            <h3 class="demo-title">Retro 80s</h3>
+            <div class="text-container" onclick="startScramble('retro')">
+                <div class="retro-scramble" id="retroText">RETRO WAVE</div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="startScramble('retro')">Scramble</button>
+                <button class="control-btn" onclick="reveal('retro')">Reveal</button>
+                <button class="control-btn" onclick="retroWave('retro')">Wave Effect</button>
+                <button class="control-btn" onclick="change3DAngle('retro')">3D Angle</button>
+            </div>
+            <div class="slider-control">
+                <span>Retro Intensity:</span>
+                <input type="range" class="slider" min="0" max="30" value="15" 
+                       onchange="setRetroIntensity(this.value)" id="retroIntensity">
+                <span id="retroIntensityValue">15deg</span>
+            </div>
+        </div>
+
+        <!-- Digital Style */
+        <div class="demo-card">
+            <h3 class="demo-title">Digital Scan</h3>
+            <div class="text-container" onclick="startScramble('digital')">
+                <div class="digital-scramble" id="digitalText">DIGITAL</div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="startScramble('digital')">Scramble</button>
+                <button class="control-btn" onclick="reveal('digital')">Scan</button>
+                <button class="control-btn" onclick="digitalPulse('digital')">Pulse</button>
+                <button class="control-btn" onclick="toggleScanEffect('digital')">Scan FX</button>
+            </div>
+            <div class="slider-control">
+                <span>Scan Speed:</span>
+                <input type="range" class="slider" min="1" max="6" value="3" 
+                       onchange="setScanSpeed(this.value)" id="scanSpeed">
+                <span id="scanSpeedValue">3s</span>
+            </div>
+        </div>
+
+        <!-- Custom Text -->
+        <div class="demo-card">
+            <h3 class="demo-title">Custom Text</h3>
+            <input type="text" class="text-input" placeholder="Enter your text..." 
+                   id="customTextInput" maxlength="20" value="CUSTOM TEXT">
+            <div class="text-container" onclick="startScramble('custom')">
+                <div class="scramble-text" id="customText">CUSTOM TEXT</div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="applyCustomText()">Apply Text</button>
+                <button class="control-btn" onclick="startScramble('custom')">Scramble</button>
+                <button class="control-btn" onclick="reveal('custom')">Reveal</button>
+                <button class="control-btn" onclick="copyEffect()">Copy Effect</button>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="slider-control">
+                    <span>Scramble %:</span>
+                    <input type="range" class="slider" min="10" max="100" value="100" 
+                           onchange="setScramblePercentage(this.value)" id="scramblePercentage">
+                </div>
+                <div class="slider-control">
+                    <span>Reveal Delay:</span>
+                    <input type="range" class="slider" min="0" max="2000" value="500" 
+                           onchange="setRevealDelay(this.value)" id="revealDelay">
+                </div>
+            </div>
+        </div>
+
+        <!-- Word by Word */
+        <div class="demo-card">
+            <h3 class="demo-title">Word by Word</h3>
+            <div class="text-container" onclick="startWordScramble()">
+                <div class="scramble-text" id="wordText">WORD BY WORD REVEAL</div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="startWordScramble()">Scramble Words</button>
+                <button class="control-btn" onclick="revealWords()">Reveal Words</button>
+                <button class="control-btn" onclick="randomWordOrder()">Random Order</button>
+                <button class="control-btn" onclick="resetWords()">Reset</button>
+            </div>
+            <div class="slider-control">
+                <span>Word Delay:</span>
+                <input type="range" class="slider" min="100" max="1000" value="300" 
+                       onchange="setWordDelay(this.value)" id="wordDelay">
+                <span id="wordDelayValue">300ms</span>
+            </div>
+        </div>
+
+        <!-- Multi-Line */
+        <div class="demo-card">
+            <h3 class="demo-title">Multi-Line Effect</h3>
+            <div class="text-container" onclick="startMultiLineScramble()" style="height: 250px; align-items: flex-start; padding: 2rem;">
+                <div id="multiLineText" style="font-size: 1.5rem; line-height: 1.5; text-align: center;">
+                    <div>MULTI LINE</div>
+                    <div>SCRAMBLE EFFECT</div>
+                    <div>AWESOME DEMO</div>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="startMultiLineScramble()">Scramble All</button>
+                <button class="control-btn" onclick="revealMultiLine()">Reveal All</button>
+                <button class="control-btn" onclick="cascadeReveal()">Cascade</button>
+                <button class="control-btn" onclick="randomLineReveal()">Random</button>
+            </div>
+            <div class="slider-control">
+                <span>Line Delay:</span>
+                <input type="range" class="slider" min="200" max="1000" value="400" 
+                       onchange="setLineDelay(this.value)" id="lineDelay">
+                <span id="lineDelayValue">400ms</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let scrambleIntervals = {};
+        let originalTexts = {};
+        let isScrambling = {};
+        let autoScrambleIntervals = {};
+        
+        // Character sets
+        const characterSets = {
+            letters: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+            numbers: '0123456789',
+            symbols: '!@#$%^&*()_+-=[]{}|;:,.<>?',
+            matrix: 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ0123456789',
+            glitch: '█▓▒░▀▄▌▐■□▪▫▬▭▮▯°±²³¹',
+            binary: '01',
+            hex: '0123456789ABCDEF'
+        };
+        
+        let currentCharacterSets = {
+            basic: characterSets.letters + characterSets.numbers + characterSets.symbols,
+            matrix: characterSets.matrix,
+            glitch: characterSets.glitch,
+            typewriter: characterSets.letters + characterSets.numbers,
+            neon: characterSets.letters + characterSets.numbers,
+            terminal: characterSets.letters + characterSets.numbers + characterSets.hex,
+            retro: characterSets.letters + characterSets.numbers,
+            digital: characterSets.binary + characterSets.hex,
+            custom: characterSets.letters + characterSets.numbers
+        };
+        
+        // Settings
+        let settings = {
+            basic: { speed: 100 },
+            matrix: { speed: 80, intensity: 5 },
+            glitch: { speed: 60, chaos: 10 },
+            typewriter: { speed: 100 },
+            neon: { speed: 120, glow: 20 },
+            terminal: { speed: 80 },
+            retro: { speed: 150, intensity: 15 },
+            digital: { speed: 100, scanSpeed: 3 },
+            custom: { speed: 100, percentage: 100, revealDelay: 500 }
+        };
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Store original texts
+            const textElements = document.querySelectorAll('[id$="Text"]');
+            textElements.forEach(element => {
+                const id = element.id.replace('Text', '');
+                originalTexts[id] = element.textContent;
+            });
+            
+            // Initialize multi-line
+            const multiLineElement = document.getElementById('multiLineText');
+            const lines = multiLineElement.children;
+            originalTexts.multiLine = Array.from(lines).map(line => line.textContent);
+            
+            // Setup custom text input
+            setupCustomTextInput();
+        });
+        
+        // Basic scramble function
+        function startScramble(type) {
+            if (scrambleIntervals[type]) {
+                clearInterval(scrambleIntervals[type]);
+            }
+            
+            const element = document.getElementById(type + 'Text');
+            const originalText = originalTexts[type];
+            const characters = currentCharacterSets[type];
+            const speed = settings[type].speed;
+            
+            isScrambling[type] = true;
+            let iterations = 0;
+            const maxIterations = originalText.length * 3;
+            
+            scrambleIntervals[type] = setInterval(() => {
+                let scrambledText = '';
+                
+                for (let i = 0; i < originalText.length; i++) {
+                    if (originalText[i] === ' ') {
+                        scrambledText += ' ';
+                    } else {
+                        const randomChar = characters[Math.floor(Math.random() * characters.length)];
+                        scrambledText += randomChar;
+                    }
+                }
+                
+                element.textContent = scrambledText;
+                iterations++;
+                
+                if (iterations >= maxIterations) {
+                    clearInterval(scrambleIntervals[type]);
+                    isScrambling[type] = false;
+                }
+            }, speed);
+        }
+        
+        // Reveal function with character-by-character reveal
+        function reveal(type) {
+            if (scrambleIntervals[type]) {
+                clearInterval(scrambleIntervals[type]);
+            }
+            
+            const element = document.getElementById(type + 'Text');
+            const originalText = originalTexts[type];
+            const characters = currentCharacterSets[type];
+            const speed = settings[type].speed;
+            
+            let revealedChars = 0;
+            
+            scrambleIntervals[type] = setInterval(() => {
+                let displayText = '';
+                
+                for (let i = 0; i < originalText.length; i++) {
+                    if (i < revealedChars || originalText[i] === ' ') {
+                        displayText += originalText[i];
+                    } else {
+                        const randomChar = characters[Math.floor(Math.random() * characters.length)];
+                        displayText += randomChar;
+                    }
+                }
+                
+                element.textContent = displayText;
+                
+                // Randomly reveal next character
+                if (Math.random() < 0.1 && revealedChars < originalText.length) {
+                    revealedChars++;
+                }
+                
+                if (revealedChars >= originalText.length) {
+                    element.textContent = originalText;
+                    clearInterval(scrambleIntervals[type]);
+                    isScrambling[type] = false;
+                }
+            }, speed / 2);
+        }
+        
+        // Auto scramble mode
+        function toggleAutoScramble(type) {
+            if (autoScrambleIntervals[type]) {
+                clearInterval(autoScrambleIntervals[type]);
+                autoScrambleIntervals[type] = null;
+            } else {
+                autoScrambleIntervals[type] = setInterval(() => {
+                    if (!isScrambling[type]) {
+                        startScramble(type);
+                        setTimeout(() => reveal(type), 2000);
+                    }
+                }, 5000);
+            }
+        }
+        
+        // Character set changer
+        function changeCharacterSet(type, setName) {
+            switch(setName) {
+                case 'numbers':
+                    currentCharacterSets[type] = characterSets.numbers;
+                    break;
+                case 'letters':
+                    currentCharacterSets[type] = characterSets.letters;
+                    break;
+                case 'symbols':
+                    currentCharacterSets[type] = characterSets.symbols;
+                    break;
+                default:
+                    currentCharacterSets[type] = characterSets.letters + characterSets.numbers + characterSets.symbols;
+            }
+            updateCharacterPool(type);
+        }
+        
+        function updateCharacterPool(type) {
+            const poolElement = document.getElementById(type + 'Pool');
+            if (poolElement) {
+                poolElement.textContent = 'Characters: ' + currentCharacterSets[type];
+            }
+        }
+        
+        // Speed controls
+        function setScrambleSpeed(type, value) {
+            settings[type].speed = parseInt(value);
+            document.getElementById(type + 'SpeedValue').textContent = value + 'ms';
+        }
+        
+        // Matrix specific functions
+        function changeMatrixStyle(color) {
+            const element = document.getElementById('matrixText');
+            const colors = {
+                green: '#00ff41',
+                red: '#ff0041',
+                blue: '#0041ff'
+            };
+            
+            element.style.color = colors[color];
+            element.style.textShadow = `
+                0 0 5px ${colors[color]},
+                0 0 10px ${colors[color]},
+                0 0 15px ${colors[color]}
+            `;
+        }
+        
+        function setMatrixIntensity(value) {
+            document.getElementById('matrixIntensityValue').textContent = value;
+            settings.matrix.intensity = parseInt(value);
+        }
+        
+        function matrixRain(type) {
+            const element = document.getElementById(type + 'Text');
+            const container = element.parentElement;
+            
+            // Create rain effect
+            for (let i = 0; i < 20; i++) {
+                const rainChar = document.createElement('div');
+                rainChar.textContent = characterSets.matrix[Math.floor(Math.random() * characterSets.matrix.length)];
+                rainChar.style.position = 'absolute';
+                rainChar.style.left = Math.random() * 100 + '%';
+                rainChar.style.top = '-20px';
+                rainChar.style.color = '#00ff41';
+                rainChar.style.fontSize = '1rem';
+                rainChar.style.fontFamily = 'Courier New, monospace';
+                rainChar.style.animation = 'matrixFall 2s linear forwards';
+                rainChar.style.pointerEvents = 'none';
+                
+                container.appendChild(rainChar);
+                
+                setTimeout(() => {
+                    if (rainChar.parentNode) {
+                        rainChar.parentNode.removeChild(rainChar);
+                    }
+                }, 2000);
+            }
+        }
+        
+        // Glitch specific functions
+        function setGlitchChaos(value) {
+            document.getElementById('glitchChaosValue').textContent = value;
+            settings.glitch.chaos = parseInt(value);
+        }
+        
+        function intensifyGlitch(type) {
+            const element = document.getElementById(type + 'Text');
+            element.style.animation = 'glitchIntense 0.5s ease-in-out';
+            setTimeout(() => {
+                element.style.animation = 'glitchFlicker 2s infinite';
+            }, 500);
+        }
+        
+        function toggleGlitchAnimation(type) {
+            const element = document.getElementById(type + 'Text');
+            const isAnimating = element.style.animationPlayState !== 'paused';
+            element.style.animationPlayState = isAnimating ? 'paused' : 'running';
+        }
+        
+        // Typewriter specific functions
+        function typewriterReveal(type) {
+            const element = document.getElementById(type + 'Text');
+            const originalText = originalTexts[type];
+            const speed = settings[type].speed;
+            
+            element.textContent = '';
+            let i = 0;
+            
+            const typeInterval = setInterval(() => {
+                element.textContent = originalText.substring(0, i + 1);
+                i++;
+                
+                if (i >= originalText.length) {
+                    clearInterval(typeInterval);
+                }
+            }, speed);
+        }
+        
+        function backspace(type) {
+            const element = document.getElementById(type + 'Text');
+            const currentText = element.textContent;
+            const speed = settings[type].speed / 2;
+            
+            let i = currentText.length;
+            
+            const backspaceInterval = setInterval(() => {
+                element.textContent = currentText.substring(0, i);
+                i--;
+                
+                if (i < 0) {
+                    clearInterval(backspaceInterval);
+                    element.textContent = '';
+                }
+            }, speed);
+        }
+        
+        function toggleCursor(type) {
+            const element = document.getElementById(type + 'Text');
+            element.classList.toggle('typewriter-scramble');
+        }
+        
+        function setTypingSpeed(type, value) {
+            settings[type].speed = parseInt(value);
+            document.getElementById(type + 'SpeedValue').textContent = value + 'ms';
+        }
+        
+        // Neon specific functions
+        function changeNeonColor(color) {
+            const element = document.getElementById('neonText');
+            const colors = {
+                pink: '#ff006e',
+                blue: '#0066ff',
+                green: '#00ff66'
+            };
+            
+            element.style.color = colors[color];
+            element.style.textShadow = `
+                0 0 5px ${colors[color]},
+                0 0 10px ${colors[color]},
+                0 0 15px ${colors[color]},
+                0 0 20px ${colors[color]}
+            `;
+        }
+        
+        function setNeonGlow(value) {
+            const element = document.getElementById('neonText');
+            const color = getComputedStyle(element).color;
+            element.style.textShadow = `
+                0 0 ${value/4}px ${color},
+                0 0 ${value/2}px ${color},
+                0 0 ${value*3/4}px ${color},
+                0 0 ${value}px ${color}
+            `;
+            document.getElementById('neonGlowValue').textContent = value + 'px';
+        }
+        
+        // Terminal specific functions
+        function terminalSequence(type) {
+            const element = document.getElementById(type + 'Text');
+            const sequences = [
+                'INITIALIZING...',
+                'LOADING MODULES...',
+                'CONNECTING TO SERVER...',
+                'AUTHENTICATION REQUIRED',
+                'ACCESS GRANTED'
+            ];
+            
+            let i = 0;
+            const sequenceInterval = setInterval(() => {
+                element.textContent = sequences[i];
+                i++;
+                
+                if (i >= sequences.length) {
+                    clearInterval(sequenceInterval);
+                    originalTexts[type] = sequences[sequences.length - 1];
+                }
+            }, 1000);
+        }
+        
+        function clearTerminal(type) {
+            const element = document.getElementById(type + 'Text');
+            element.textContent = '> _';
+            setTimeout(() => {
+                element.textContent = originalTexts[type];
+            }, 500);
+        }
+        
+        function setTerminalSpeed(value) {
+            document.getElementById('terminalSpeedValue').textContent = value + 'ms';
+            settings.terminal.speed = parseInt(value);
+        }
+        
+        // Retro specific functions
+        function retroWave(type) {
+            const element = document.getElementById(type + 'Text');
+            element.style.animation = 'retroWave 2s ease-in-out';
+            setTimeout(() => {
+                element.style.animation = '';
+            }, 2000);
+        }
+        
+        function change3DAngle(type) {
+            const element = document.getElementById(type + 'Text');
+            const currentAngle = settings[type].intensity;
+            const newAngle = (currentAngle + 15) % 60;
+            settings[type].intensity = newAngle;
+            element.style.transform = `perspective(500px) rotateX(${newAngle}deg)`;
+        }
+        
+        function setRetroIntensity(value) {
+            const element = document.getElementById('retroText');
+            element.style.transform = `perspective(500px) rotateX(${value}deg)`;
+            document.getElementById('retroIntensityValue').textContent = value + 'deg';
+        }
+        
+        // Digital specific functions
+        function digitalPulse(type) {
+            const element = document.getElementById(type + 'Text');
+            element.style.animation = 'digitalPulse 1s ease-in-out';
+            setTimeout(() => {
+                element.style.animation = 'digitalScan 3s linear infinite';
+            }, 1000);
+        }
+        
+        function toggleScanEffect(type) {
+            const element = document.getElementById(type + 'Text');
+            const isScanning = element.style.animationName === 'digitalScan';
+            element.style.animation = isScanning ? 'none' : 'digitalScan 3s linear infinite';
+        }
+        
+        function setScanSpeed(value) {
+            const element = document.getElementById('digitalText');
+            element.style.animationDuration = value + 's';
+            document.getElementById('scanSpeedValue').textContent = value + 's';
+        }
+        
+        // Custom text functions
+        function setupCustomTextInput() {
+            const input = document.getElementById('customTextInput');
+            input.addEventListener('input', (e) => {
+                const text = e.target.value.toUpperCase() || 'CUSTOM TEXT';
+                originalTexts.custom = text;
+                document.getElementById('customText').textContent = text;
+            });
+        }
+        
+        function applyCustomText() {
+            const input = document.getElementById('customTextInput');
+            const text = input.value.toUpperCase() || 'CUSTOM TEXT';
+            originalTexts.custom = text;
+            document.getElementById('customText').textContent = text;
+        }
+        
+        function setScramblePercentage(value) {
+            settings.custom.percentage = parseInt(value);
+        }
+        
+        function setRevealDelay(value) {
+            settings.custom.revealDelay = parseInt(value);
+        }
+        
+        function copyEffect() {
+            const element = document.getElementById('customText');
+            const styles = getComputedStyle(element);
+            const css = `
+.scramble-text {
+    font-size: ${styles.fontSize};
+    font-weight: ${styles.fontWeight};
+    color: ${styles.color};
+    font-family: ${styles.fontFamily};
+    text-shadow: ${styles.textShadow};
+    letter-spacing: ${styles.letterSpacing};
+}`;
+            
+            navigator.clipboard.writeText(css).then(() => {
+                alert('CSS copied to clipboard!');
+            });
+        }
+        
+        // Word by word functions
+        function startWordScramble() {
+            const element = document.getElementById('wordText');
+            const words = originalTexts.wordText ? originalTexts.wordText.split(' ') : 'WORD BY WORD REVEAL'.split(' ');
+            const characters = currentCharacterSets.basic;
+            
+            const scrambledWords = words.map(word => {
+                let scrambled = '';
+                for (let i = 0; i < word.length; i++) {
+                    scrambled += characters[Math.floor(Math.random() * characters.length)];
+                }
+                return scrambled;
+            });
+            
+            element.textContent = scrambledWords.join(' ');
+        }
+        
+        function revealWords() {
+            const element = document.getElementById('wordText');
+            const words = originalTexts.wordText ? originalTexts.wordText.split(' ') : 'WORD BY WORD REVEAL'.split(' ');
+            const delay = parseInt(document.getElementById('wordDelay').value);
+            
+            words.forEach((word, index) => {
+                setTimeout(() => {
+                    const currentWords = element.textContent.split(' ');
+                    currentWords[index] = word;
+                    element.textContent = currentWords.join(' ');
+                }, index * delay);
+            });
+        }
+        
+        function randomWordOrder() {
+            const element = document.getElementById('wordText');
+            const words = originalTexts.wordText ? originalTexts.wordText.split(' ') : 'WORD BY WORD REVEAL'.split(' ');
+            const shuffled = [...words].sort(() => Math.random() - 0.5);
+            element.textContent = shuffled.join(' ');
+        }
+        
+        function resetWords() {
+            const element = document.getElementById('wordText');
+            const originalText = originalTexts.wordText || 'WORD BY WORD REVEAL';
+            element.textContent = originalText;
+        }
+        
+        function setWordDelay(value) {
+            document.getElementById('wordDelayValue').textContent = value + 'ms';
+        }
+        
+        // Multi-line functions
+        function startMultiLineScramble() {
+            const container = document.getElementById('multiLineText');
+            const lines = container.children;
+            const characters = currentCharacterSets.basic;
+            
+            Array.from(lines).forEach((line, index) => {
+                const originalText = originalTexts.multiLine[index];
+                let scrambled = '';
+                for (let i = 0; i < originalText.length; i++) {
+                    if (originalText[i] === ' ') {
+                        scrambled += ' ';
+                    } else {
+                        scrambled += characters[Math.floor(Math.random() * characters.length)];
+                    }
+                }
+                line.textContent = scrambled;
+            });
+        }
+        
+        function revealMultiLine() {
+            const container = document.getElementById('multiLineText');
+            const lines = container.children;
+            
+            Array.from(lines).forEach((line, index) => {
+                line.textContent = originalTexts.multiLine[index];
+            });
+        }
+        
+        function cascadeReveal() {
+            const container = document.getElementById('multiLineText');
+            const lines = container.children;
+            const delay = parseInt(document.getElementById('lineDelay').value);
+            
+            Array.from(lines).forEach((line, index) => {
+                setTimeout(() => {
+                    line.textContent = originalTexts.multiLine[index];
+                }, index * delay);
+            });
+        }
+        
+        function randomLineReveal() {
+            const container = document.getElementById('multiLineText');
+            const lines = Array.from(container.children);
+            const delay = parseInt(document.getElementById('lineDelay').value);
+            const shuffledLines = [...lines].sort(() => Math.random() - 0.5);
+            
+            shuffledLines.forEach((line, index) => {
+                setTimeout(() => {
+                    const originalIndex = lines.indexOf(line);
+                    line.textContent = originalTexts.multiLine[originalIndex];
+                }, index * delay);
+            });
+        }
+        
+        function setLineDelay(value) {
+            document.getElementById('lineDelayValue').textContent = value + 'ms';
+        }
+        
+        // Add CSS animations
+        const additionalStyles = `
+            @keyframes matrixFall {
+                0% { transform: translateY(0); opacity: 1; }
+                100% { transform: translateY(300px); opacity: 0; }
+            }
+            
+            @keyframes glitchIntense {
+                0%, 100% { transform: translate(0); }
+                10% { transform: translate(-5px, 2px); }
+                20% { transform: translate(5px, -2px); }
+                30% { transform: translate(-2px, 5px); }
+                40% { transform: translate(2px, -5px); }
+                50% { transform: translate(-5px, -2px); }
+                60% { transform: translate(5px, 2px); }
+                70% { transform: translate(-2px, -5px); }
+                80% { transform: translate(2px, 5px); }
+                90% { transform: translate(-5px, 2px); }
+            }
+            
+            @keyframes retroWave {
+                0%, 100% { transform: perspective(500px) rotateX(15deg) rotateY(0deg); }
+                25% { transform: perspective(500px) rotateX(15deg) rotateY(5deg); }
+                50% { transform: perspective(500px) rotateX(15deg) rotateY(0deg); }
+                75% { transform: perspective(500px) rotateX(15deg) rotateY(-5deg); }
+            }
+            
+            @keyframes digitalPulse {
+                0%, 100% { opacity: 1; transform: scale(1); }
+                50% { opacity: 0.8; transform: scale(1.05); }
+            }
+        `;
+        
+        const styleSheet = document.createElement('style');
+        styleSheet.textContent = additionalStyles;
+        document.head.appendChild(styleSheet);
+        
+        // Store initial word text
+        if (!originalTexts.wordText) {
+            originalTexts.wordText = document.getElementById('wordText').textContent;
+        }
+    </script>
+</body>
+</html>
