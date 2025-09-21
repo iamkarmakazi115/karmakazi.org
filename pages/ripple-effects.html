@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ripple Effects - Karmakazi</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #5ee7df 0%, #b490ca 100%);
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            padding: 100px 20px;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+        
+        .title {
+            font-size: clamp(3rem, 8vw, 5rem);
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+        }
+        
+        /* Demo Sections */
+        .demo-section {
+            margin-bottom: 4rem;
+        }
+        
+        .section-title {
+            font-size: 2rem;
+            color: white;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        /* Material Design Ripple */
+        .material-buttons {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 3rem;
+        }
+        
+        .ripple-button {
+            position: relative;
+            padding: 1rem 2rem;
+            background: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #5ee7df;
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .ripple-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.3);
+            transform: scale(0);
+            animation: ripple-animation 0.6s ease-out;
+            pointer-events: none;
+        }
+        
+        @keyframes ripple-animation {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+        
+        /* Colored Ripples */
+        .ripple-button.primary {
+            background: #6366f1;
+            color: white;
+        }
+        
+        .ripple-button.primary .ripple {
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        .ripple-button.success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .ripple-button.success .ripple {
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        .ripple-button.danger {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .ripple-button.danger .ripple {
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        /* Water Ripple Effect */
+        .water-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
+            border-radius: 1rem;
+            overflow: hidden;
+            cursor: crosshair;
+            margin-bottom: 3rem;
+        }
+        
+        .water-ripple {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            animation: water-ripple 2s ease-out;
+            pointer-events: none;
+        }
+        
+        @keyframes water-ripple {
+            to {
+                width: 500px;
+                height: 500px;
+                margin-left: -250px;
+                margin-top: -250px;
+                opacity: 0;
+            }
+        }
+        
+        /* Icon Ripple */
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 2rem;
+            max-width: 600px;
+            margin: 0 auto 3rem;
+        }
+        
+        .ripple-icon {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            margin: 0 auto;
+        }
+        
+        .ripple-icon:hover {
+            transform: scale(1.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Card Ripple */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .ripple-card {
+            position: relative;
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .ripple-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        
+        .card-text {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        /* Rainbow Ripple */
+        .rainbow-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            background: #222;
+            border-radius: 1rem;
+            overflow: hidden;
+            cursor: pointer;
+            margin-bottom: 3rem;
+        }
+        
+        .rainbow-ripple {
+            position: absolute;
+            border-radius: 50%;
+            animation: rainbow-ripple 2s ease-out;
+            pointer-events: none;
+        }
+        
+        @keyframes rainbow-ripple {
+            0% {
+                width: 0;
+                height: 0;
+                background: red;
+                opacity: 1;
+            }
+            14% { background: orange; }
+            28% { background: yellow; }
+            42% { background: green; }
+            57% { background: blue; }
+            71% { background: indigo; }
+            85% { background: violet; }
+            100% {
+                width: 600px;
+                height: 600px;
+                margin-left: -300px;
+                margin-top: -300px;
+                opacity: 0;
+            }
+        }
+        
+        /* Pulse Ripple */
+        .pulse-container {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+            margin-bottom: 3rem;
+        }
+        
+        .pulse-button {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 2rem;
+        }
+        
+        .pulse-button::before,
+        .pulse-button::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 50%;
+            border: 2px solid white;
+            animation: pulse-ripple 2s infinite;
+        }
+        
+        .pulse-button::after {
+            animation-delay: 1s;
+        }
+        
+        @keyframes pulse-ripple {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+        }
+        
+        /* Custom Ripple Settings */
+        .settings {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .setting-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .setting-label {
+            color: white;
+            min-width: 150px;
+        }
+        
+        .slider {
+            flex: 1;
+            max-width: 300px;
+        }
+        
+        .color-picker {
+            width: 50px;
+            height: 50px;
+            border: 2px solid white;
+            border-radius: 0.5rem;
+            cursor: pointer;
+        }
+        
+        /* Back Button */
+        .back-button {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .back-button:hover {
+            background: white;
+            transform: translateX(-5px);
+        }
+        
+        .back-button::before {
+            content: '←';
+            font-size: 1.25rem;
+        }
+        
+        /* Touch Ripple */
+        .touch-area {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+        }
+        
+        /* Ripple Trail */
+        .trail-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 1rem;
+            overflow: hidden;
+            cursor: none;
+        }
+        
+        .trail-ripple {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            pointer-events: none;
+            animation: trail-fade 1s ease-out forwards;
+        }
+        
+        @keyframes trail-fade {
+            to {
+                transform: scale(3);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="back-button">Back to Gallery</a>
+    
+    <div class="container">
+        <div class="header">
+            <h1 class="title">RIPPLE EFFECTS</h1>
+            <p style="color: white; font-size: 1.25rem; opacity: 0.9;">
+                Material Design inspired ripple animations
+            </p>
+        </div>
+        
+        <!-- Material Design Buttons -->
+        <div class="demo-section">
+            <h2 class="section-title">Material Design Ripples</h2>
+            <div class="material-buttons">
+                <button class="ripple-button">Default</button>
+                <button class="ripple-button primary">Primary</button>
+                <button class="ripple-button success">Success</button>
+                <button class="ripple-button danger">Danger</button>
+            </div>
+        </div>
+        
+        <!-- Water Ripple Effect -->
+        <div class="demo-section">
+            <h2 class="section-title">Water Ripples</h2>
+            <div class="water-container" id="waterContainer">
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; text-align: center;">
+                    <p style="font-size: 1.5rem; opacity: 0.7;">Click to create ripples</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Icon Ripples -->
+        <div class="demo-section">
+            <h2 class="section-title">Icon Ripples</h2>
+            <div class="icon-grid">
+                <div class="ripple-icon">❤️</div>
+                <div class="ripple-icon">⭐</div>
+                <div class="ripple-icon">🔔</div>
+                <div class="ripple-icon">💡</div>
+                <div class="ripple-icon">🎨</div>
+                <div class="ripple-icon">🚀</div>
+            </div>
+        </div>
+        
+        <!-- Card Ripples -->
+        <div class="demo-section">
+            <h2 class="section-title">Card Ripples</h2>
+            <div class="card-grid">
+                <div class="ripple-card">
+                    <h3 class="card-title">Interactive Card</h3>
+                    <p class="card-text">Click anywhere on this card to see the ripple effect spread from your click point.</p>
+                </div>
+                <div class="ripple-card">
+                    <h3 class="card-title">Smooth Animation</h3>
+                    <p class="card-text">The ripple animation provides visual feedback and enhances user experience.</p>
+                </div>
+                <div class="ripple-card">
+                    <h3 class="card-title">Customizable</h3>
+                    <p class="card-text">Ripple color, speed, and size can all be customized to match your design.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Rainbow Ripples -->
+        <div class="demo-section">
+            <h2 class="section-title">Rainbow Ripples</h2>
+            <div class="rainbow-container" id="rainbowContainer">
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; text-align: center;">
+                    <p style="font-size: 1.5rem;">Click for rainbow effect</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pulse Ripples -->
+        <div class="demo-section">
+            <h2 class="section-title">Pulse Ripples</h2>
+            <div class="pulse-container">
+                <div class="pulse-button">📍</div>
+                <div class="pulse-button">📡</div>
+                <div class="pulse-button">💫</div>
+            </div>
+        </div>
+        
+        <!-- Touch Area -->
+        <div class="demo-section">
+            <h2 class="section-title">Touch Ripples</h2>
+            <div class="touch-area" id="touchArea">
+                Touch or click multiple times
+            </div>
+        </div>
+        
+        <!-- Ripple Trail -->
+        <div class="demo-section">
+            <h2 class="section-title">Ripple Trail</h2>
+            <div class="trail-container" id="trailContainer">
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; text-align: center;">
+                    <p style="font-size: 1.5rem;">Move your mouse</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Settings -->
+        <div class="settings">
+            <h2 class="section-title">Ripple Settings</h2>
+            <div class="setting-row">
+                <span class="setting-label">Ripple Speed:</span>
+                <input type="range" class="slider" id="speedSlider" min="200" max="2000" value="600">
+                <span style="color: white; margin-left: 1rem;" id="speedValue">600ms</span>
+            </div>
+            <div class="setting-row">
+                <span class="setting-label">Ripple Size:</span>
+                <input type="range" class="slider" id="sizeSlider" min="2" max="8" step="0.5" value="4">
+                <span style="color: white; margin-left: 1rem;" id="sizeValue">4x</span>
+            </div>
+            <div class="setting-row">
+                <span class="setting-label">Ripple Color:</span>
+                <input type="color" class="color-picker" id="colorPicker" value="#ffffff">
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Ripple Settings
+        let rippleSpeed = 600;
+        let rippleSize = 4;
+        let rippleColor = '#ffffff';
+        
+        // Settings Controls
+        document.getElementById('speedSlider').addEventListener('input', (e) => {
+            rippleSpeed = e.target.value;
+            document.getElementById('speedValue').textContent = rippleSpeed + 'ms';
+        });
+        
+        document.getElementById('sizeSlider').addEventListener('input', (e) => {
+            rippleSize = e.target.value;
+            document.getElementById('sizeValue').textContent = rippleSize + 'x';
+        });
+        
+        document.getElementById('colorPicker').addEventListener('input', (e) => {
+            rippleColor = e.target.value;
+        });
+        
+        // Create Ripple Function
+        function createRipple(e, element, customColor = null) {
+            const rect = element.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+            
+            const ripple = document.createElement('span');
+            ripple.className = 'ripple';
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            
+            if (customColor) {
+                ripple.style.background = customColor;
+            }
+            
+            ripple.style.animationDuration = rippleSpeed + 'ms';
+            ripple.style.transform = `scale(${rippleSize})`;
+            
+            element.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, rippleSpeed);
+        }
+        
+        // Material Design Buttons
+        document.querySelectorAll('.ripple-button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                createRipple(e, this);
+            });
+        });
+        
+        // Water Ripples
+        const waterContainer = document.getElementById('waterContainer');
+        waterContainer.addEventListener('click', function(e) {
+            const rect = this.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => {
+                    const ripple = document.createElement('div');
+                    ripple.className = 'water-ripple';
+                    ripple.style.left = x + 'px';
+                    ripple.style.top = y + 'px';
+                    ripple.style.width = ripple.style.height = '0';
+                    
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 2000);
+                }, i * 200);
+            }
+        });
+        
+        // Icon Ripples
+        document.querySelectorAll('.ripple-icon').forEach(icon => {
+            icon.addEventListener('click', function(e) {
+                createRipple(e, this, 'rgba(94, 231, 223, 0.5)');
+                
+                // Emoji animation
+                this.style.transform = 'scale(1.2) rotate(10deg)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1.1)';
+                }, 300);
+            });
+        });
+        
+        // Card Ripples
+        document.querySelectorAll('.ripple-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                createRipple(e, this, 'rgba(94, 231, 223, 0.3)');
+            });
+        });
+        
+        // Rainbow Ripples
+        const rainbowContainer = document.getElementById('rainbowContainer');
+        rainbowContainer.addEventListener('click', function(e) {
+            const rect = this.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const ripple = document.createElement('div');
+            ripple.className = 'rainbow-ripple';
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            
+            this.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 2000);
+        });
+        
+        // Touch Area
+        const touchArea = document.getElementById('touchArea');
+        let touchCount = 0;
+        
+        function handleTouch(e) {
+            e.preventDefault();
+            touchCount++;
+            
+            const touches = e.type === 'touchstart' ? e.touches : [e];
+            
+            Array.from(touches).forEach(touch => {
+                const x = touch.clientX || touch.pageX;
+                const y = touch.clientY || touch.pageY;
+                
+                const rect = touchArea.getBoundingClientRect();
+                const relX = x - rect.left;
+                const relY = y - rect.top;
+                
+                const ripple = document.createElement('span');
+                ripple.className = 'ripple';
+                ripple.style.width = ripple.style.height = '100px';
+                ripple.style.left = relX - 50 + 'px';
+                ripple.style.top = relY - 50 + 'px';
+                ripple.style.background = `hsl(${touchCount * 30}, 70%, 60%)`;
+                
+                touchArea.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        }
+        
+        touchArea.addEventListener('click', handleTouch);
+        touchArea.addEventListener('touchstart', handleTouch);
+        
+        // Ripple Trail
+        const trailContainer = document.getElementById('trailContainer');
+        let trailThrottle = false;
+        
+        trailContainer.addEventListener('mousemove', function(e) {
+            if (!trailThrottle) {
+                trailThrottle = true;
+                
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const ripple = document.createElement('div');
+                ripple.className = 'trail-ripple';
+                ripple.style.left = x - 15 + 'px';
+                ripple.style.top = y - 15 + 'px';
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 1000);
+                
+                setTimeout(() => {
+                    trailThrottle = false;
+                }, 50);
+            }
+        });
+        
+        // Multi-touch support for mobile
+        document.addEventListener('touchstart', (e) => {
+            if (e.touches.length > 1) {
+                Array.from(e.touches).forEach(touch => {
+                    const element = document.elementFromPoint(touch.clientX, touch.clientY);
+                    if (element && element.classList.contains('ripple-button')) {
+                        createRipple({ clientX: touch.clientX, clientY: touch.clientY }, element);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
