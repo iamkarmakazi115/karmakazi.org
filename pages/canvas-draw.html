@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Drawing - Karmakazi</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 2rem 0;
+            background: rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .title {
+            font-size: clamp(2rem, 6vw, 4rem);
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            margin-bottom: 1rem;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 2rem;
+        }
+        
+        /* Main Container */
+        .main-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            height: calc(100vh - 200px);
+        }
+        
+        /* Toolbar */
+        .toolbar {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            height: fit-content;
+            position: sticky;
+            top: 2rem;
+        }
+        
+        .toolbar-section {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .toolbar-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .toolbar-title {
+            font-size: 1.1rem;
+            color: white;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        
+        /* Canvas Container */
+        .canvas-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .drawing-canvas {
+            background: white;
+            border-radius: 15px;
+            cursor: crosshair;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Tool Buttons */
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+        }
+        
+        .tool-btn {
+            padding: 0.8rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            text-align: center;
+            font-size: 0.9rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .tool-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .tool-btn.active {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .tool-icon {
+            font-size: 1.2rem;
+        }
+        
+        /* Color Palette */
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0.5rem;
+        }
+        
+        .color-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .color-btn:hover {
+            transform: scale(1.1);
+            border-color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .color-btn.active {
+            border-color: white;
+            transform: scale(1.2);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        
+        /* Custom Color Picker */
+        .custom-color {
+            width: 100%;
+            height: 40px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 0.5rem;
+        }
+        
+        /* Sliders */
+        .slider-control {
+            margin-bottom: 1rem;
+        }
+        
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            color: white;
+            font-size: 0.9rem;
+        }
+        
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Action Buttons */
+        .action-btn {
+            width: 100%;
+            padding: 0.8rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            margin-bottom: 0.5rem;
+        }
+        
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .action-btn.danger:hover {
+            background: rgba(255, 0, 0, 0.2);
+            border-color: rgba(255, 0, 0, 0.5);
+        }
+        
+        /* Brush Preview */
+        .brush-preview {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 10px;
+            margin: 1rem auto;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .brush-preview-dot {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        /* Canvas Status */
+        .canvas-status {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            backdrop-filter: blur(5px);
+        }
+        
+        /* Layers Panel */
+        .layers-panel {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .layer-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+        }
+        
+        .layer-item.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .layer-preview {
+            width: 30px;
+            height: 30px;
+            background: white;
+            border-radius: 5px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .layer-info {
+            flex: 1;
+            color: white;
+            font-size: 0.8rem;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                height: auto;
+                gap: 1rem;
+                padding: 1rem;
+            }
+            
+            .toolbar {
+                position: static;
+                order: 2;
+            }
+            
+            .canvas-container {
+                order: 1;
+                height: 60vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="title">Canvas Drawing</h1>
+        <p class="subtitle">Interactive drawing canvas with advanced tools and effects</p>
+    </div>
+
+    <div class="main-container">
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <!-- Drawing Tools -->
+            <div class="toolbar-section">
+                <h3 class="toolbar-title">Tools</h3>
+                <div class="tool-grid">
+                    <div class="tool-btn active" onclick="setTool('brush')" data-tool="brush">
+                        <span class="tool-icon">🖌️</span>
+                        <span>Brush</span>
+                    </div>
+                    <div class="tool-btn" onclick="setTool('pencil')" data-tool="pencil">
+                        <span class="tool-icon">✏️</span>
+                        <span>Pencil</span>
+                    </div>
+                    <div class="tool-btn" onclick="setTool('eraser')" data-tool="eraser">
+                        <span class="tool-icon">🧹</span>
+                        <span>Eraser</span>
+                    </div>
+                    <div class="tool-btn" onclick="setTool('spray')" data-tool="spray">
+                        <span class="tool-icon">💨</span>
+                        <span>Spray</span>
+                    </div>
+                    <div class="tool-btn" onclick="setTool('line')" data-tool="line">
+                        <span class="tool-icon">📏</span>
+                        <span>Line</span>
+                    </div>
+                    <div class="tool-btn" onclick="setTool('rectangle')" data-tool="rectangle">
+                        <span class="tool-icon">⬜</span>
+                        <span>Rectangle</span>
+                    </div>
+                    <div class="tool-btn" onclick="setTool('circle')" data-tool="circle">
+                        <span class="tool-icon">⭕</span>
+                        <span>Circle</span>
+                    </div>
+                    <div class="tool-btn" onclick="setTool('text')" data-tool="text">
+                        <span class="tool-icon">📝</span>
+                        <span>Text</span>
+                    </div>
+                    <div class="tool-btn" onclick="setTool('fill')" data-tool="fill">
+                        <span class="tool-icon">🎨</span>
+                        <span>Fill</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Color Palette -->
+            <div class="toolbar-section">
+                <h3 class="toolbar-title">Colors</h3>
+                <div class="color-palette">
+                    <div class="color-btn active" style="background: #000000" onclick="setColor('#000000')"></div>
+                    <div class="color-btn" style="background: #ff0000" onclick="setColor('#ff0000')"></div>
+                    <div class="color-btn" style="background: #00ff00" onclick="setColor('#00ff00')"></div>
+                    <div class="color-btn" style="background: #0000ff" onclick="setColor('#0000ff')"></div>
+                    <div class="color-btn" style="background: #ffff00" onclick="setColor('#ffff00')"></div>
+                    <div class="color-btn" style="background: #ff00ff" onclick="setColor('#ff00ff')"></div>
+                    <div class="color-btn" style="background: #00ffff" onclick="setColor('#00ffff')"></div>
+                    <div class="color-btn" style="background: #ffffff" onclick="setColor('#ffffff')"></div>
+                    <div class="color-btn" style="background: #808080" onclick="setColor('#808080')"></div>
+                    <div class="color-btn" style="background: #ffa500" onclick="setColor('#ffa500')"></div>
+                </div>
+                <input type="color" class="custom-color" id="customColor" onchange="setColor(this.value)">
+            </div>
+
+            <!-- Brush Settings -->
+            <div class="toolbar-section">
+                <h3 class="toolbar-title">Brush Settings</h3>
+                <div class="brush-preview">
+                    <div class="brush-preview-dot" id="brushPreview"></div>
+                </div>
+                <div class="slider-control">
+                    <div class="slider-label">
+                        <span>Size</span>
+                        <span id="brushSizeValue">10</span>
+                    </div>
+                    <input type="range" class="slider" min="1" max="50" value="10" id="brushSize">
+                </div>
+                <div class="slider-control">
+                    <div class="slider-label">
+                        <span>Opacity</span>
+                        <span id="opacityValue">100%</span>
+                    </div>
+                    <input type="range" class="slider" min="1" max="100" value="100" id="opacity">
+                </div>
+                <div class="slider-control">
+                    <div class="slider-label">
+                        <span>Smoothing</span>
+                        <span id="smoothingValue">5</span>
+                    </div>
+                    <input type="range" class="slider" min="0" max="10" value="5" id="smoothing">
+                </div>
+            </div>
+
+            <!-- Effects -->
+            <div class="toolbar-section">
+                <h3 class="toolbar-title">Effects</h3>
+                <div class="tool-grid">
+                    <div class="tool-btn" onclick="toggleEffect('glow')" data-effect="glow">
+                        <span class="tool-icon">✨</span>
+                        <span>Glow</span>
+                    </div>
+                    <div class="tool-btn" onclick="toggleEffect('rainbow')" data-effect="rainbow">
+                        <span class="tool-icon">🌈</span>
+                        <span>Rainbow</span>
+                    </div>
+                    <div class="tool-btn" onclick="toggleEffect('texture')" data-effect="texture">
+                        <span class="tool-icon">🔳</span>
+                        <span>Texture</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="toolbar-section">
+                <h3 class="toolbar-title">Actions</h3>
+                <button class="action-btn" onclick="undo()">↶ Undo</button>
+                <button class="action-btn" onclick="redo()">↷ Redo</button>
+                <button class="action-btn" onclick="saveImage()">💾 Save</button>
+                <button class="action-btn" onclick="loadImage()">📁 Load</button>
+                <button class="action-btn danger" onclick="clearCanvas()">🗑️ Clear</button>
+                <input type="file" id="imageInput" style="display: none" accept="image/*" onchange="handleImageLoad(event)">
+            </div>
+        </div>
+
+        <!-- Canvas Container -->
+        <div class="canvas-container">
+            <canvas class="drawing-canvas" id="drawingCanvas" width="800" height="600"></canvas>
+            <div class="canvas-status" id="canvasStatus">
+                Ready to draw
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+        let isShapeMode = false;
+        let startX, startY;
+        let currentTool = 'brush';
+        let currentColor = '#000000';
+        let brushSize = 10;
+        let opacity = 100;
+        let smoothing = 5;
+        
+        // Effects
+        let glowEffect = false;
+        let rainbowEffect = false;
+        let textureEffect = false;
+        let rainbowHue = 0;
+        
+        // History for undo/redo
+        let history = [];
+        let historyIndex = -1;
+        let maxHistoryStates = 50;
+        
+        // Drawing path for smoothing
+        let currentPath = [];
+        
+        // Shape drawing
+        let shapeStartX, shapeStartY;
+        let tempCanvas = null;
+        
+        // Initialize canvas
+        function initCanvas() {
+            // Set canvas size based on container
+            resizeCanvas();
+            
+            // Set initial styles
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            
+            // Save initial state
+            saveState();
+            
+            // Setup event listeners
+            setupEventListeners();
+            
+            // Update brush preview
+            updateBrushPreview();
+        }
+        
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            const maxWidth = container.clientWidth - 40;
+            const maxHeight = container.clientHeight - 40;
+            
+            const aspectRatio = 4 / 3;
+            let width = maxWidth;
+            let height = width / aspectRatio;
+            
+            if (height > maxHeight) {
+                height = maxHeight;
+                width = height * aspectRatio;
+            }
+            
+            canvas.width = width;
+            canvas.height = height;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+        }
+        
+        function setupEventListeners() {
+            // Mouse events
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+            
+            // Touch events for mobile
+            canvas.addEventListener('touchstart', handleTouch);
+            canvas.addEventListener('touchmove', handleTouch);
+            canvas.addEventListener('touchend', handleTouch);
+            
+            // Prevent scrolling on touch
+            canvas.addEventListener('touchstart', e => e.preventDefault());
+            canvas.addEventListener('touchend', e => e.preventDefault());
+            canvas.addEventListener('touchmove', e => e.preventDefault());
+            
+            // Slider events
+            document.getElementById('brushSize').addEventListener('input', updateBrushSize);
+            document.getElementById('opacity').addEventListener('input', updateOpacity);
+            document.getElementById('smoothing').addEventListener('input', updateSmoothing);
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', handleKeyboard);
+            
+            // Window resize
+            window.addEventListener('resize', resizeCanvas);
+        }
+        
+        function handleTouch(e) {
+            e.preventDefault();
+            const touch = e.touches[0] || e.changedTouches[0];
+            const rect = canvas.getBoundingClientRect();
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            
+            const mouseEvent = new MouseEvent({
+                'touchstart': 'mousedown',
+                'touchmove': 'mousemove',
+                'touchend': 'mouseup'
+            }[e.type], {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            
+            canvas.dispatchEvent(mouseEvent);
+        }
+        
+        function handleKeyboard(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch (e.key) {
+                    case 'z':
+                        e.preventDefault();
+                        if (e.shiftKey) {
+                            redo();
+                        } else {
+                            undo();
+                        }
+                        break;
+                    case 'y':
+                        e.preventDefault();
+                        redo();
+                        break;
+                    case 's':
+                        e.preventDefault();
+                        saveImage();
+                        break;
+                }
+            }
+        }
+        
+        function getMousePos(e) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: e.clientX - rect.left,
+                y: e.clientY - rect.top
+            };
+        }
+        
+        function startDrawing(e) {
+            const pos = getMousePos(e);
+            isDrawing = true;
+            startX = pos.x;
+            startY = pos.y;
+            
+            // Reset path for smoothing
+            currentPath = [{ x: pos.x, y: pos.y }];
+            
+            // Handle different tools
+            switch (currentTool) {
+                case 'line':
+                case 'rectangle':
+                case 'circle':
+                    isShapeMode = true;
+                    shapeStartX = pos.x;
+                    shapeStartY = pos.y;
+                    // Create temporary canvas for shape preview
+                    if (!tempCanvas) {
+                        tempCanvas = document.createElement('canvas');
+                        tempCanvas.width = canvas.width;
+                        tempCanvas.height = canvas.height;
+                    }
+                    tempCanvas.getContext('2d').clearRect(0, 0, tempCanvas.width, tempCanvas.height);
+                    break;
+                case 'fill':
+                    floodFill(pos.x, pos.y);
+                    saveState();
+                    break;
+                case 'text':
+                    addText(pos.x, pos.y);
+                    saveState();
+                    break;
+                default:
+                    setupBrush();
+                    drawDot(pos.x, pos.y);
+                    break;
+            }
+            
+            updateStatus('Drawing...');
+        }
+        
+        function draw(e) {
+            if (!isDrawing) return;
+            
+            const pos = getMousePos(e);
+            
+            if (isShapeMode) {
+                drawShapePreview(pos.x, pos.y);
+            } else {
+                // Add point to path for smoothing
+                currentPath.push({ x: pos.x, y: pos.y });
+                
+                if (smoothing > 0 && currentPath.length > 2) {
+                    drawSmoothLine();
+                } else {
+                    drawLine(startX, startY, pos.x, pos.y);
+                }
+                
+                startX = pos.x;
+                startY = pos.y;
+            }
+        }
+        
+        function stopDrawing(e) {
+            if (!isDrawing) return;
+            
+            isDrawing = false;
+            
+            if (isShapeMode) {
+                const pos = getMousePos(e);
+                drawFinalShape(pos.x, pos.y);
+                isShapeMode = false;
+                saveState();
+            } else {
+                saveState();
+            }
+            
+            currentPath = [];
+            updateStatus('Ready to draw');
+        }
+        
+        function setupBrush() {
+            ctx.globalCompositeOperation = currentTool === 'eraser' ? 'destination-out' : 'source-over';
+            ctx.strokeStyle = currentColor;
+            ctx.fillStyle = currentColor;
+            ctx.lineWidth = brushSize;
+            ctx.globalAlpha = opacity / 100;
+            
+            // Apply effects
+            if (glowEffect) {
+                ctx.shadowColor = currentColor;
+                ctx.shadowBlur = brushSize;
+            } else {
+                ctx.shadowBlur = 0;
+            }
+        }
+        
+        function drawDot(x, y) {
+            setupBrush();
+            
+            if (rainbowEffect) {
+                ctx.strokeStyle = `hsl(${rainbowHue}, 70%, 50%)`;
+                ctx.fillStyle = `hsl(${rainbowHue}, 70%, 50%)`;
+                rainbowHue = (rainbowHue + 2) % 360;
+            }
+            
+            switch (currentTool) {
+                case 'brush':
+                    ctx.beginPath();
+                    ctx.arc(x, y, brushSize / 2, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+                case 'pencil':
+                    ctx.beginPath();
+                    ctx.arc(x, y, brushSize / 4, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+                case 'spray':
+                    drawSpray(x, y);
+                    break;
+                case 'eraser':
+                    ctx.beginPath();
+                    ctx.arc(x, y, brushSize / 2, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+            }
+        }
+        
+        function drawLine(x1, y1, x2, y2) {
+            setupBrush();
+            
+            if (rainbowEffect) {
+                ctx.strokeStyle = `hsl(${rainbowHue}, 70%, 50%)`;
+                rainbowHue = (rainbowHue + 1) % 360;
+            }
+            
+            switch (currentTool) {
+                case 'brush':
+                case 'pencil':
+                case 'eraser':
+                    ctx.beginPath();
+                    ctx.moveTo(x1, y1);
+                    ctx.lineTo(x2, y2);
+                    ctx.stroke();
+                    break;
+                case 'spray':
+                    drawSpray(x2, y2);
+                    break;
+            }
+        }
+        
+        function drawSmoothLine() {
+            if (currentPath.length < 3) return;
+            
+            setupBrush();
+            
+            if (rainbowEffect) {
+                ctx.strokeStyle = `hsl(${rainbowHue}, 70%, 50%)`;
+                rainbowHue = (rainbowHue + 0.5) % 360;
+            }
+            
+            ctx.beginPath();
+            ctx.moveTo(currentPath[0].x, currentPath[0].y);
+            
+            // Use quadratic curves for smoothing
+            for (let i = 1; i < currentPath.length - 1; i++) {
+                const cpx = (currentPath[i].x + currentPath[i + 1].x) / 2;
+                const cpy = (currentPath[i].y + currentPath[i + 1].y) / 2;
+                ctx.quadraticCurveTo(currentPath[i].x, currentPath[i].y, cpx, cpy);
+            }
+            
+            ctx.stroke();
+            
+            // Keep only recent points
+            if (currentPath.length > smoothing + 2) {
+                currentPath = currentPath.slice(-smoothing);
+            }
+        }
+        
+        function drawSpray(x, y) {
+            const density = 10;
+            for (let i = 0; i < density; i++) {
+                const offsetX = (Math.random() - 0.5) * brushSize;
+                const offsetY = (Math.random() - 0.5) * brushSize;
+                
+                ctx.beginPath();
+                ctx.arc(x + offsetX, y + offsetY, 1, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        function drawShapePreview(x, y) {
+            // Clear canvas and redraw with preview
+            ctx.putImageData(ctx.getImageData(0, 0, canvas.width, canvas.height), 0, 0);
+            
+            setupBrush();
+            ctx.globalAlpha = 0.5; // Make preview semi-transparent
+            
+            switch (currentTool) {
+                case 'line':
+                    ctx.beginPath();
+                    ctx.moveTo(shapeStartX, shapeStartY);
+                    ctx.lineTo(x, y);
+                    ctx.stroke();
+                    break;
+                case 'rectangle':
+                    const width = x - shapeStartX;
+                    const height = y - shapeStartY;
+                    ctx.strokeRect(shapeStartX, shapeStartY, width, height);
+                    break;
+                case 'circle':
+                    const radius = Math.sqrt(Math.pow(x - shapeStartX, 2) + Math.pow(y - shapeStartY, 2));
+                    ctx.beginPath();
+                    ctx.arc(shapeStartX, shapeStartY, radius, 0, Math.PI * 2);
+                    ctx.stroke();
+                    break;
+            }
+        }
+        
+        function drawFinalShape(x, y) {
+            setupBrush();
+            
+            switch (currentTool) {
+                case 'line':
+                    ctx.beginPath();
+                    ctx.moveTo(shapeStartX, shapeStartY);
+                    ctx.lineTo(x, y);
+                    ctx.stroke();
+                    break;
+                case 'rectangle':
+                    const width = x - shapeStartX;
+                    const height = y - shapeStartY;
+                    ctx.strokeRect(shapeStartX, shapeStartY, width, height);
+                    break;
+                case 'circle':
+                    const radius = Math.sqrt(Math.pow(x - shapeStartX, 2) + Math.pow(y - shapeStartY, 2));
+                    ctx.beginPath();
+                    ctx.arc(shapeStartX, shapeStartY, radius, 0, Math.PI * 2);
+                    ctx.stroke();
+                    break;
+            }
+        }
+        
+        function floodFill(x, y) {
+            // Simple flood fill implementation
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            const targetColor = getPixelColor(data, x, y, canvas.width);
+            const fillColor = hexToRgb(currentColor);
+            
+            if (colorsMatch(targetColor, fillColor)) return;
+            
+            const stack = [[x, y]];
+            
+            while (stack.length > 0) {
+                const [currentX, currentY] = stack.pop();
+                
+                if (currentX < 0 || currentX >= canvas.width || 
+                    currentY < 0 || currentY >= canvas.height) continue;
+                
+                const currentColor = getPixelColor(data, currentX, currentY, canvas.width);
+                
+                if (!colorsMatch(currentColor, targetColor)) continue;
+                
+                setPixelColor(data, currentX, currentY, canvas.width, fillColor);
+                
+                stack.push([currentX + 1, currentY]);
+                stack.push([currentX - 1, currentY]);
+                stack.push([currentX, currentY + 1]);
+                stack.push([currentX, currentY - 1]);
+            }
+            
+            ctx.putImageData(imageData, 0, 0);
+        }
+        
+        function getPixelColor(data, x, y, width) {
+            const index = (y * width + x) * 4;
+            return [data[index], data[index + 1], data[index + 2], data[index + 3]];
+        }
+        
+        function setPixelColor(data, x, y, width, color) {
+            const index = (y * width + x) * 4;
+            data[index] = color[0];
+            data[index + 1] = color[1];
+            data[index + 2] = color[2];
+            data[index + 3] = 255;
+        }
+        
+        function colorsMatch(color1, color2) {
+            return color1[0] === color2[0] && color1[1] === color2[1] && 
+                   color1[2] === color2[2] && color1[3] === color2[3];
+        }
+        
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? [
+                parseInt(result[1], 16),
+                parseInt(result[2], 16),
+                parseInt(result[3], 16)
+            ] : [0, 0, 0];
+        }
+        
+        function addText(x, y) {
+            const text = prompt('Enter text:');
+            if (text) {
+                setupBrush();
+                ctx.font = `${brushSize * 2}px Arial`;
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'top';
+                ctx.fillText(text, x, y);
+            }
+        }
+        
+        // Tool functions
+        function setTool(tool) {
+            currentTool = tool;
+            
+            // Update active tool button
+            document.querySelectorAll('.tool-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-tool="${tool}"]`).classList.add('active');
+            
+            // Update cursor
+            canvas.style.cursor = tool === 'eraser' ? 'grab' : 'crosshair';
+            
+            updateStatus(`Tool: ${tool.charAt(0).toUpperCase() + tool.slice(1)}`);
+        }
+        
+        function setColor(color) {
+            currentColor = color;
+            
+            // Update active color button
+            document.querySelectorAll('.color-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Find and activate the matching color button
+            const colorBtn = document.querySelector(`[style*="${color}"]`);
+            if (colorBtn) colorBtn.classList.add('active');
+            
+            updateBrushPreview();
+        }
+        
+        function toggleEffect(effect) {
+            const btn = document.querySelector(`[data-effect="${effect}"]`);
+            
+            switch (effect) {
+                case 'glow':
+                    glowEffect = !glowEffect;
+                    break;
+                case 'rainbow':
+                    rainbowEffect = !rainbowEffect;
+                    break;
+                case 'texture':
+                    textureEffect = !textureEffect;
+                    break;
+            }
+            
+            btn.classList.toggle('active');
+        }
+        
+        function updateBrushSize() {
+            brushSize = parseInt(document.getElementById('brushSize').value);
+            document.getElementById('brushSizeValue').textContent = brushSize;
+            updateBrushPreview();
+        }
+        
+        function updateOpacity() {
+            opacity = parseInt(document.getElementById('opacity').value);
+            document.getElementById('opacityValue').textContent = opacity + '%';
+            updateBrushPreview();
+        }
+        
+        function updateSmoothing() {
+            smoothing = parseInt(document.getElementById('smoothing').value);
+            document.getElementById('smoothingValue').textContent = smoothing;
+        }
+        
+        function updateBrushPreview() {
+            const preview = document.getElementById('brushPreview');
+            preview.style.width = Math.max(4, brushSize) + 'px';
+            preview.style.height = Math.max(4, brushSize) + 'px';
+            preview.style.background = currentColor;
+            preview.style.opacity = opacity / 100;
+        }
+        
+        // History functions
+        function saveState() {
+            // Remove states after current index
+            history = history.slice(0, historyIndex + 1);
+            
+            // Add new state
+            history.push(canvas.toDataURL());
+            historyIndex++;
+            
+            // Limit history size
+            if (history.length > maxHistoryStates) {
+                history.shift();
+                historyIndex--;
+            }
+        }
+        
+        function undo() {
+            if (historyIndex > 0) {
+                historyIndex--;
+                restoreState(history[historyIndex]);
+                updateStatus('Undo');
+            }
+        }
+        
+        function redo() {
+            if (historyIndex < history.length - 1) {
+                historyIndex++;
+                restoreState(history[historyIndex]);
+                updateStatus('Redo');
+            }
+        }
+        
+        function restoreState(dataUrl) {
+            const img = new Image();
+            img.onload = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+            };
+            img.src = dataUrl;
+        }
+        
+        // File operations
+        function saveImage() {
+            const link = document.createElement('a');
+            link.download = `drawing_${Date.now()}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+            updateStatus('Image saved');
+        }
+        
+        function loadImage() {
+            document.getElementById('imageInput').click();
+        }
+        
+        function handleImageLoad(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        saveState();
+                        updateStatus('Image loaded');
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        function clearCanvas() {
+            if (confirm('Are you sure you want to clear the canvas?')) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                saveState();
+                updateStatus('Canvas cleared');
+            }
+        }
+        
+        function updateStatus(message) {
+            document.getElementById('canvasStatus').textContent = message;
+            setTimeout(() => {
+                document.getElementById('canvasStatus').textContent = 'Ready to draw';
+            }, 2000);
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            initCanvas();
+        });
+    </script>
+</body>
+</html>
