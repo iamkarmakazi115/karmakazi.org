@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG Morphing - Karmakazi</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f77062 0%, #fe5196 100%);
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 2rem 0;
+            background: rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .title {
+            font-size: clamp(2rem, 6vw, 4rem);
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            margin-bottom: 1rem;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2rem;
+        }
+        
+        /* Demo Container */
+        .demo-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 3rem;
+            padding: 3rem;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        .demo-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            min-height: 400px;
+        }
+        
+        .demo-title {
+            font-size: 1.5rem;
+            color: white;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        /* SVG Container */
+        .svg-container {
+            width: 100%;
+            height: 300px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            margin: 1rem 0;
+        }
+        
+        .svg-container:hover {
+            background: rgba(0, 0, 0, 0.15);
+        }
+        
+        /* SVG Styles */
+        svg {
+            width: 100%;
+            height: 100%;
+            max-width: 280px;
+            max-height: 280px;
+        }
+        
+        /* Shape Morphing */
+        .shape-path {
+            fill: rgba(255, 255, 255, 0.9);
+            stroke: white;
+            stroke-width: 2;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+            transition: d 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* Blob Morphing */
+        .blob-path {
+            fill: url(#blobGradient);
+            filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3));
+        }
+        
+        /* Letter Morphing */
+        .letter-path {
+            fill: none;
+            stroke: white;
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 0;
+        }
+        
+        /* Icon Morphing */
+        .icon-path {
+            fill: white;
+            transition: d 0.5s ease;
+        }
+        
+        /* Wave Morphing */
+        .wave-path {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.8);
+            stroke-width: 2;
+        }
+        
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .control-btn {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .control-btn.active {
+            background: white;
+            color: #fe5196;
+        }
+        
+        /* Slider Controls */
+        .slider-control {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            color: white;
+        }
+        
+        .slider {
+            flex: 1;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.3);
+            outline: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+        }
+        
+        /* Particle System */
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .demo-container {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+            }
+            
+            .svg-container {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="title">SVG Morphing</h1>
+        <p class="subtitle">Advanced SVG path morphing and shape animations</p>
+    </div>
+
+    <div class="demo-container">
+        <!-- Basic Shape Morphing -->
+        <div class="demo-card">
+            <h3 class="demo-title">Shape Morphing</h3>
+            <div class="svg-container" onclick="morphShape()">
+                <svg viewBox="0 0 200 200">
+                    <path id="shapePath" class="shape-path" 
+                          d="M100,30 L170,70 L170,130 L100,170 L30,130 L30,70 Z"/>
+                </svg>
+            </div>
+            <div class="controls">
+                <button class="control-btn active" onclick="setShape('hexagon')">Hexagon</button>
+                <button class="control-btn" onclick="setShape('circle')">Circle</button>
+                <button class="control-btn" onclick="setShape('square')">Square</button>
+                <button class="control-btn" onclick="setShape('star')">Star</button>
+                <button class="control-btn" onclick="setShape('heart')">Heart</button>
+            </div>
+            <div class="slider-control">
+                <span>Duration:</span>
+                <input type="range" class="slider" min="0.3" max="2" step="0.1" value="0.8" 
+                       onchange="setShapeDuration(this.value)" id="shapeDuration">
+                <span id="shapeDurationValue">0.8s</span>
+            </div>
+        </div>
+
+        <!-- Blob Animation -->
+        <div class="demo-card">
+            <h3 class="demo-title">Organic Blob</h3>
+            <div class="svg-container">
+                <svg viewBox="0 0 200 200">
+                    <defs>
+                        <linearGradient id="blobGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:rgba(255,255,255,0.9)" />
+                            <stop offset="100%" style="stop-color:rgba(255,255,255,0.6)" />
+                        </linearGradient>
+                    </defs>
+                    <path id="blobPath" class="blob-path" d=""/>
+                </svg>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="startBlobAnimation()">Start</button>
+                <button class="control-btn" onclick="stopBlobAnimation()">Stop</button>
+                <button class="control-btn" onclick="randomizeBlob()">Randomize</button>
+            </div>
+            <div class="slider-control">
+                <span>Complexity:</span>
+                <input type="range" class="slider" min="3" max="8" step="1" value="5" 
+                       onchange="setBlobComplexity(this.value)" id="blobComplexity">
+                <span id="blobComplexityValue">5</span>
+            </div>
+        </div>
+
+        <!-- Letter Morphing -->
+        <div class="demo-card">
+            <h3 class="demo-title">Letter Morphing</h3>
+            <div class="svg-container" onclick="morphLetter()">
+                <svg viewBox="0 0 200 200">
+                    <path id="letterPath" class="letter-path" 
+                          d="M60,150 L60,50 L100,50 M60,100 L100,100 M140,50 L140,150"/>
+                </svg>
+            </div>
+            <div class="controls">
+                <button class="control-btn active" onclick="setLetter('A')">A</button>
+                <button class="control-btn" onclick="setLetter('B')">B</button>
+                <button class="control-btn" onclick="setLetter('C')">C</button>
+                <button class="control-btn" onclick="setLetter('S')">S</button>
+                <button class="control-btn" onclick="setLetter('Z')">Z</button>
+            </div>
+            <div class="slider-control">
+                <span>Draw Speed:</span>
+                <input type="range" class="slider" min="0.5" max="3" step="0.1" value="1.5" 
+                       onchange="setLetterSpeed(this.value)" id="letterSpeed">
+                <span id="letterSpeedValue">1.5s</span>
+            </div>
+        </div>
+
+        <!-- Icon Morphing -->
+        <div class="demo-card">
+            <h3 class="demo-title">Icon Transitions</h3>
+            <div class="svg-container" onclick="morphIcon()">
+                <svg viewBox="0 0 200 200">
+                    <path id="iconPath" class="icon-path" 
+                          d="M50,80 L150,80 M50,100 L150,100 M50,120 L150,120"/>
+                </svg>
+            </div>
+            <div class="controls">
+                <button class="control-btn active" onclick="setIcon('menu')">Menu</button>
+                <button class="control-btn" onclick="setIcon('close')">Close</button>
+                <button class="control-btn" onclick="setIcon('arrow')">Arrow</button>
+                <button class="control-btn" onclick="setIcon('plus')">Plus</button>
+                <button class="control-btn" onclick="setIcon('check')">Check</button>
+            </div>
+            <div class="slider-control">
+                <span>Smoothness:</span>
+                <input type="range" class="slider" min="0" max="1" step="0.1" value="0.4" 
+                       onchange="setIconSmooth(this.value)" id="iconSmooth">
+                <span id="iconSmoothValue">0.4</span>
+            </div>
+        </div>
+
+        <!-- Wave Animation -->
+        <div class="demo-card">
+            <h3 class="demo-title">Wave Morphing</h3>
+            <div class="svg-container">
+                <svg viewBox="0 0 200 200">
+                    <path id="wavePath1" class="wave-path" d=""/>
+                    <path id="wavePath2" class="wave-path" d="" style="opacity: 0.6"/>
+                    <path id="wavePath3" class="wave-path" d="" style="opacity: 0.4"/>
+                </svg>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="startWaveAnimation()">Start</button>
+                <button class="control-btn" onclick="stopWaveAnimation()">Stop</button>
+                <button class="control-btn" onclick="setWaveType('sine')">Sine</button>
+                <button class="control-btn" onclick="setWaveType('turbulent')">Turbulent</button>
+            </div>
+            <div class="slider-control">
+                <span>Frequency:</span>
+                <input type="range" class="slider" min="1" max="5" step="0.5" value="2" 
+                       onchange="setWaveFrequency(this.value)" id="waveFreq">
+                <span id="waveFreqValue">2</span>
+            </div>
+        </div>
+
+        <!-- Complex Path Animation -->
+        <div class="demo-card">
+            <h3 class="demo-title">Complex Paths</h3>
+            <div class="svg-container" onclick="morphComplex()">
+                <svg viewBox="0 0 200 200">
+                    <defs>
+                        <filter id="glow">
+                            <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                            <feMerge>
+                                <feMergeNode in="coloredBlur"/>
+                                <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                        </filter>
+                    </defs>
+                    <path id="complexPath" class="shape-path" 
+                          style="filter: url(#glow)"
+                          d="M100,40 Q140,40 140,80 T100,120 Q60,120 60,80 T100,40"/>
+                </svg>
+            </div>
+            <div class="controls">
+                <button class="control-btn active" onclick="setComplex('infinity')">Infinity</button>
+                <button class="control-btn" onclick="setComplex('flower')">Flower</button>
+                <button class="control-btn" onclick="setComplex('spiral')">Spiral</button>
+                <button class="control-btn" onclick="setComplex('butterfly')">Butterfly</button>
+            </div>
+            <div class="slider-control">
+                <span>Segments:</span>
+                <input type="range" class="slider" min="4" max="12" step="1" value="8" 
+                       onchange="setComplexSegments(this.value)" id="complexSegments">
+                <span id="complexSegmentsValue">8</span>
+            </div>
+        </div>
+
+        <!-- Particles Morph -->
+        <div class="demo-card">
+            <h3 class="demo-title">Particle Formation</h3>
+            <div class="svg-container" id="particleContainer" onclick="morphParticles()">
+                <svg viewBox="0 0 200 200">
+                    <circle cx="100" cy="100" r="3" fill="white" opacity="0.8"/>
+                </svg>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="formShape('circle')">Circle</button>
+                <button class="control-btn" onclick="formShape('heart')">Heart</button>
+                <button class="control-btn" onclick="formShape('star')">Star</button>
+                <button class="control-btn" onclick="disperseParticles()">Disperse</button>
+            </div>
+            <div class="slider-control">
+                <span>Particles:</span>
+                <input type="range" class="slider" min="20" max="100" step="10" value="50" 
+                       onchange="setParticleCount(this.value)" id="particleCount">
+                <span id="particleCountValue">50</span>
+            </div>
+        </div>
+
+        <!-- Gradient Mesh -->
+        <div class="demo-card">
+            <h3 class="demo-title">Gradient Mesh</h3>
+            <div class="svg-container">
+                <svg viewBox="0 0 200 200">
+                    <defs>
+                        <linearGradient id="mesh1" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#ff6b6b">
+                                <animate attributeName="stop-color" 
+                                    values="#ff6b6b;#4ecdc4;#45b7d1;#ff6b6b" 
+                                    dur="8s" repeatCount="indefinite"/>
+                            </stop>
+                            <stop offset="100%" style="stop-color:#4ecdc4">
+                                <animate attributeName="stop-color" 
+                                    values="#4ecdc4;#45b7d1;#ff6b6b;#4ecdc4" 
+                                    dur="8s" repeatCount="indefinite"/>
+                            </stop>
+                        </linearGradient>
+                        <filter id="blur">
+                            <feGaussianBlur in="SourceGraphic" stdDeviation="0">
+                                <animate attributeName="stdDeviation" 
+                                    values="0;3;0" dur="4s" repeatCount="indefinite"/>
+                            </feGaussianBlur>
+                        </filter>
+                    </defs>
+                    <path id="meshPath" fill="url(#mesh1)" filter="url(#blur)" 
+                          d="M50,100 Q100,50 150,100 T50,100"/>
+                </svg>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="animateMesh()">Animate</button>
+                <button class="control-btn" onclick="randomizeMesh()">Randomize</button>
+                <button class="control-btn" onclick="resetMesh()">Reset</button>
+            </div>
+            <div class="slider-control">
+                <span>Blur Amount:</span>
+                <input type="range" class="slider" min="0" max="10" step="0.5" value="2" 
+                       onchange="setMeshBlur(this.value)" id="meshBlur">
+                <span id="meshBlurValue">2</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Shape morphing paths
+        const shapes = {
+            hexagon: "M100,30 L170,70 L170,130 L100,170 L30,130 L30,70 Z",
+            circle: "M100,30 A70,70 0 1,1 99.9,30 Z",
+            square: "M40,40 L160,40 L160,160 L40,160 Z",
+            star: "M100,20 L120,80 L180,80 L130,120 L150,180 L100,140 L50,180 L70,120 L20,80 L80,80 Z",
+            heart: "M100,45 C100,35 90,25 75,25 C50,25 40,45 40,65 C40,100 100,160 100,160 S160,100 160,65 C160,45 150,25 125,25 C110,25 100,35 100,45 Z"
+        };
+
+        let currentShape = 'hexagon';
+        let shapeDuration = 0.8;
+
+        function setShape(shape) {
+            if (shapes[shape]) {
+                currentShape = shape;
+                document.getElementById('shapePath').setAttribute('d', shapes[shape]);
+                document.getElementById('shapePath').style.transition = `d ${shapeDuration}s cubic-bezier(0.4, 0, 0.2, 1)`;
+                updateActiveButton(event.target);
+            }
+        }
+
+        function morphShape() {
+            const shapeNames = Object.keys(shapes);
+            const currentIndex = shapeNames.indexOf(currentShape);
+            const nextIndex = (currentIndex + 1) % shapeNames.length;
+            setShape(shapeNames[nextIndex]);
+        }
+
+        function setShapeDuration(value) {
+            shapeDuration = parseFloat(value);
+            document.getElementById('shapeDurationValue').textContent = value + 's';
+        }
+
+        // Blob animation
+        let blobAnimation;
+        let blobComplexity = 5;
+
+        function generateBlobPath(complexity) {
+            const points = [];
+            const angleStep = (Math.PI * 2) / complexity;
+            const centerX = 100;
+            const centerY = 100;
+            const baseRadius = 60;
+            
+            for (let i = 0; i < complexity; i++) {
+                const angle = angleStep * i;
+                const radius = baseRadius + Math.random() * 20 - 10;
+                const x = centerX + Math.cos(angle) * radius;
+                const y = centerY + Math.sin(angle) * radius;
+                points.push({ x, y });
+            }
+            
+            let path = `M${points[0].x},${points[0].y}`;
+            
+            for (let i = 0; i < points.length; i++) {
+                const next = points[(i + 1) % points.length];
+                const cp1x = points[i].x + (next.x - points[i].x) * 0.25;
+                const cp1y = points[i].y + (next.y - points[i].y) * 0.25;
+                const cp2x = next.x - (next.x - points[i].x) * 0.25;
+                const cp2y = next.y - (next.y - points[i].y) * 0.25;
+                path += ` C${cp1x},${cp1y} ${cp2x},${cp2y} ${next.x},${next.y}`;
+            }
+            
+            path += ' Z';
+            return path;
+        }
+
+        function animateBlob() {
+            const blobPath = document.getElementById('blobPath');
+            const newPath = generateBlobPath(blobComplexity);
+            blobPath.setAttribute('d', newPath);
+        }
+
+        function startBlobAnimation() {
+            if (!blobAnimation) {
+                animateBlob();
+                blobAnimation = setInterval(animateBlob, 2000);
+            }
+        }
+
+        function stopBlobAnimation() {
+            clearInterval(blobAnimation);
+            blobAnimation = null;
+        }
+
+        function randomizeBlob() {
+            animateBlob();
+        }
+
+        function setBlobComplexity(value) {
+            blobComplexity = parseInt(value);
+            document.getElementById('blobComplexityValue').textContent = value;
+            animateBlob();
+        }
+
+        // Letter morphing
+        const letters = {
+            A: "M60,150 L90,50 L120,150 M75,110 L105,110",
+            B: "M60,150 L60,50 L110,50 Q130,60 130,75 Q130,90 110,100 L60,100 L110,100 Q140,110 140,130 Q140,150 110,150 L60,150",
+            C: "M140,60 Q120,50 100,50 Q60,50 60,100 Q60,150 100,150 Q120,150 140,140",
+            S: "M130,70 Q120,50 95,50 Q70,50 70,70 Q70,90 100,100 Q130,110 130,130 Q130,150 105,150 Q80,150 70,130",
+            Z: "M60,50 L140,50 L60,150 L140,150"
+        };
+
+        let currentLetter = 'A';
+
+        function setLetter(letter) {
+            if (letters[letter]) {
+                currentLetter = letter;
+                const letterPath = document.getElementById('letterPath');
+                letterPath.setAttribute('d', letters[letter]);
+                updateActiveButton(event.target);
+            }
+        }
+
+        function morphLetter() {
+            const letterNames = Object.keys(letters);
+            const currentIndex = letterNames.indexOf(currentLetter);
+            const nextIndex = (currentIndex + 1) % letterNames.length;
+            setLetter(letterNames[nextIndex]);
+        }
+
+        function setLetterSpeed(value) {
+            document.getElementById('letterSpeedValue').textContent = value + 's';
+            const letterPath = document.getElementById('letterPath');
+            letterPath.style.animation = `drawPath ${value}s ease-in-out infinite`;
+        }
+
+        // Icon morphing
+        const icons = {
+            menu: "M50,80 L150,80 M50,100 L150,100 M50,120 L150,120",
+            close: "M70,70 L130,130 M130,70 L70,130",
+            arrow: "M60,100 L140,100 M120,80 L140,100 L120,120",
+            plus: "M100,60 L100,140 M60,100 L140,100",
+            check: "M60,100 L90,130 L140,70"
+        };
+
+        let currentIcon = 'menu';
+
+        function setIcon(icon) {
+            if (icons[icon]) {
+                currentIcon = icon;
+                document.getElementById('iconPath').setAttribute('d', icons[icon]);
+                updateActiveButton(event.target);
+            }
+        }
+
+        function morphIcon() {
+            const iconNames = Object.keys(icons);
+            const currentIndex = iconNames.indexOf(currentIcon);
+            const nextIndex = (currentIndex + 1) % iconNames.length;
+            setIcon(iconNames[nextIndex]);
+        }
+
+        function setIconSmooth(value) {
+            document.getElementById('iconSmoothValue').textContent = value;
+            const iconPath = document.getElementById('iconPath');
+            iconPath.style.transition = `d ${value}s ease`;
+        }
+
+        // Wave animation
+        let waveAnimation;
+        let waveType = 'sine';
+        let waveFrequency = 2;
+
+        function generateWavePath(offset = 0, amplitude = 20) {
+            const points = [];
+            const width = 200;
+            const centerY = 100;
+            
+            for (let x = 0; x <= width; x += 5) {
+                let y;
+                if (waveType === 'sine') {
+                    y = centerY + Math.sin((x / width) * Math.PI * waveFrequency + offset) * amplitude;
+                } else {
+                    y = centerY + (Math.random() - 0.5) * amplitude * 2 + 
+                        Math.sin((x / width) * Math.PI * waveFrequency + offset) * amplitude;
+                }
+                points.push(`${x},${y}`);
+            }
+            
+            return `M${points.join(' L')}`;
+        }
+
+        function animateWaves() {
+            const time = Date.now() / 1000;
+            document.getElementById('wavePath1').setAttribute('d', generateWavePath(time, 20));
+            document.getElementById('wavePath2').setAttribute('d', generateWavePath(time + 0.5, 15));
+            document.getElementById('wavePath3').setAttribute('d', generateWavePath(time + 1, 10));
+        }
+
+        function startWaveAnimation() {
+            if (!waveAnimation) {
+                waveAnimation = setInterval(animateWaves, 50);
+            }
+        }
+
+        function stopWaveAnimation() {
+            clearInterval(waveAnimation);
+            waveAnimation = null;
+        }
+
+        function setWaveType(type) {
+            waveType = type;
+        }
+
+        function setWaveFrequency(value) {
+            waveFrequency = parseFloat(value);
+            document.getElementById('waveFreqValue').textContent = value;
+        }
+
+        // Complex paths
+        const complexPaths = {
+            infinity: "M100,100 Q140,100 140,80 T100,60 Q60,60 60,80 T100,100 Q140,100 140,120 T100,140 Q60,140 60,120 T100,100",
+            flower: "M100,100 m-30,0 a30,30 0 1,0 60,0 a30,30 0 1,0 -60,0 m30,-30 a30,30 0 1,0 0,60 a30,30 0 1,0 0,-60 m21,21 a30,30 0 1,0 -42,42 a30,30 0 1,0 42,-42 m0,42 a30,30 0 1,0 -42,-42 a30,30 0 1,0 42,42",
+            spiral: "M100,100 Q120,100 120,80 Q120,60 100,60 Q60,60 60,100 Q60,140 100,140 Q160,140 160,100 Q160,40 100,40",
+            butterfly: "M100,100 Q80,80 60,60 Q40,80 60,100 Q80,120 100,100 Q120,80 140,60 Q160,80 140,100 Q120,120 100,100"
+        };
+
+        let currentComplex = 'infinity';
+
+        function setComplex(shape) {
+            if (complexPaths[shape]) {
+                currentComplex = shape;
+                document.getElementById('complexPath').setAttribute('d', complexPaths[shape]);
+                updateActiveButton(event.target);
+            }
+        }
+
+        function morphComplex() {
+            const complexNames = Object.keys(complexPaths);
+            const currentIndex = complexNames.indexOf(currentComplex);
+            const nextIndex = (currentIndex + 1) % complexNames.length;
+            setComplex(complexNames[nextIndex]);
+        }
+
+        function setComplexSegments(value) {
+            document.getElementById('complexSegmentsValue').textContent = value;
+        }
+
+        // Particle formation
+        let particles = [];
+        let particleCount = 50;
+
+        function createParticles() {
+            const container = document.getElementById('particleContainer');
+            const svg = container.querySelector('svg');
+            
+            // Clear existing particles
+            svg.innerHTML = '';
+            particles = [];
+            
+            for (let i = 0; i < particleCount; i++) {
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('r', '2');
+                circle.setAttribute('fill', 'white');
+                circle.setAttribute('opacity', '0.8');
+                circle.setAttribute('cx', Math.random() * 200);
+                circle.setAttribute('cy', Math.random() * 200);
+                svg.appendChild(circle);
+                particles.push(circle);
+            }
+        }
+
+        function formShape(shape) {
+            if (particles.length === 0) createParticles();
+            
+            let positions = [];
+            
+            if (shape === 'circle') {
+                const radius = 60;
+                const angleStep = (Math.PI * 2) / particles.length;
+                for (let i = 0; i < particles.length; i++) {
+                    const angle = angleStep * i;
+                    positions.push({
+                        x: 100 + Math.cos(angle) * radius,
+                        y: 100 + Math.sin(angle) * radius
+                    });
+                }
+            } else if (shape === 'heart') {
+                const scale = 3;
+                for (let i = 0; i < particles.length; i++) {
+                    const t = (i / particles.length) * Math.PI * 2;
+                    const x = 16 * Math.pow(Math.sin(t), 3);
+                    const y = -13 * Math.cos(t) + 5 * Math.cos(2*t) + 2 * Math.cos(3*t) + Math.cos(4*t);
+                    positions.push({
+                        x: 100 + x * scale,
+                        y: 100 + y * scale
+                    });
+                }
+            } else if (shape === 'star') {
+                const outerRadius = 60;
+                const innerRadius = 25;
+                const points = 5;
+                const angleStep = (Math.PI * 2) / (points * 2);
+                for (let i = 0; i < particles.length; i++) {
+                    const index = i % (points * 2);
+                    const radius = index % 2 === 0 ? outerRadius : innerRadius;
+                    const angle = angleStep * index;
+                    positions.push({
+                        x: 100 + Math.cos(angle) * radius,
+                        y: 100 + Math.sin(angle) * radius
+                    });
+                }
+            }
+            
+            particles.forEach((particle, i) => {
+                const pos = positions[i % positions.length];
+                particle.style.transition = 'all 1s ease';
+                particle.setAttribute('cx', pos.x);
+                particle.setAttribute('cy', pos.y);
+            });
+        }
+
+        function disperseParticles() {
+            particles.forEach(particle => {
+                particle.style.transition = 'all 1s ease';
+                particle.setAttribute('cx', Math.random() * 200);
+                particle.setAttribute('cy', Math.random() * 200);
+            });
+        }
+
+        function morphParticles() {
+            const shapes = ['circle', 'heart', 'star'];
+            const randomShape = shapes[Math.floor(Math.random() * shapes.length)];
+            formShape(randomShape);
+        }
+
+        function setParticleCount(value) {
+            particleCount = parseInt(value);
+            document.getElementById('particleCountValue').textContent = value;
+            createParticles();
+        }
+
+        // Gradient mesh
+        function animateMesh() {
+            const meshPath = document.getElementById('meshPath');
+            const paths = [
+                "M50,100 Q100,50 150,100 T50,100",
+                "M30,120 Q100,30 170,120 T30,120",
+                "M70,100 Q100,70 130,100 T70,100",
+                "M40,110 Q100,40 160,110 T40,110"
+            ];
+            
+            let index = 0;
+            setInterval(() => {
+                meshPath.setAttribute('d', paths[index]);
+                index = (index + 1) % paths.length;
+            }, 2000);
+        }
+
+        function randomizeMesh() {
+            const meshPath = document.getElementById('meshPath');
+            const randomPath = `M${50 + Math.random() * 30},100 Q100,${30 + Math.random() * 40} ${130 + Math.random() * 30},100 T${50 + Math.random() * 30},100`;
+            meshPath.setAttribute('d', randomPath);
+        }
+
+        function resetMesh() {
+            const meshPath = document.getElementById('meshPath');
+            meshPath.setAttribute('d', "M50,100 Q100,50 150,100 T50,100");
+        }
+
+        function setMeshBlur(value) {
+            document.getElementById('meshBlurValue').textContent = value;
+            // Update blur filter if needed
+        }
+
+        // Utility function
+        function updateActiveButton(button) {
+            if (!button) return;
+            const buttons = button.parentElement.querySelectorAll('.control-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize blob
+            startBlobAnimation();
+            
+            // Initialize waves
+            startWaveAnimation();
+            
+            // Initialize particles
+            createParticles();
+            
+            // Add hover effects
+            document.querySelectorAll('.svg-container').forEach(container => {
+                container.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.02)';
+                });
+                container.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
