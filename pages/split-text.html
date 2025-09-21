@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Split Text Effects - Karmakazi</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 2rem 0;
+            background: rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .title {
+            font-size: clamp(2rem, 6vw, 4rem);
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            margin-bottom: 1rem;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 2rem;
+        }
+        
+        /* Demo Container */
+        .demo-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 3rem;
+            padding: 3rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .demo-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            min-height: 400px;
+        }
+        
+        .demo-title {
+            font-size: 1.5rem;
+            color: white;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        /* Text Container */
+        .text-container {
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            margin: 1rem 0;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .text-container:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Base Split Text */
+        .split-text {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: white;
+            text-align: center;
+            line-height: 1.2;
+            position: relative;
+        }
+        
+        /* Character Split */
+        .char-split .char {
+            display: inline-block;
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.320, 1);
+            transform-origin: center bottom;
+        }
+        
+        .char-split.animated .char {
+            animation: charReveal 0.8s ease forwards;
+        }
+        
+        .char-split.stagger .char:nth-child(odd) {
+            animation-delay: calc(var(--char-index) * 0.1s);
+            transform: translateY(50px) rotateX(90deg);
+            opacity: 0;
+        }
+        
+        .char-split.stagger .char:nth-child(even) {
+            animation-delay: calc(var(--char-index) * 0.1s + 0.05s);
+            transform: translateY(-50px) rotateX(-90deg);
+            opacity: 0;
+        }
+        
+        .char-split.stagger.animated .char {
+            transform: translateY(0) rotateX(0deg);
+            opacity: 1;
+        }
+        
+        /* Word Split */
+        .word-split .word {
+            display: inline-block;
+            margin: 0 0.2em;
+            transition: all 0.8s cubic-bezier(0.23, 1, 0.320, 1);
+            transform-origin: center;
+        }
+        
+        .word-split.slide-up .word {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+        
+        .word-split.slide-up.animated .word {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .word-split.slide-down .word {
+            transform: translateY(-100%);
+            opacity: 0;
+        }
+        
+        .word-split.slide-down.animated .word {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .word-split.scale .word {
+            transform: scale(0);
+            opacity: 0;
+        }
+        
+        .word-split.scale.animated .word {
+            transform: scale(1);
+            opacity: 1;
+        }
+        
+        .word-split.rotate .word {
+            transform: rotateY(90deg);
+            opacity: 0;
+        }
+        
+        .word-split.rotate.animated .word {
+            transform: rotateY(0deg);
+            opacity: 1;
+        }
+        
+        /* Line Split */
+        .line-split {
+            line-height: 1.4;
+        }
+        
+        .line-split .line {
+            display: block;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .line-split .line-inner {
+            display: block;
+            transition: transform 0.8s cubic-bezier(0.23, 1, 0.320, 1);
+        }
+        
+        .line-split.slide-up .line-inner {
+            transform: translateY(100%);
+        }
+        
+        .line-split.slide-up.animated .line-inner {
+            transform: translateY(0);
+        }
+        
+        .line-split.slide-down .line-inner {
+            transform: translateY(-100%);
+        }
+        
+        .line-split.slide-down.animated .line-inner {
+            transform: translateY(0);
+        }
+        
+        .line-split.fade .line-inner {
+            opacity: 0;
+            transform: translateX(-50px);
+        }
+        
+        .line-split.fade.animated .line-inner {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        /* Clip Path Split */
+        .clip-split {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .clip-split .clip-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
+            transition: clip-path 1s cubic-bezier(0.23, 1, 0.320, 1);
+        }
+        
+        .clip-split.left-to-right.animated .clip-layer {
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+        }
+        
+        .clip-split.right-to-left.animated .clip-layer {
+            clip-path: polygon(100% 0, 100% 0, 100% 100%, 100% 100%);
+        }
+        
+        .clip-split.right-to-left.animated .clip-layer {
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+        }
+        
+        .clip-split.top-to-bottom.animated .clip-layer {
+            clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
+        }
+        
+        .clip-split.top-to-bottom.animated .clip-layer {
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+        }
+        
+        .clip-split.center-out .clip-layer {
+            clip-path: polygon(50% 50%, 50% 50%, 50% 50%, 50% 50%);
+        }
+        
+        .clip-split.center-out.animated .clip-layer {
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+        }
+        
+        /* Typewriter Split */
+        .typewriter-split {
+            font-family: 'Courier New', monospace;
+            border-right: 3px solid white;
+            white-space: nowrap;
+            overflow: hidden;
+            width: 0;
+            animation: typewriter 3s steps(40) forwards, cursor-blink 1s infinite;
+        }
+        
+        @keyframes typewriter {
+            to { width: 100%; }
+        }
+        
+        @keyframes cursor-blink {
+            0%, 50% { border-color: white; }
+            51%, 100% { border-color: transparent; }
+        }
+        
+        /* Glitch Split */
+        .glitch-split {
+            position: relative;
+            color: #ff0080;
+        }
+        
+        .glitch-split::before,
+        .glitch-split::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .glitch-split::before {
+            animation: glitch-1 2s infinite;
+            color: #00ffff;
+            z-index: -1;
+        }
+        
+        .glitch-split::after {
+            animation: glitch-2 2s infinite;
+            color: #ffff00;
+            z-index: -2;
+        }
+        
+        .glitch-split.animated {
+            animation: glitch-main 2s infinite;
+        }
+        
+        @keyframes glitch-main {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+        }
+        
+        @keyframes glitch-1 {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(-5px, 2px); }
+            40% { transform: translate(-5px, -2px); }
+            60% { transform: translate(5px, 2px); }
+            80% { transform: translate(5px, -2px); }
+        }
+        
+        @keyframes glitch-2 {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(5px, -2px); }
+            40% { transform: translate(5px, 2px); }
+            60% { transform: translate(-5px, -2px); }
+            80% { transform: translate(-5px, 2px); }
+        }
+        
+        /* Mask Split */
+        .mask-split {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .mask-split::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, white, transparent);
+            transform: translateX(-100%);
+            transition: transform 1.5s ease;
+            z-index: 1;
+            mix-blend-mode: multiply;
+        }
+        
+        .mask-split.animated::before {
+            transform: translateX(100%);
+        }
+        
+        /* 3D Split */
+        .split-3d {
+            perspective: 1000px;
+            transform-style: preserve-3d;
+        }
+        
+        .split-3d .char {
+            display: inline-block;
+            transition: all 0.8s cubic-bezier(0.23, 1, 0.320, 1);
+            transform-origin: center bottom;
+        }
+        
+        .split-3d.flip .char {
+            transform: rotateX(90deg);
+            opacity: 0;
+        }
+        
+        .split-3d.flip.animated .char {
+            transform: rotateX(0deg);
+            opacity: 1;
+        }
+        
+        .split-3d.cube .char {
+            transform: rotateY(90deg);
+            opacity: 0;
+        }
+        
+        .split-3d.cube.animated .char {
+            transform: rotateY(0deg);
+            opacity: 1;
+        }
+        
+        /* Elastic Split */
+        .elastic-split .char {
+            display: inline-block;
+            transition: all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            transform: scale(0) rotateZ(180deg);
+            opacity: 0;
+        }
+        
+        .elastic-split.animated .char {
+            transform: scale(1) rotateZ(0deg);
+            opacity: 1;
+        }
+        
+        /* Wave Split */
+        .wave-split .char {
+            display: inline-block;
+            transition: all 0.6s ease;
+            transform: translateY(0);
+        }
+        
+        .wave-split.animated .char {
+            animation: wave 2s ease-in-out infinite;
+        }
+        
+        @keyframes wave {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        @keyframes charReveal {
+            0% {
+                opacity: 0;
+                transform: translateY(50px) rotateX(90deg);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) rotateX(0deg);
+            }
+        }
+        
+        /* Controls */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .control-btn {
+            padding: 0.6rem 1.2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            font-size: 0.9rem;
+        }
+        
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .control-btn.active {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.7);
+        }
+        
+        /* Text Input */
+        .text-input {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            text-align: center;
+            margin: 1rem 0;
+            backdrop-filter: blur(5px);
+        }
+        
+        .text-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        /* Slider Controls */
+        .slider-control {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1rem 0;
+            color: white;
+        }
+        
+        .slider {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Animation Info */
+        .animation-info {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 0.5rem 0;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .demo-container {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+                gap: 2rem;
+            }
+            
+            .text-container {
+                height: 150px;
+            }
+            
+            .split-text {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="title">Split Text Effects</h1>
+        <p class="subtitle">Character, word, and line-based text animations</p>
+    </div>
+
+    <div class="demo-container">
+        <!-- Character Split -->
+        <div class="demo-card">
+            <h3 class="demo-title">Character Split</h3>
+            <div class="text-container" onclick="animateText('char')">
+                <div class="split-text char-split stagger" id="charText">CHARACTERS</div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="triggerAnimation('char')">Animate</button>
+                <button class="control-btn" onclick="resetAnimation('char')">Reset</button>
+                <button class="control-btn active" onclick="setCharStyle('stagger')">Stagger</button>
+                <button class="control-btn" onclick="setCharStyle('wave')">Wave</button>
+                <button class="control-btn" onclick="setCharStyle('elastic')">Elastic</button>
+            </div>
+            <div class="slider-control">
+                <span>Stagger Delay:</span>
+                <input type="range" class="slider" min="50" max="300" value="100" 
+                       onchange="setStaggerDelay('char', this.value)" id="charStagger">
+                <span id="charStaggerValue">100ms</span>
+            </div>
+            <div class="animation-info">
+                <div class="info-row">
+                    <span>Characters:</span>
+                    <span id="charCount">10</span>
+                </div>
+                <div class="info-row">
+                    <span>Animation:</span>
+                    <span id="charAnimation">Stagger</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Word Split -->
+        <div class="demo-card">
+            <h3 class="demo-title">Word Split</h3>
+            <div class="text-container" onclick="animateText('word')">
+                <div class="split-text word-split slide-up" id="wordText">WORD BY WORD</div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="triggerAnimation('word')">Animate</button>
+                <button class="control-btn" onclick="resetAnimation('word')">Reset</button>
+                <button class="control-btn active" onclick="setWordStyle('slide-up')">Slide Up</button>
+                <button class="control-btn" onclick="setWordStyle('slide-down')">Slide Down</button>
+                <button class="control-btn" onclick="setWordStyle('scale')">Scale</button>
+                <button class="control-btn" onclick="setWordStyle('rotate')">Rotate</button>
+            </div>
+            <div class="slider-control">
+                <span>Word Delay:</span>
+                <input type="range" class="slider" min="100" max="500" value="200" 
+                       onchange="setWordDelay(this.value)" id="wordDelay">
+                <span id="wordDelayValue">200ms</span>
+            </div>
+        </div>
+
+        <!-- Line Split -->
+        <div class="demo-card">
+            <h3 class="demo-title">Line Split</h3>
+            <div class="text-container" onclick="animateText('line')">
+                <div class="split-text line-split slide-up" id="lineText">
+                    <div class="line"><span class="line-inner">FIRST LINE</span></div>
+                    <div class="line"><span class="line-inner">SECOND LINE</span></div>
+                    <div class="line"><span class="line-inner">THIRD LINE</span></div>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="triggerAnimation('line')">Animate</button>
+                <button class="control-btn" onclick="resetAnimation('line')">Reset</button>
+                <button class="control-btn active" onclick="setLineStyle('slide-up')">Slide Up</button>
+                <button class="control-btn" onclick="setLineStyle('slide-down')">Slide Down</button>
+                <button class="control-btn" onclick="setLineStyle('fade')">Fade In</button>
+            </div>
+            <div class="slider-control">
+                <span>Line Delay:</span>
+                <input type="range" class="slider" min="150" max="600" value="300" 
+                       onchange="setLineDelay(this.value)" id="lineDelay">
+                <span id="lineDelayValue">300ms</span>
+            </div>
+        </div>
+
+        <!-- Clip Path Split -->
+        <div class="demo-card">
+            <h3 class="demo-title">Clip Path Reveal</h3>
+            <div class="text-container" onclick="animateText('clip')">
+                <div class="split-text clip-split left-to-right" id="clipText">
+                    <div>CLIP REVEAL</div>
+                    <div class="clip-layer">CLIP REVEAL</div>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="triggerAnimation('clip')">Animate</button>
+                <button class="control-btn" onclick="resetAnimation('clip')">Reset</button>
+                <button class="control-btn active" onclick="setClipStyle('left-to-right')">Left to Right</button>
+                <button class="control-btn" onclick="setClipStyle('right-to-left')">Right to Left</button>
+                <button class="control-btn" onclick="setClipStyle('top-to-bottom')">Top to Bottom</button>
+                <button class="control-btn" onclick="setClipStyle('center-out')">Center Out</button>
+            </div>
+            <div class="slider-control">
+                <span>Reveal Speed:</span>
+                <input type="range" class="slider" min="0.5" max="3" step="0.1" value="1" 
+                       onchange="setClipSpeed(this.value)" id="clipSpeed">
+                <span id="clipSpeedValue">1s</span>
+            </div>
+        </div>
+
+        <!-- Typewriter Split -->
+        <div class="demo-card">
+            <h3 class="demo-title">Typewriter Effect</h3>
+            <div class="text-container" onclick="animateText('typewriter')">
+                <div class="split-text typewriter-split" id="typewriterText">TYPEWRITER EFFECT</div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="triggerAnimation('typewriter')">Type</button>
+                <button class="control-btn" onclick="resetAnimation('typewriter')">Reset</button>
+                <button class="control-btn" onclick="setTypewriterSpeed('fast')">Fast</button>
+                <button class="control-btn" onclick="setTypewriterSpeed('normal')">Normal</button>
+                <button class="control-btn" onclick="setTypewriterSpeed('slow')">Slow</button>
+                <button class="control-btn" onclick="toggleCursor()">Toggle Cursor</button>
+            </div>
+            <div class="slider-control">
+                <span>Type Speed:</span>
+                <input type="range" class="slider" min="50" max="300" value="150" 
+                       onchange="setCustomTypeSpeed(this.value)" id="typeSpeed">
+                <span id="typeSpeedValue">150ms</span>
+            </div>
+        </div>
+
+        <!-- Glitch Split -->
+        <div class="demo-card">
+            <h3 class="demo-title">Glitch Text</h3>
+            <div class="text-container" onclick="animateText('glitch')">
+                <div class="split-text glitch-split" id="glitchText" data-text="GLITCH TEXT">GLITCH TEXT</div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="triggerAnimation('glitch')">Glitch</button>
+                <button class="control-btn" onclick="stopGlitch()">Stop</button>
+                <button class="control-btn" onclick="setGlitchIntensity('low')">Low</button>
+                <button class="control-btn" onclick="setGlitchIntensity('medium')">Medium</button>
+                <button class="control-btn" onclick="setGlitchIntensity('high')">High</button>
+            </div>
+            <div class="slider-control">
+                <span>Glitch Speed:</span>
+                <input type="range" class="slider" min="0.5" max="5" step="0.1" value="2" 
+                       onchange="setGlitchSpeed(this.value)" id="glitchSpeed">
+                <span id="glitchSpeedValue">2s</span>
+            </div>
+        </div>
+
+        <!-- Mask Split -->
+        <div class="demo-card">
+            <h3 class="demo-title">Mask Reveal</h3>
+            <div class="text-container" onclick="animateText('mask')">
+                <div class="split-text mask-split" id="maskText">MASK REVEAL</div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="triggerAnimation('mask')">Reveal</button>
+                <button class="control-btn" onclick="resetAnimation('mask')">Reset</button>
+                <button class="control-btn" onclick="setMaskDirection('left-right')">Left to Right</button>
+                <button class="control-btn" onclick="setMaskDirection('right-left')">Right to Left</button>
+                <button class="control-btn" onclick="setMaskDirection('center')">Center Out</button>
+            </div>
+            <div class="slider-control">
+                <span>Mask Speed:</span>
+                <input type="range" class="slider" min="0.5" max="3" step="0.1" value="1.5" 
+                       onchange="setMaskSpeed(this.value)" id="maskSpeed">
+                <span id="maskSpeedValue">1.5s</span>
+            </div>
+        </div>
+
+        <!-- 3D Split -->
+        <div class="demo-card">
+            <h3 class="demo-title">3D Text Split</h3>
+            <div class="text-container" onclick="animateText('3d')">
+                <div class="split-text split-3d flip" id="threeDText">3D EFFECT</div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="triggerAnimation('3d')">Animate</button>
+                <button class="control-btn" onclick="resetAnimation('3d')">Reset</button>
+                <button class="control-btn active" onclick="set3DStyle('flip')">Flip</button>
+                <button class="control-btn" onclick="set3DStyle('cube')">Cube</button>
+                <button class="control-btn" onclick="set3DStyle('rotate')">Rotate</button>
+            </div>
+            <div class="slider-control">
+                <span>3D Perspective:</span>
+                <input type="range" class="slider" min="500" max="2000" value="1000" 
+                       onchange="set3DPerspective(this.value)" id="threeDPerspective">
+                <span id="threeDPerspectiveValue">1000px</span>
+            </div>
+        </div>
+
+        <!-- Custom Text Split -->
+        <div class="demo-card">
+            <h3 class="demo-title">Custom Text</h3>
+            <input type="text" class="text-input" placeholder="Enter your text..." 
+                   id="customTextInput" maxlength="30" value="CUSTOM SPLIT">
+            <div class="text-container" onclick="animateText('custom')">
+                <div class="split-text char-split stagger" id="customText">CUSTOM SPLIT</div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="applyCustomText()">Apply Text</button>
+                <button class="control-btn" onclick="triggerAnimation('custom')">Animate</button>
+                <button class="control-btn" onclick="resetAnimation('custom')">Reset</button>
+                <button class="control-btn" onclick="randomizeCustom()">Randomize</button>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="slider-control">
+                    <span>Custom Delay:</span>
+                    <input type="range" class="slider" min="50" max="400" value="150" 
+                           onchange="setCustomDelay(this.value)" id="customDelay">
+                </div>
+                <div class="slider-control">
+                    <span>Custom Duration:</span>
+                    <input type="range" class="slider" min="0.3" max="2" step="0.1" value="0.8" 
+                           onchange="setCustomDuration(this.value)" id="customDuration">
+                </div>
+            </div>
+        </div>
+
+        <!-- Multi-Style Split -->
+        <div class="demo-card">
+            <h3 class="demo-title">Multi-Style Combination</h3>
+            <div class="text-container" onclick="animateText('multi')">
+                <div class="split-text" id="multiText">
+                    <div class="word-split scale" style="margin-bottom: 1rem;">MULTIPLE</div>
+                    <div class="char-split stagger" style="margin-bottom: 1rem;">EFFECTS</div>
+                    <div class="line-split fade">
+                        <div class="line"><span class="line-inner">COMBINED</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="triggerAnimation('multi')">Animate All</button>
+                <button class="control-btn" onclick="resetAnimation('multi')">Reset All</button>
+                <button class="control-btn" onclick="sequentialMulti()">Sequential</button>
+                <button class="control-btn" onclick="randomMulti()">Random</button>
+            </div>
+            <div class="slider-control">
+                <span>Multi Delay:</span>
+                <input type="range" class="slider" min="200" max="1000" value="500" 
+                       onchange="setMultiDelay(this.value)" id="multiDelay">
+                <span id="multiDelayValue">500ms</span>
+            </div>
+        </div>
+
+        <!-- Performance Monitor -->
+        <div class="demo-card">
+            <h3 class="demo-title">Performance Monitor</h3>
+            <div class="text-container" onclick="animateText('performance')">
+                <div class="split-text char-split stagger" id="performanceText">PERFORMANCE TEST</div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="performanceTest()">Run Test</button>
+                <button class="control-btn" onclick="resetAnimation('performance')">Reset</button>
+                <button class="control-btn" onclick="togglePerformanceMode()">High Performance</button>
+            </div>
+            <div class="animation-info">
+                <div class="info-row">
+                    <span>Animation Time:</span>
+                    <span id="animationTime">0ms</span>
+                </div>
+                <div class="info-row">
+                    <span>FPS:</span>
+                    <span id="fpsCounter">60</span>
+                </div>
+                <div class="info-row">
+                    <span>Elements:</span>
+                    <span id="elementCount">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let animations = {};
+        let settings = {
+            char: { staggerDelay: 100, style: 'stagger' },
+            word: { delay: 200, style: 'slide-up' },
+            line: { delay: 300, style: 'slide-up' },
+            clip: { speed: 1, style: 'left-to-right' },
+            typewriter: { speed: 150 },
+            glitch: { speed: 2, intensity: 'medium' },
+            mask: { speed: 1.5, direction: 'left-right' },
+            '3d': { perspective: 1000, style: 'flip' },
+            custom: { delay: 150, duration: 0.8 },
+            multi: { delay: 500 }
+        };
+        
+        let performanceMode = false;
+        let animationStartTime = 0;
+        let frameCount = 0;
+        let lastFPSUpdate = 0;
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            setupSplitTexts();
+            setupCustomTextInput();
+            startPerformanceMonitoring();
+        });
+        
+        // Setup split text structures
+        function setupSplitTexts() {
+            const charTexts = ['charText', 'customText', 'performanceText'];
+            charTexts.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    splitTextIntoChars(element);
+                }
+            });
+            
+            // Setup word split
+            const wordElement = document.getElementById('wordText');
+            if (wordElement) {
+                splitTextIntoWords(wordElement);
+            }
+            
+            // Setup 3D text
+            const threeDElement = document.getElementById('threeDText');
+            if (threeDElement) {
+                splitTextIntoChars(threeDElement);
+            }
+        }
+        
+        function splitTextIntoChars(element) {
+            const text = element.textContent;
+            element.innerHTML = '';
+            
+            text.split('').forEach((char, index) => {
+                const span = document.createElement('span');
+                span.textContent = char === ' ' ? '\u00A0' : char;
+                span.className = 'char';
+                span.style.setProperty('--char-index', index);
+                element.appendChild(span);
+            });
+            
+            updateCharCount(element.children.length);
+        }
+        
+        function splitTextIntoWords(element) {
+            const text = element.textContent;
+            const words = text.split(' ');
+            element.innerHTML = '';
+            
+            words.forEach((word, index) => {
+                const span = document.createElement('span');
+                span.textContent = word;
+                span.className = 'word';
+                span.style.animationDelay = `${index * settings.word.delay}ms`;
+                element.appendChild(span);
+            });
+        }
+        
+        // Animation triggers
+        function animateText(type) {
+            triggerAnimation(type);
+        }
+        
+        function triggerAnimation(type) {
+            const element = document.getElementById(type + 'Text');
+            if (!element) return;
+            
+            animationStartTime = performance.now();
+            
+            // Clear existing animation
+            element.classList.remove('animated');
+            
+            // Force reflow
+            element.offsetHeight;
+            
+            // Add animation class
+            element.classList.add('animated');
+            
+            // Update performance counter
+            updateElementCount(type);
+        }
+        
+        function resetAnimation(type) {
+            const element = document.getElementById(type + 'Text');
+            if (!element) return;
+            
+            element.classList.remove('animated');
+            
+            // Reset specific animations
+            switch(type) {
+                case 'typewriter':
+                    element.style.width = '0';
+                    break;
+                case 'clip':
+                    const clipLayer = element.querySelector('.clip-layer');
+                    if (clipLayer) {
+                        clipLayer.style.clipPath = getInitialClipPath(settings.clip.style);
+                    }
+                    break;
+                case 'mask':
+                    element.style.setProperty('--mask-position', '-100%');
+                    break;
+            }
+        }
+        
+        // Character split controls
+        function setCharStyle(style) {
+            const element = document.getElementById('charText');
+            element.className = `split-text char-split ${style}`;
+            settings.char.style = style;
+            
+            if (style === 'wave') {
+                element.classList.add('wave-split');
+            } else if (style === 'elastic') {
+                element.classList.add('elastic-split');
+            }
+            
+            updateActiveButton(event.target);
+            document.getElementById('charAnimation').textContent = style.charAt(0).toUpperCase() + style.slice(1);
+        }
+        
+        function setStaggerDelay(type, value) {
+            settings[type].staggerDelay = parseInt(value);
+            document.getElementById(type + 'StaggerValue').textContent = value + 'ms';
+            
+            // Update CSS custom property
+            const element = document.getElementById(type + 'Text');
+            element.style.setProperty('--stagger-delay', value + 'ms');
+        }
+        
+        // Word split controls
+        function setWordStyle(style) {
+            const element = document.getElementById('wordText');
+            element.className = `split-text word-split ${style}`;
+            settings.word.style = style;
+            updateActiveButton(event.target);
+        }
+        
+        function setWordDelay(value) {
+            settings.word.delay = parseInt(value);
+            document.getElementById('wordDelayValue').textContent = value + 'ms';
+            
+            // Update word delays
+            const words = document.querySelectorAll('#wordText .word');
+            words.forEach((word, index) => {
+                word.style.animationDelay = `${index * parseInt(value)}ms`;
+            });
+        }
+        
+        // Line split controls
+        function setLineStyle(style) {
+            const element = document.getElementById('lineText');
+            element.className = `split-text line-split ${style}`;
+            settings.line.style = style;
+            updateActiveButton(event.target);
+        }
+        
+        function setLineDelay(value) {
+            settings.line.delay = parseInt(value);
+            document.getElementById('lineDelayValue').textContent = value + 'ms';
+            
+            // Update line delays
+            const lines = document.querySelectorAll('#lineText .line-inner');
+            lines.forEach((line, index) => {
+                line.style.transitionDelay = `${index * parseInt(value)}ms`;
+            });
+        }
+        
+        // Clip path controls
+        function setClipStyle(style) {
+            const element = document.getElementById('clipText');
+            element.className = `split-text clip-split ${style}`;
+            settings.clip.style = style;
+            
+            const clipLayer = element.querySelector('.clip-layer');
+            if (clipLayer) {
+                clipLayer.style.clipPath = getInitialClipPath(style);
+            }
+            
+            updateActiveButton(event.target);
+        }
+        
+        function getInitialClipPath(style) {
+            switch(style) {
+                case 'left-to-right':
+                    return 'polygon(0 0, 0 0, 0 100%, 0 100%)';
+                case 'right-to-left':
+                    return 'polygon(100% 0, 100% 0, 100% 100%, 100% 100%)';
+                case 'top-to-bottom':
+                    return 'polygon(0 0, 100% 0, 100% 0, 0 0)';
+                case 'center-out':
+                    return 'polygon(50% 50%, 50% 50%, 50% 50%, 50% 50%)';
+                default:
+                    return 'polygon(0 0, 0 0, 0 100%, 0 100%)';
+            }
+        }
+        
+        function setClipSpeed(value) {
+            settings.clip.speed = parseFloat(value);
+            document.getElementById('clipSpeedValue').textContent = value + 's';
+            
+            const clipLayer = document.querySelector('#clipText .clip-layer');
+            if (clipLayer) {
+                clipLayer.style.transitionDuration = value + 's';
+            }
+        }
+        
+        // Typewriter controls
+        function setTypewriterSpeed(speed) {
+            let duration;
+            switch(speed) {
+                case 'fast': duration = '1s'; break;
+                case 'normal': duration = '3s'; break;
+                case 'slow': duration = '6s'; break;
+            }
+            
+            const element = document.getElementById('typewriterText');
+            element.style.animationDuration = `${duration}, 1s`;
+        }
+        
+        function setCustomTypeSpeed(value) {
+            settings.typewriter.speed = parseInt(value);
+            document.getElementById('typeSpeedValue').textContent = value + 'ms';
+            
+            const charCount = document.getElementById('typewriterText').textContent.length;
+            const totalDuration = (charCount * parseInt(value)) / 1000;
+            
+            const element = document.getElementById('typewriterText');
+            element.style.animationDuration = `${totalDuration}s, 1s`;
+        }
+        
+        function toggleCursor() {
+            const element = document.getElementById('typewriterText');
+            const hasCursor = element.style.borderRight !== 'none';
+            element.style.borderRight = hasCursor ? 'none' : '3px solid white';
+        }
+        
+        // Glitch controls
+        function setGlitchIntensity(intensity) {
+            const element = document.getElementById('glitchText');
+            settings.glitch.intensity = intensity;
+            
+            switch(intensity) {
+                case 'low':
+                    element.style.setProperty('--glitch-offset', '1px');
+                    break;
+                case 'medium':
+                    element.style.setProperty('--glitch-offset', '3px');
+                    break;
+                case 'high':
+                    element.style.setProperty('--glitch-offset', '6px');
+                    break;
+            }
+        }
+        
+        function setGlitchSpeed(value) {
+            settings.glitch.speed = parseFloat(value);
+            document.getElementById('glitchSpeedValue').textContent = value + 's';
+            
+            const element = document.getElementById('glitchText');
+            element.style.animationDuration = `${value}s`;
+            
+            const before = element.querySelector('::before');
+            const after = element.querySelector('::after');
+            
+            // Update pseudo-element animations via CSS
+            const style = document.createElement('style');
+            style.textContent = `
+                #glitchText::before,
+                #glitchText::after {
+                    animation-duration: ${value}s;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        function stopGlitch() {
+            const element = document.getElementById('glitchText');
+            element.classList.remove('animated');
+        }
+        
+        // Mask controls
+        function setMaskDirection(direction) {
+            const element = document.getElementById('maskText');
+            settings.mask.direction = direction;
+            
+            // Update mask gradient direction
+            let gradient;
+            switch(direction) {
+                case 'left-right':
+                    gradient = 'linear-gradient(90deg, transparent, white, transparent)';
+                    break;
+                case 'right-left':
+                    gradient = 'linear-gradient(-90deg, transparent, white, transparent)';
+                    break;
+                case 'center':
+                    gradient = 'radial-gradient(circle, white, transparent)';
+                    break;
+            }
+            
+            const style = document.createElement('style');
+            style.textContent = `
+                #maskText::before {
+                    background: ${gradient};
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        function setMaskSpeed(value) {
+            settings.mask.speed = parseFloat(value);
+            document.getElementById('maskSpeedValue').textContent = value + 's';
+            
+            const style = document.createElement('style');
+            style.textContent = `
+                #maskText::before {
+                    transition-duration: ${value}s;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        // 3D controls
+        function set3DStyle(style) {
+            const element = document.getElementById('threeDText');
+            element.className = `split-text split-3d ${style}`;
+            settings['3d'].style = style;
+            updateActiveButton(event.target);
+        }
+        
+        function set3DPerspective(value) {
+            settings['3d'].perspective = parseInt(value);
+            document.getElementById('threeDPerspectiveValue').textContent = value + 'px';
+            
+            const element = document.getElementById('threeDText');
+            element.style.perspective = value + 'px';
+        }
+        
+        // Custom text controls
+        function setupCustomTextInput() {
+            const input = document.getElementById('customTextInput');
+            input.addEventListener('input', (e) => {
+                const text = e.target.value.toUpperCase() || 'CUSTOM SPLIT';
+                const element = document.getElementById('customText');
+                element.textContent = text;
+                splitTextIntoChars(element);
+            });
+        }
+        
+        function applyCustomText() {
+            const input = document.getElementById('customTextInput');
+            const text = input.value.toUpperCase() || 'CUSTOM SPLIT';
+            const element = document.getElementById('customText');
+            element.textContent = text;
+            splitTextIntoChars(element);
+        }
+        
+        function setCustomDelay(value) {
+            settings.custom.delay = parseInt(value);
+        }
+        
+        function setCustomDuration(value) {
+            settings.custom.duration = parseFloat(value);
+        }
+        
+        function randomizeCustom() {
+            const styles = ['stagger', 'wave', 'elastic'];
+            const randomStyle = styles[Math.floor(Math.random() * styles.length)];
+            
+            const element = document.getElementById('customText');
+            element.className = `split-text char-split ${randomStyle}`;
+            
+            triggerAnimation('custom');
+        }
+        
+        // Multi-style controls
+        function sequentialMulti() {
+            const container = document.getElementById('multiText');
+            const elements = container.children;
+            
+            Array.from(elements).forEach((element, index) => {
+                setTimeout(() => {
+                    element.classList.add('animated');
+                }, index * settings.multi.delay);
+            });
+        }
+        
+        function randomMulti() {
+            const container = document.getElementById('multiText');
+            const elements = Array.from(container.children);
+            const shuffled = [...elements].sort(() => Math.random() - 0.5);
+            
+            shuffled.forEach((element, index) => {
+                setTimeout(() => {
+                    element.classList.add('animated');
+                }, index * 200);
+            });
+        }
+        
+        function setMultiDelay(value) {
+            settings.multi.delay = parseInt(value);
+            document.getElementById('multiDelayValue').textContent = value + 'ms';
+        }
+        
+        // Performance monitoring
+        function startPerformanceMonitoring() {
+            function updateFPS() {
+                frameCount++;
+                const now = performance.now();
+                
+                if (now - lastFPSUpdate >= 1000) {
+                    document.getElementById('fpsCounter').textContent = frameCount;
+                    frameCount = 0;
+                    lastFPSUpdate = now;
+                }
+                
+                requestAnimationFrame(updateFPS);
+            }
+            
+            updateFPS();
+        }
+        
+        function performanceTest() {
+            const startTime = performance.now();
+            
+            triggerAnimation('performance');
+            
+            setTimeout(() => {
+                const endTime = performance.now();
+                const duration = Math.round(endTime - startTime);
+                document.getElementById('animationTime').textContent = duration + 'ms';
+            }, 1000);
+        }
+        
+        function togglePerformanceMode() {
+            performanceMode = !performanceMode;
+            
+            if (performanceMode) {
+                document.body.style.setProperty('--animation-timing', 'steps(1)');
+                event.target.textContent = 'Normal Mode';
+            } else {
+                document.body.style.setProperty('--animation-timing', 'ease');
+                event.target.textContent = 'High Performance';
+            }
+        }
+        
+        function updateCharCount(count) {
+            document.getElementById('charCount').textContent = count;
+        }
+        
+        function updateElementCount(type) {
+            const element = document.getElementById(type + 'Text');
+            const children = element.querySelectorAll('.char, .word, .line');
+            document.getElementById('elementCount').textContent = children.length;
+        }
+        
+        // Utility functions
+        function updateActiveButton(target) {
+            const parentControls = target.closest('.controls');
+            if (parentControls) {
+                parentControls.querySelectorAll('.control-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                target.classList.add('active');
+            }
+        }
+        
+        // Add CSS animations that depend on settings
+        const dynamicStyle = document.createElement('style');
+        document.head.appendChild(dynamicStyle);
+        
+        function updateDynamicStyles() {
+            dynamicStyle.textContent = `
+                .char-split.stagger .char {
+                    transition-delay: calc(var(--char-index) * ${settings.char.staggerDelay}ms);
+                }
+                
+                .word-split .word {
+                    transition-duration: ${settings.custom.duration}s;
+                }
+            `;
+        }
+        
+        // Initialize dynamic styles
+        updateDynamicStyles();
+        
+        // Update styles when settings change
+        document.addEventListener('input', updateDynamicStyles);
+    </script>
+</body>
+</html>
