@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fade Transitions - Karmakazi</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0f;
+            overflow: hidden;
+        }
+        
+        /* Page Containers */
+        .page {
+            position: absolute;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 1s ease;
+        }
+        
+        .page.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* Different page backgrounds */
+        .page-1 { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .page-2 { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .page-3 { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .page-4 { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .page-5 { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        
+        .page-content {
+            text-align: center;
+            color: white;
+            padding: 2rem;
+            max-width: 800px;
+        }
+        
+        .page-title {
+            font-size: clamp(3rem, 8vw, 5rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .page-subtitle {
+            font-size: 1.5rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+        
+        /* Fade Variations */
+        
+        /* Simple Fade */
+        .fade-simple {
+            transition: opacity 0.5s ease;
+        }
+        
+        .fade-simple.active {
+            opacity: 1;
+        }
+        
+        /* Fade with Scale */
+        .fade-scale {
+            opacity: 0;
+            transform: scale(0.9);
+            transition: all 0.6s ease;
+        }
+        
+        .fade-scale.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        /* Fade with Blur */
+        .fade-blur {
+            opacity: 0;
+            filter: blur(10px);
+            transition: all 0.8s ease;
+        }
+        
+        .fade-blur.active {
+            opacity: 1;
+            filter: blur(0);
+        }
+        
+        /* Fade from Direction */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .fade-up.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .fade-down {
+            opacity: 0;
+            transform: translateY(-50px);
+            transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .fade-down.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .fade-left {
+            opacity: 0;
+            transform: translateX(50px);
+            transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .fade-left.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .fade-right {
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .fade-right.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        /* Cross Fade */
+        .cross-fade {
+            transition: opacity 0.5s ease;
+        }
+        
+        /* Staggered Fade */
+        .stagger-fade .element {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.5s ease;
+        }
+        
+        .stagger-fade.active .element {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .stagger-fade.active .element:nth-child(1) { transition-delay: 0.1s; }
+        .stagger-fade.active .element:nth-child(2) { transition-delay: 0.2s; }
+        .stagger-fade.active .element:nth-child(3) { transition-delay: 0.3s; }
+        .stagger-fade.active .element:nth-child(4) { transition-delay: 0.4s; }
+        .stagger-fade.active .element:nth-child(5) { transition-delay: 0.5s; }
+        
+        /* Color Fade */
+        .color-fade {
+            background: #000;
+            transition: all 1s ease;
+        }
+        
+        .color-fade.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        /* Navigation */
+        .navigation {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            z-index: 100;
+        }
+        
+        .nav-btn {
+            padding: 0.75rem 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        /* Dots Navigation */
+        .dots-nav {
+            position: fixed;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            z-index: 100;
+        }
+        
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .dot:hover {
+            background: rgba(255, 255, 255, 0.5);
+            transform: scale(1.2);
+        }
+        
+        .dot.active {
+            background: white;
+            transform: scale(1.5);
+        }
+        
+        .dot::before {
+            content: attr(data-title);
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            font-size: 0.875rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+        
+        .dot:hover::before {
+            opacity: 1;
+        }
+        
+        /* Transition Selector */
+        .transition-selector {
+            position: fixed;
+            top: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 0.5rem;
+            z-index: 100;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 90%;
+        }
+        
+        .transition-btn {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+        }
+        
+        .transition-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .transition-btn.active {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: white;
+        }
+        
+        /* Back Button */
+        .back-button {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .back-button:hover {
+            background: white;
+            transform: translateX(-5px);
+        }
+        
+        .back-button::before {
+            content: '←';
+            font-size: 1.25rem;
+        }
+        
+        /* Demo Elements */
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .demo-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 1rem;
+            text-align: center;
+        }
+        
+        .demo-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        /* Overlay fade */
+        .fade-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+            z-index: 50;
+        }
+        
+        .fade-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        /* Settings */
+        .settings {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            z-index: 100;
+        }
+        
+        .setting-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 0.5rem 0;
+            color: white;
+            font-size: 0.875rem;
+        }
+        
+        .setting-label {
+            min-width: 100px;
+        }
+        
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="back-button">Back to Gallery</a>
+    
+    <!-- Transition Type Selector -->
+    <div class="transition-selector">
+        <button class="transition-btn active" data-transition="simple">Simple</button>
+        <button class="transition-btn" data-transition="scale">Scale</button>
+        <button class="transition-btn" data-transition="blur">Blur</button>
+        <button class="transition-btn" data-transition="up">Fade Up</button>
+        <button class="transition-btn" data-transition="down">Fade Down</button>
+        <button class="transition-btn" data-transition="left">Fade Left</button>
+        <button class="transition-btn" data-transition="right">Fade Right</button>
+        <button class="transition-btn" data-transition="stagger">Stagger</button>
+    </div>
+    
+    <!-- Fade Overlay -->
+    <div class="fade-overlay" id="fadeOverlay"></div>
+    
+    <!-- Pages -->
+    <div class="page page-1 fade-simple active" id="page1">
+        <div class="page-content">
+            <h1 class="page-title">FADE TRANSITIONS</h1>
+            <p class="page-subtitle">Smooth opacity-based page transitions</p>
+            <div class="demo-grid stagger-fade">
+                <div class="demo-card element">
+                    <div class="demo-icon">🎨</div>
+                    <p>Design</p>
+                </div>
+                <div class="demo-card element">
+                    <div class="demo-icon">💡</div>
+                    <p>Ideas</p>
+                </div>
+                <div class="demo-card element">
+                    <div class="demo-icon">🚀</div>
+                    <p>Launch</p>
+                </div>
+                <div class="demo-card element">
+                    <div class="demo-icon">⭐</div>
+                    <p>Success</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="page page-2 fade-simple" id="page2">
+        <div class="page-content">
+            <h1 class="page-title">CREATIVE VISION</h1>
+            <p class="page-subtitle">Transform ideas into reality</p>
+            <p style="line-height: 1.8; opacity: 0.9;">
+                Experience seamless transitions between different sections of your website. 
+                Each fade effect creates a smooth, professional navigation experience.
+            </p>
+        </div>
+    </div>
+    
+    <div class="page page-3 fade-simple" id="page3">
+        <div class="page-content">
+            <h1 class="page-title">INNOVATION</h1>
+            <p class="page-subtitle">Push boundaries with style</p>
+            <p style="line-height: 1.8; opacity: 0.9;">
+                Multiple fade variations allow you to choose the perfect transition 
+                for your content and design aesthetic.
+            </p>
+        </div>
+    </div>
+    
+    <div class="page page-4 fade-simple" id="page4">
+        <div class="page-content">
+            <h1 class="page-title">PERFORMANCE</h1>
+            <p class="page-subtitle">Optimized for smooth animations</p>
+            <p style="line-height: 1.8; opacity: 0.9;">
+                CSS-based transitions ensure butter-smooth performance across 
+                all devices and browsers.
+            </p>
+        </div>
+    </div>
+    
+    <div class="page page-5 fade-simple" id="page5">
+        <div class="page-content">
+            <h1 class="page-title">COMPLETE</h1>
+            <p class="page-subtitle">Your journey through fade transitions</p>
+            <p style="line-height: 1.8; opacity: 0.9;">
+                You've experienced various fade transition effects. Use the navigation 
+                to explore different styles and speeds.
+            </p>
+        </div>
+    </div>
+    
+    <!-- Navigation -->
+    <div class="navigation">
+        <button class="nav-btn" onclick="previousPage()">← Previous</button>
+        <button class="nav-btn" onclick="toggleAutoPlay()">Auto Play</button>
+        <button class="nav-btn" onclick="nextPage()">Next →</button>
+    </div>
+    
+    <!-- Dots Navigation -->
+    <div class="dots-nav">
+        <div class="dot active" data-title="Intro" data-page="1"></div>
+        <div class="dot" data-title="Vision" data-page="2"></div>
+        <div class="dot" data-title="Innovation" data-page="3"></div>
+        <div class="dot" data-title="Performance" data-page="4"></div>
+        <div class="dot" data-title="Complete" data-page="5"></div>
+    </div>
+    
+    <!-- Settings -->
+    <div class="settings">
+        <div class="setting-row">
+            <span class="setting-label">Duration:</span>
+            <input type="range" class="slider" id="durationSlider" min="200" max="2000" value="500">
+            <span id="durationValue">500ms</span>
+        </div>
+        <div class="setting-row">
+            <span class="setting-label">Delay:</span>
+            <input type="range" class="slider" id="delaySlider" min="0" max="500" value="0">
+            <span id="delayValue">0ms</span>
+        </div>
+    </div>
+    
+    <script>
+        let currentPage = 1;
+        const totalPages = 5;
+        let transitionType = 'simple';
+        let autoPlayInterval = null;
+        let transitionDuration = 500;
+        let transitionDelay = 0;
+        
+        // Transition type classes
+        const transitionClasses = {
+            simple: 'fade-simple',
+            scale: 'fade-scale',
+            blur: 'fade-blur',
+            up: 'fade-up',
+            down: 'fade-down',
+            left: 'fade-left',
+            right: 'fade-right',
+            stagger: 'fade-simple'
+        };
+        
+        // Set transition type
+        document.querySelectorAll('.transition-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Update active button
+                document.querySelectorAll('.transition-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Get transition type
+                transitionType = this.dataset.transition;
+                
+                // Update all pages with new transition class
+                document.querySelectorAll('.page').forEach(page => {
+                    // Remove all transition classes
+                    Object.values(transitionClasses).forEach(cls => {
+                        page.classList.remove(cls);
+                    });
+                    
+                    // Add new transition class
+                    page.classList.add(transitionClasses[transitionType]);
+                });
+                
+                // Special handling for stagger
+                if (transitionType === 'stagger') {
+                    document.querySelectorAll('.demo-grid').forEach(grid => {
+                        grid.classList.add('stagger-fade');
+                    });
+                } else {
+                    document.querySelectorAll('.demo-grid').forEach(grid => {
+                        grid.classList.remove('stagger-fade');
+                    });
+                }
+            });
+        });
+        
+        // Navigate to specific page
+        function goToPage(pageNumber) {
+            if (pageNumber < 1 || pageNumber > totalPages) return;
+            
+            // Use overlay for smoother transition
+            const overlay = document.getElementById('fadeOverlay');
+            
+            // Fade out current page with overlay
+            overlay.classList.add('active');
+            
+            setTimeout(() => {
+                // Hide current page
+                document.getElementById(`page${currentPage}`).classList.remove('active');
+                
+                // Show new page
+                currentPage = pageNumber;
+                const newPage = document.getElementById(`page${currentPage}`);
+                newPage.classList.add('active');
+                
+                // Update dots
+                updateDots();
+                
+                // Fade in new page
+                setTimeout(() => {
+                    overlay.classList.remove('active');
+                }, 50);
+            }, transitionDuration / 2);
+        }
+        
+        // Next page
+        function nextPage() {
+            const next = currentPage === totalPages ? 1 : currentPage + 1;
+            goToPage(next);
+        }
+        
+        // Previous page
+        function previousPage() {
+            const prev = currentPage === 1 ? totalPages : currentPage - 1;
+            goToPage(prev);
+        }
+        
+        // Update dots navigation
+        function updateDots() {
+            document.querySelectorAll('.dot').forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentPage - 1);
+            });
+        }
+        
+        // Dots click navigation
+        document.querySelectorAll('.dot').forEach(dot => {
+            dot.addEventListener('click', function() {
+                const pageNumber = parseInt(this.dataset.page);
+                goToPage(pageNumber);
+            });
+        });
+        
+        // Auto play
+        function toggleAutoPlay() {
+            if (autoPlayInterval) {
+                clearInterval(autoPlayInterval);
+                autoPlayInterval = null;
+                event.target.textContent = 'Auto Play';
+            } else {
+                autoPlayInterval = setInterval(nextPage, 3000);
+                event.target.textContent = 'Stop';
+            }
+        }
+        
+        // Settings
+        document.getElementById('durationSlider').addEventListener('input', function() {
+            transitionDuration = parseInt(this.value);
+            document.getElementById('durationValue').textContent = transitionDuration + 'ms';
+            
+            // Update CSS transition duration
+            document.querySelectorAll('.page').forEach(page => {
+                page.style.transitionDuration = transitionDuration + 'ms';
+            });
+        });
+        
+        document.getElementById('delaySlider').addEventListener('input', function() {
+            transitionDelay = parseInt(this.value);
+            document.getElementById('delayValue').textContent = transitionDelay + 'ms';
+            
+            // Update CSS transition delay
+            document.querySelectorAll('.page').forEach(page => {
+                page.style.transitionDelay = transitionDelay + 'ms';
+            });
+        });
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowRight':
+                    nextPage();
+                    break;
+                case 'ArrowLeft':
+                    previousPage();
+                    break;
+                case ' ':
+                    e.preventDefault();
+                    toggleAutoPlay();
+                    break;
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                    goToPage(parseInt(e.key));
+                    break;
+            }
+        });
+        
+        // Touch/Swipe support
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+        
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+        
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+            
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0) {
+                    nextPage(); // Swipe left
+                } else {
+                    previousPage(); // Swipe right
+                }
+            }
+        }
+        
+        // Mouse wheel navigation
+        let scrollThrottle = false;
+        document.addEventListener('wheel', (e) => {
+            if (!scrollThrottle) {
+                scrollThrottle = true;
+                
+                if (e.deltaY > 0) {
+                    nextPage();
+                } else {
+                    previousPage();
+                }
+                
+                setTimeout(() => {
+                    scrollThrottle = false;
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+</html>
