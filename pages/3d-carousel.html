@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Carousel - Karmakazi</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #13547a 0%, #80d0c7 100%);
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            z-index: 10;
+        }
+        
+        .title {
+            font-size: clamp(3rem, 8vw, 5rem);
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            margin-bottom: 1rem;
+        }
+        
+        /* Main 3D Carousel */
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            perspective: 1200px;
+            margin-bottom: 4rem;
+        }
+        
+        .carousel {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .carousel-item {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 300px;
+            height: 400px;
+            margin-left: -150px;
+            margin-top: -200px;
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .carousel-item:hover {
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+        }
+        
+        .carousel-item.active {
+            transform: scale(1.1);
+        }
+        
+        .carousel-image {
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+        }
+        
+        .carousel-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        
+        .carousel-text {
+            color: #666;
+            text-align: center;
+            line-height: 1.6;
+        }
+        
+        /* Circular Carousel */
+        .circular-carousel {
+            position: relative;
+            width: 600px;
+            height: 200px;
+            margin: 4rem auto;
+            perspective: 800px;
+        }
+        
+        .circular-track {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            animation: rotate-circular 20s infinite linear;
+        }
+        
+        .circular-track.paused {
+            animation-play-state: paused;
+        }
+        
+        @keyframes rotate-circular {
+            from { transform: rotateX(-15deg) rotateY(0); }
+            to { transform: rotateX(-15deg) rotateY(360deg); }
+        }
+        
+        .circular-item {
+            position: absolute;
+            width: 120px;
+            height: 160px;
+            left: 50%;
+            top: 50%;
+            margin-left: -60px;
+            margin-top: -80px;
+            background: white;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 700;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Cube Carousel */
+        .cube-carousel {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 4rem auto;
+            perspective: 1000px;
+        }
+        
+        .cube {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 1s;
+        }
+        
+        .cube-face {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: 700;
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .cube-face:nth-child(1) {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.8), rgba(118, 75, 162, 0.8));
+            transform: rotateY(0deg) translateZ(150px);
+        }
+        
+        .cube-face:nth-child(2) {
+            background: linear-gradient(135deg, rgba(240, 147, 251, 0.8), rgba(245, 87, 108, 0.8));
+            transform: rotateY(90deg) translateZ(150px);
+        }
+        
+        .cube-face:nth-child(3) {
+            background: linear-gradient(135deg, rgba(79, 172, 254, 0.8), rgba(0, 242, 254, 0.8));
+            transform: rotateY(180deg) translateZ(150px);
+        }
+        
+        .cube-face:nth-child(4) {
+            background: linear-gradient(135deg, rgba(67, 233, 123, 0.8), rgba(56, 249, 215, 0.8));
+            transform: rotateY(270deg) translateZ(150px);
+        }
+        
+        .cube-face:nth-child(5) {
+            background: linear-gradient(135deg, rgba(250, 112, 154, 0.8), rgba(254, 225, 64, 0.8));
+            transform: rotateX(90deg) translateZ(150px);
+        }
+        
+        .cube-face:nth-child(6) {
+            background: linear-gradient(135deg, rgba(48, 207, 208, 0.8), rgba(51, 8, 103, 0.8));
+            transform: rotateX(-90deg) translateZ(150px);
+        }
+        
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 2rem 0;
+            z-index: 100;
+            position: relative;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .btn.active {
+            background: rgba(255, 255, 255, 0.4);
+        }
+        
+        /* Navigation Dots */
+        .nav-dots {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+        
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .dot:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        .dot.active {
+            background: white;
+            transform: scale(1.5);
+        }
+        
+        /* Infinite Scroll Carousel */
+        .infinite-carousel {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            margin: 4rem 0;
+        }
+        
+        .infinite-track {
+            display: flex;
+            gap: 2rem;
+            animation: scroll-infinite 20s linear infinite;
+        }
+        
+        @keyframes scroll-infinite {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
+        
+        .infinite-item {
+            min-width: 200px;
+            height: 150px;
+            background: white;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #13547a;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Back Button */
+        .back-button {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .back-button:hover {
+            background: white;
+            transform: translateX(-5px);
+        }
+        
+        .back-button::before {
+            content: '←';
+            font-size: 1.25rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .carousel-container {
+                height: 400px;
+            }
+            
+            .carousel-item {
+                width: 240px;
+                height: 320px;
+                margin-left: -120px;
+                margin-top: -160px;
+            }
+            
+            .circular-carousel {
+                width: 100%;
+                max-width: 400px;
+            }
+            
+            .cube-carousel {
+                width: 200px;
+                height: 200px;
+            }
+            
+            .cube-face {
+                width: 200px;
+                height: 200px;
+                font-size: 2rem;
+            }
+            
+            .cube-face:nth-child(1) { transform: rotateY(0deg) translateZ(100px); }
+            .cube-face:nth-child(2) { transform: rotateY(90deg) translateZ(100px); }
+            .cube-face:nth-child(3) { transform: rotateY(180deg) translateZ(100px); }
+            .cube-face:nth-child(4) { transform: rotateY(270deg) translateZ(100px); }
+            .cube-face:nth-child(5) { transform: rotateX(90deg) translateZ(100px); }
+            .cube-face:nth-child(6) { transform: rotateX(-90deg) translateZ(100px); }
+        }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="back-button">Back to Gallery</a>
+    
+    <div class="header">
+        <h1 class="title">3D CAROUSEL</h1>
+        <p style="color: white; font-size: 1.25rem; opacity: 0.9;">
+            Multi-item 3D rotating carousel
+        </p>
+    </div>
+    
+    <!-- Main 3D Carousel -->
+    <div class="carousel-container">
+        <div class="carousel" id="mainCarousel">
+            <!-- Cards will be generated by JavaScript -->
+        </div>
+    </div>
+    
+    <div class="nav-dots" id="navDots"></div>
+    
+    <div class="controls">
+        <button class="btn" onclick="rotateCarousel('prev')">← Previous</button>
+        <button class="btn" onclick="toggleAutoRotate()">Auto Rotate</button>
+        <button class="btn" onclick="rotateCarousel('next')">Next →</button>
+    </div>
+    
+    <!-- Circular Carousel -->
+    <div class="circular-carousel">
+        <div class="circular-track" id="circularTrack">
+            <!-- Items will be generated by JavaScript -->
+        </div>
+    </div>
+    
+    <div class="controls">
+        <button class="btn" onclick="toggleCircular()">Pause/Resume</button>
+        <button class="btn" onclick="reverseCircular()">Reverse Direction</button>
+    </div>
+    
+    <!-- Cube Carousel -->
+    <div class="cube-carousel">
+        <div class="cube" id="cube">
+            <div class="cube-face">Front</div>
+            <div class="cube-face">Right</div>
+            <div class="cube-face">Back</div>
+            <div class="cube-face">Left</div>
+            <div class="cube-face">Top</div>
+            <div class="cube-face">Bottom</div>
+        </div>
+    </div>
+    
+    <div class="controls">
+        <button class="btn" onclick="rotateCube('x', 1)">Rotate X</button>
+        <button class="btn" onclick="rotateCube('y', 1)">Rotate Y</button>
+        <button class="btn" onclick="rotateCube('z', 1)">Rotate Z</button>
+        <button class="btn" onclick="resetCube()">Reset</button>
+    </div>
+    
+    <!-- Infinite Scroll Carousel -->
+    <div class="infinite-carousel">
+        <div class="infinite-track" id="infiniteTrack">
+            <!-- Items will be duplicated by JavaScript -->
+        </div>
+    </div>
+    
+    <script>
+        // Main Carousel Data
+        const carouselData = [
+            { icon: '🎨', title: 'Design', text: 'Beautiful interfaces that inspire' },
+            { icon: '💡', title: 'Ideas', text: 'Innovation starts with imagination' },
+            { icon: '🚀', title: 'Launch', text: 'Take your project to new heights' },
+            { icon: '⭐', title: 'Quality', text: 'Excellence in every detail' },
+            { icon: '🎯', title: 'Focus', text: 'Precision and accuracy' },
+            { icon: '🔥', title: 'Trending', text: 'Stay ahead of the curve' },
+            { icon: '💎', title: 'Premium', text: 'Top-tier experiences' },
+            { icon: '🌟', title: 'Success', text: 'Achieve your goals' }
+        ];
+        
+        // Initialize Main Carousel
+        const mainCarousel = document.getElementById('mainCarousel');
+        const navDots = document.getElementById('navDots');
+        let currentIndex = 0;
+        let autoRotateInterval = null;
+        const totalItems = carouselData.length;
+        
+        // Create carousel items
+        carouselData.forEach((item, index) => {
+            const card = document.createElement('div');
+            card.className = 'carousel-item';
+            if (index === 0) card.classList.add('active');
+            
+            card.innerHTML = `
+                <div class="carousel-image">${item.icon}</div>
+                <h3 class="carousel-title">${item.title}</h3>
+                <p class="carousel-text">${item.text}</p>
+            `;
+            
+            // Calculate position
+            const angle = (360 / totalItems) * index;
+            const radius = 400;
+            card.style.transform = `rotateY(${angle}deg) translateZ(${radius}px)`;
+            
+            mainCarousel.appendChild(card);
+            
+            // Create nav dot
+            const dot = document.createElement('div');
+            dot.className = 'dot';
+            if (index === 0) dot.classList.add('active');
+            dot.onclick = () => goToSlide(index);
+            navDots.appendChild(dot);
+        });
+        
+        // Rotate carousel function
+        function rotateCarousel(direction) {
+            if (direction === 'next') {
+                currentIndex = (currentIndex + 1) % totalItems;
+            } else {
+                currentIndex = (currentIndex - 1 + totalItems) % totalItems;
+            }
+            
+            updateCarousel();
+        }
+        
+        function goToSlide(index) {
+            currentIndex = index;
+            updateCarousel();
+        }
+        
+        function updateCarousel() {
+            const angle = -(360 / totalItems) * currentIndex;
+            mainCarousel.style.transform = `rotateY(${angle}deg)`;
+            
+            // Update active states
+            document.querySelectorAll('.carousel-item').forEach((item, index) => {
+                item.classList.toggle('active', index === currentIndex);
+            });
+            
+            document.querySelectorAll('.dot').forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentIndex);
+            });
+        }
+        
+        // Auto rotate
+        function toggleAutoRotate() {
+            if (autoRotateInterval) {
+                clearInterval(autoRotateInterval);
+                autoRotateInterval = null;
+                event.target.textContent = 'Auto Rotate';
+            } else {
+                autoRotateInterval = setInterval(() => {
+                    rotateCarousel('next');
+                }, 3000);
+                event.target.textContent = 'Stop Rotate';
+            }
+        }
+        
+        // Circular Carousel
+        const circularTrack = document.getElementById('circularTrack');
+        const circularItems = 12;
+        
+        for (let i = 0; i < circularItems; i++) {
+            const item = document.createElement('div');
+            item.className = 'circular-item';
+            item.textContent = i + 1;
+            
+            const angle = (360 / circularItems) * i;
+            const radius = 250;
+            item.style.transform = `rotateY(${angle}deg) translateZ(${radius}px)`;
+            
+            // Random background color
+            item.style.background = `linear-gradient(135deg, 
+                hsl(${angle}, 70%, 60%), 
+                hsl(${angle + 30}, 70%, 50%))`;
+            item.style.color = 'white';
+            
+            circularTrack.appendChild(item);
+        }
+        
+        function toggleCircular() {
+            circularTrack.classList.toggle('paused');
+        }
+        
+        function reverseCircular() {
+            const currentAnimation = circularTrack.style.animationDirection;
+            circularTrack.style.animationDirection = currentAnimation === 'reverse' ? 'normal' : 'reverse';
+        }
+        
+        // Cube Carousel
+        const cube = document.getElementById('cube');
+        let cubeRotation = { x: 0, y: 0, z: 0 };
+        
+        function rotateCube(axis, direction) {
+            cubeRotation[axis] += 90 * direction;
+            updateCube();
+        }
+        
+        function updateCube() {
+            cube.style.transform = `
+                rotateX(${cubeRotation.x}deg)
+                rotateY(${cubeRotation.y}deg)
+                rotateZ(${cubeRotation.z}deg)
+            `;
+        }
+        
+        function resetCube() {
+            cubeRotation = { x: 0, y: 0, z: 0 };
+            updateCube();
+        }
+        
+        // Auto-rotate cube
+        let cubeAutoRotate = setInterval(() => {
+            cubeRotation.y += 1;
+            cubeRotation.x += 0.5;
+            updateCube();
+        }, 50);
+        
+        // Pause on hover
+        cube.addEventListener('mouseenter', () => {
+            clearInterval(cubeAutoRotate);
+        });
+        
+        cube.addEventListener('mouseleave', () => {
+            cubeAutoRotate = setInterval(() => {
+                cubeRotation.y += 1;
+                cubeRotation.x += 0.5;
+                updateCube();
+            }, 50);
+        });
+        
+        // Infinite Scroll Carousel
+        const infiniteTrack = document.getElementById('infiniteTrack');
+        const infiniteItems = ['🎨', '🚀', '💡', '⭐', '🎯', '🔥', '💎', '🌟'];
+        
+        // Create items and duplicates for seamless loop
+        [...infiniteItems, ...infiniteItems].forEach(icon => {
+            const item = document.createElement('div');
+            item.className = 'infinite-item';
+            item.textContent = icon;
+            infiniteTrack.appendChild(item);
+        });
+        
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') rotateCarousel('prev');
+            if (e.key === 'ArrowRight') rotateCarousel('next');
+            if (e.key === ' ') {
+                e.preventDefault();
+                toggleAutoRotate();
+            }
+        });
+        
+        // Touch/Swipe support
+        let touchStartX = 0;
+        
+        mainCarousel.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+        });
+        
+        mainCarousel.addEventListener('touchend', (e) => {
+            const touchEndX = e.changedTouches[0].clientX;
+            const diff = touchStartX - touchEndX;
+            
+            if (Math.abs(diff) > 50) {
+                if (diff > 0) {
+                    rotateCarousel('next');
+                } else {
+                    rotateCarousel('prev');
+                }
+            }
+        });
+        
+        // Mouse drag for cube
+        let isDragging = false;
+        let dragStart = { x: 0, y: 0 };
+        
+        cube.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            dragStart.x = e.clientX;
+            dragStart.y = e.clientY;
+            clearInterval(cubeAutoRotate);
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                const deltaX = e.clientX - dragStart.x;
+                const deltaY = e.clientY - dragStart.y;
+                
+                cubeRotation.y += deltaX * 0.5;
+                cubeRotation.x -= deltaY * 0.5;
+                
+                updateCube();
+                
+                dragStart.x = e.clientX;
+                dragStart.y = e.clientY;
+            }
+        });
+        
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+    </script>
+</body>
+</html>
