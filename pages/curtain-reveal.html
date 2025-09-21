@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curtain Reveal Effects - Karmakazi</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 2rem 0;
+            background: rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .title {
+            font-size: clamp(2rem, 6vw, 4rem);
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            margin-bottom: 1rem;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 2rem;
+        }
+        
+        /* Demo Container */
+        .demo-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 3rem;
+            padding: 3rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .demo-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            min-height: 400px;
+        }
+        
+        .demo-title {
+            font-size: 1.5rem;
+            color: white;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        /* Curtain Container */
+        .curtain-container {
+            position: relative;
+            width: 100%;
+            height: 250px;
+            border-radius: 15px;
+            overflow: hidden;
+            cursor: pointer;
+            background: #000;
+        }
+        
+        .curtain-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Horizontal Curtain */
+        .horizontal-curtain {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+        }
+        
+        .curtain-left, .curtain-right {
+            position: absolute;
+            top: 0;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(45deg, #2c3e50, #34495e);
+            transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            z-index: 10;
+        }
+        
+        .curtain-left {
+            left: 0;
+            background: linear-gradient(45deg, #2c3e50, #34495e);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .curtain-right {
+            right: 0;
+            background: linear-gradient(-45deg, #2c3e50, #34495e);
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .horizontal-curtain.opened .curtain-left {
+            transform: translateX(-100%);
+        }
+        
+        .horizontal-curtain.opened .curtain-right {
+            transform: translateX(100%);
+        }
+        
+        /* Vertical Curtain */
+        .vertical-curtain {
+            background: linear-gradient(45deg, #feca57, #ff9ff3);
+        }
+        
+        .curtain-top, .curtain-bottom {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(135deg, #8e44ad, #9b59b6);
+            transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            z-index: 10;
+        }
+        
+        .curtain-top {
+            top: 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .curtain-bottom {
+            bottom: 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .vertical-curtain.opened .curtain-top {
+            transform: translateY(-100%);
+        }
+        
+        .vertical-curtain.opened .curtain-bottom {
+            transform: translateY(100%);
+        }
+        
+        /* Diagonal Curtain */
+        .diagonal-curtain {
+            background: linear-gradient(45deg, #48dbfb, #0abde3);
+        }
+        
+        .curtain-diagonal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            transform-origin: top left;
+            transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            z-index: 10;
+            clip-path: polygon(0 0, 100% 0, 0 100%);
+        }
+        
+        .diagonal-curtain.opened .curtain-diagonal {
+            transform: translateX(-100%) translateY(-100%);
+        }
+        
+        /* Four Corner Curtain */
+        .four-corner-curtain {
+            background: linear-gradient(45deg, #1dd1a1, #10ac84);
+        }
+        
+        .corner-curtain {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            z-index: 10;
+        }
+        
+        .corner-top-left {
+            top: 0;
+            left: 0;
+            transform-origin: top left;
+        }
+        
+        .corner-top-right {
+            top: 0;
+            right: 0;
+            transform-origin: top right;
+        }
+        
+        .corner-bottom-left {
+            bottom: 0;
+            left: 0;
+            transform-origin: bottom left;
+        }
+        
+        .corner-bottom-right {
+            bottom: 0;
+            right: 0;
+            transform-origin: bottom right;
+        }
+        
+        .four-corner-curtain.opened .corner-top-left {
+            transform: translateX(-100%) translateY(-100%);
+        }
+        
+        .four-corner-curtain.opened .corner-top-right {
+            transform: translateX(100%) translateY(-100%);
+        }
+        
+        .four-corner-curtain.opened .corner-bottom-left {
+            transform: translateX(-100%) translateY(100%);
+        }
+        
+        .four-corner-curtain.opened .corner-bottom-right {
+            transform: translateX(100%) translateY(100%);
+        }
+        
+        /* Circular Curtain */
+        .circular-curtain {
+            background: linear-gradient(45deg, #a55eea, #8c7ae6);
+        }
+        
+        .curtain-circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: linear-gradient(45deg, #fd79a8, #e84393);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            z-index: 10;
+        }
+        
+        .circular-curtain .curtain-circle {
+            width: 150%;
+            height: 150%;
+        }
+        
+        .circular-curtain.opened .curtain-circle {
+            width: 0;
+            height: 0;
+        }
+        
+        /* Venetian Blinds */
+        .venetian-curtain {
+            background: linear-gradient(45deg, #ff9a9e, #fecfef);
+        }
+        
+        .blind-slat {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 12.5%;
+            background: linear-gradient(90deg, #34495e, #2c3e50);
+            transition: transform 0.6s ease;
+            z-index: 10;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        .venetian-curtain.opened .blind-slat {
+            transform: rotateX(90deg);
+        }
+        
+        /* Iris Curtain */
+        .iris-curtain {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+        }
+        
+        .iris-segment {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #2c3e50, #34495e);
+            transform-origin: center;
+            transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            z-index: 10;
+            clip-path: polygon(50% 50%, 50% 0%, 62.5% 0%, 62.5% 50%);
+        }
+        
+        .iris-curtain.opened .iris-segment {
+            transform: translate(-50%, -50%) rotate(45deg) scale(0);
+        }
+        
+        /* Spiral Curtain */
+        .spiral-curtain {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+        }
+        
+        .curtain-spiral {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 150%;
+            height: 150%;
+            background: radial-gradient(circle, transparent 0%, #2c3e50 20%, #34495e 100%);
+            transform: translate(-50%, -50%);
+            transition: transform 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            z-index: 10;
+        }
+        
+        .spiral-curtain.opened .curtain-spiral {
+            transform: translate(-50%, -50%) rotate(360deg) scale(0);
+        }
+        
+        /* Controls */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .control-btn {
+            padding: 0.8rem 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+        
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .control-btn.active {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.7);
+        }
+        
+        /* Slider Controls */
+        .slider-control {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1rem 0;
+            color: white;
+        }
+        
+        .slider {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Demo Instructions */
+        .demo-instruction {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-align: center;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .demo-container {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+                gap: 2rem;
+            }
+            
+            .curtain-container {
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="title">Curtain Reveal Effects</h1>
+        <p class="subtitle">Dramatic reveal animations with curtain-style transitions</p>
+    </div>
+
+    <div class="demo-container">
+        <!-- Horizontal Curtain -->
+        <div class="demo-card">
+            <h3 class="demo-title">Horizontal Curtain</h3>
+            <div class="curtain-container horizontal-curtain" onclick="toggleCurtain(this)">
+                <div class="curtain-content" style="background: linear-gradient(45deg, #ff6b6b, #ee5a24);">
+                    REVEALED!
+                </div>
+                <div class="curtain-left"></div>
+                <div class="curtain-right"></div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="openCurtain('horizontal-curtain')">Open</button>
+                <button class="control-btn" onclick="closeCurtain('horizontal-curtain')">Close</button>
+                <button class="control-btn" onclick="autoToggle('horizontal-curtain')">Auto Toggle</button>
+            </div>
+            <div class="demo-instruction">
+                Click the curtain to reveal the content behind it
+            </div>
+        </div>
+
+        <!-- Vertical Curtain -->
+        <div class="demo-card">
+            <h3 class="demo-title">Vertical Curtain</h3>
+            <div class="curtain-container vertical-curtain" onclick="toggleCurtain(this)">
+                <div class="curtain-content" style="background: linear-gradient(45deg, #feca57, #ff9ff3);">
+                    SURPRISE!
+                </div>
+                <div class="curtain-top"></div>
+                <div class="curtain-bottom"></div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="openCurtain('vertical-curtain')">Open</button>
+                <button class="control-btn" onclick="closeCurtain('vertical-curtain')">Close</button>
+                <button class="control-btn" onclick="changeSpeed('vertical-curtain', 'slow')">Slow</button>
+                <button class="control-btn" onclick="changeSpeed('vertical-curtain', 'fast')">Fast</button>
+            </div>
+            <div class="slider-control">
+                <span>Animation Speed:</span>
+                <input type="range" class="slider" min="0.2" max="2" step="0.2" value="0.8" 
+                       onchange="setAnimationSpeed('vertical-curtain', this.value)">
+            </div>
+        </div>
+
+        <!-- Diagonal Curtain -->
+        <div class="demo-card">
+            <h3 class="demo-title">Diagonal Reveal</h3>
+            <div class="curtain-container diagonal-curtain" onclick="toggleCurtain(this)">
+                <div class="curtain-content" style="background: linear-gradient(45deg, #48dbfb, #0abde3);">
+                    DIAGONAL!
+                </div>
+                <div class="curtain-diagonal"></div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="openCurtain('diagonal-curtain')">Open</button>
+                <button class="control-btn" onclick="closeCurtain('diagonal-curtain')">Close</button>
+                <button class="control-btn" onclick="changeDiagonalDirection('diagonal-curtain')">Change Direction</button>
+            </div>
+            <div class="demo-instruction">
+                Reveals content from top-left to bottom-right
+            </div>
+        </div>
+
+        <!-- Four Corner Curtain -->
+        <div class="demo-card">
+            <h3 class="demo-title">Four Corner Reveal</h3>
+            <div class="curtain-container four-corner-curtain" onclick="toggleCurtain(this)">
+                <div class="curtain-content" style="background: linear-gradient(45deg, #1dd1a1, #10ac84);">
+                    CORNERS!
+                </div>
+                <div class="corner-curtain corner-top-left"></div>
+                <div class="corner-curtain corner-top-right"></div>
+                <div class="corner-curtain corner-bottom-left"></div>
+                <div class="corner-curtain corner-bottom-right"></div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="openCurtain('four-corner-curtain')">Open</button>
+                <button class="control-btn" onclick="closeCurtain('four-corner-curtain')">Close</button>
+                <button class="control-btn" onclick="sequentialReveal('four-corner-curtain')">Sequential</button>
+            </div>
+            <div class="demo-instruction">
+                Four curtain panels reveal from each corner
+            </div>
+        </div>
+
+        <!-- Circular Curtain -->
+        <div class="demo-card">
+            <h3 class="demo-title">Circular Iris</h3>
+            <div class="curtain-container circular-curtain" onclick="toggleCurtain(this)">
+                <div class="curtain-content" style="background: linear-gradient(45deg, #a55eea, #8c7ae6);">
+                    IRIS EFFECT!
+                </div>
+                <div class="curtain-circle"></div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="openCurtain('circular-curtain')">Open</button>
+                <button class="control-btn" onclick="closeCurtain('circular-curtain')">Close</button>
+                <button class="control-btn" onclick="pulseEffect('circular-curtain')">Pulse</button>
+            </div>
+            <div class="slider-control">
+                <span>Circle Size:</span>
+                <input type="range" class="slider" min="100" max="200" value="150" 
+                       onchange="setCircleSize('circular-curtain', this.value)">
+            </div>
+        </div>
+
+        <!-- Venetian Blinds -->
+        <div class="demo-card">
+            <h3 class="demo-title">Venetian Blinds</h3>
+            <div class="curtain-container venetian-curtain" onclick="toggleCurtain(this)">
+                <div class="curtain-content" style="background: linear-gradient(45deg, #ff9a9e, #fecfef);">
+                    BLINDS!
+                </div>
+                <div class="blind-slat" style="top: 0%"></div>
+                <div class="blind-slat" style="top: 12.5%"></div>
+                <div class="blind-slat" style="top: 25%"></div>
+                <div class="blind-slat" style="top: 37.5%"></div>
+                <div class="blind-slat" style="top: 50%"></div>
+                <div class="blind-slat" style="top: 62.5%"></div>
+                <div class="blind-slat" style="top: 75%"></div>
+                <div class="blind-slat" style="top: 87.5%"></div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="openCurtain('venetian-curtain')">Open</button>
+                <button class="control-btn" onclick="closeCurtain('venetian-curtain')">Close</button>
+                <button class="control-btn" onclick="cascadeOpen('venetian-curtain')">Cascade</button>
+            </div>
+            <div class="demo-instruction">
+                Venetian blind slats rotate to reveal content
+            </div>
+        </div>
+
+        <!-- Iris Segments -->
+        <div class="demo-card">
+            <h3 class="demo-title">Camera Iris</h3>
+            <div class="curtain-container iris-curtain" onclick="toggleCurtain(this)">
+                <div class="curtain-content" style="background: linear-gradient(45deg, #667eea, #764ba2);">
+                    CAMERA IRIS!
+                </div>
+                <div class="iris-segment" style="transform: translate(-50%, -50%) rotate(0deg);"></div>
+                <div class="iris-segment" style="transform: translate(-50%, -50%) rotate(45deg);"></div>
+                <div class="iris-segment" style="transform: translate(-50%, -50%) rotate(90deg);"></div>
+                <div class="iris-segment" style="transform: translate(-50%, -50%) rotate(135deg);"></div>
+                <div class="iris-segment" style="transform: translate(-50%, -50%) rotate(180deg);"></div>
+                <div class="iris-segment" style="transform: translate(-50%, -50%) rotate(225deg);"></div>
+                <div class="iris-segment" style="transform: translate(-50%, -50%) rotate(270deg);"></div>
+                <div class="iris-segment" style="transform: translate(-50%, -50%) rotate(315deg);"></div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="openCurtain('iris-curtain')">Open</button>
+                <button class="control-btn" onclick="closeCurtain('iris-curtain')">Close</button>
+                <button class="control-btn" onclick="changeIrisSegments('iris-curtain', 6)">6 Segments</button>
+                <button class="control-btn" onclick="changeIrisSegments('iris-curtain', 8)">8 Segments</button>
+            </div>
+        </div>
+
+        <!-- Spiral Curtain -->
+        <div class="demo-card">
+            <h3 class="demo-title">Spiral Reveal</h3>
+            <div class="curtain-container spiral-curtain" onclick="toggleCurtain(this)">
+                <div class="curtain-content" style="background: linear-gradient(45deg, #ff6b6b, #ee5a24);">
+                    SPIRAL!
+                </div>
+                <div class="curtain-spiral"></div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="openCurtain('spiral-curtain')">Open</button>
+                <button class="control-btn" onclick="closeCurtain('spiral-curtain')">Close</button>
+                <button class="control-btn" onclick="reverseSpiralDirection('spiral-curtain')">Reverse</button>
+                <button class="control-btn" onclick="multiSpiralEffect('spiral-curtain')">Multi-Spiral</button>
+            </div>
+            <div class="slider-control">
+                <span>Rotation Speed:</span>
+                <input type="range" class="slider" min="180" max="720" value="360" 
+                       onchange="setSpiralRotation('spiral-curtain', this.value)">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let autoToggleIntervals = {};
+        let curtainStates = {};
+        
+        // Initialize curtain states
+        document.addEventListener('DOMContentLoaded', () => {
+            const curtains = document.querySelectorAll('.curtain-container');
+            curtains.forEach(curtain => {
+                const className = curtain.classList[1];
+                curtainStates[className] = false; // false = closed, true = open
+            });
+        });
+        
+        // Toggle curtain state
+        function toggleCurtain(element) {
+            const className = element.classList[1];
+            element.classList.toggle('opened');
+            curtainStates[className] = !curtainStates[className];
+        }
+        
+        // Open specific curtain
+        function openCurtain(className) {
+            const curtain = document.querySelector(`.${className}`);
+            if (curtain) {
+                curtain.classList.add('opened');
+                curtainStates[className] = true;
+            }
+        }
+        
+        // Close specific curtain
+        function closeCurtain(className) {
+            const curtain = document.querySelector(`.${className}`);
+            if (curtain) {
+                curtain.classList.remove('opened');
+                curtainStates[className] = false;
+            }
+        }
+        
+        // Auto toggle curtain
+        function autoToggle(className) {
+            // Clear existing interval
+            if (autoToggleIntervals[className]) {
+                clearInterval(autoToggleIntervals[className]);
+                autoToggleIntervals[className] = null;
+                return;
+            }
+            
+            // Start auto toggle
+            autoToggleIntervals[className] = setInterval(() => {
+                const curtain = document.querySelector(`.${className}`);
+                if (curtain) {
+                    toggleCurtain(curtain);
+                }
+            }, 2000);
+        }
+        
+        // Change animation speed
+        function changeSpeed(className, speed) {
+            const curtain = document.querySelector(`.${className}`);
+            if (curtain) {
+                const duration = speed === 'slow' ? '1.5s' : speed === 'fast' ? '0.4s' : '0.8s';
+                const elements = curtain.querySelectorAll('[class*="curtain-"], [class*="blind-"], [class*="corner-"], [class*="iris-"]');
+                elements.forEach(el => {
+                    el.style.transitionDuration = duration;
+                });
+            }
+        }
+        
+        // Set animation speed with slider
+        function setAnimationSpeed(className, value) {
+            const curtain = document.querySelector(`.${className}`);
+            if (curtain) {
+                const elements = curtain.querySelectorAll('[class*="curtain-"], [class*="blind-"], [class*="corner-"], [class*="iris-"]');
+                elements.forEach(el => {
+                    el.style.transitionDuration = value + 's';
+                });
+            }
+        }
+        
+        // Change diagonal direction
+        function changeDiagonalDirection(className) {
+            const curtain = document.querySelector(`.${className} .curtain-diagonal`);
+            if (curtain) {
+                const currentClipPath = curtain.style.clipPath || 'polygon(0 0, 100% 0, 0 100%)';
+                
+                if (currentClipPath.includes('0 0, 100% 0, 0 100%')) {
+                    curtain.style.clipPath = 'polygon(100% 0, 100% 100%, 0 100%)';
+                    curtain.style.transformOrigin = 'top right';
+                } else if (currentClipPath.includes('100% 0, 100% 100%, 0 100%')) {
+                    curtain.style.clipPath = 'polygon(100% 100%, 0 100%, 0 0)';
+                    curtain.style.transformOrigin = 'bottom left';
+                } else {
+                    curtain.style.clipPath = 'polygon(0 0, 100% 0, 0 100%)';
+                    curtain.style.transformOrigin = 'top left';
+                }
+            }
+        }
+        
+        // Sequential reveal for four corners
+        function sequentialReveal(className) {
+            const curtain = document.querySelector(`.${className}`);
+            if (curtain) {
+                const corners = curtain.querySelectorAll('.corner-curtain');
+                
+                // Close all first
+                curtain.classList.remove('opened');
+                
+                // Open each corner with delay
+                corners.forEach((corner, index) => {
+                    setTimeout(() => {
+                        corner.style.transform = corner.classList.contains('corner-top-left') ? 'translateX(-100%) translateY(-100%)' :
+                                               corner.classList.contains('corner-top-right') ? 'translateX(100%) translateY(-100%)' :
+                                               corner.classList.contains('corner-bottom-left') ? 'translateX(-100%) translateY(100%)' :
+                                               'translateX(100%) translateY(100%)';
+                    }, index * 200);
+                });
+                
+                // Reset after animation
+                setTimeout(() => {
+                    curtain.classList.add('opened');
+                }, 1000);
+            }
+        }
+        
+        // Set circle size for circular curtain
+        function setCircleSize(className, value) {
+            const circle = document.querySelector(`.${className} .curtain-circle`);
+            if (circle) {
+                circle.style.width = value + '%';
+                circle.style.height = value + '%';
+            }
+        }
+        
+        // Pulse effect for circular curtain
+        function pulseEffect(className) {
+            const curtain = document.querySelector(`.${className}`);
+            if (curtain) {
+                const circle = curtain.querySelector('.curtain-circle');
+                
+                // Pulse animation
+                let scale = 1;
+                const pulseInterval = setInterval(() => {
+                    scale = scale === 1 ? 1.2 : 1;
+                    circle.style.transform = `translate(-50%, -50%) scale(${scale})`;
+                }, 300);
+                
+                // Stop after 3 pulses
+                setTimeout(() => {
+                    clearInterval(pulseInterval);
+                    circle.style.transform = 'translate(-50%, -50%) scale(1)';
+                }, 1800);
+            }
+        }
+        
+        // Cascade open for venetian blinds
+        function cascadeOpen(className) {
+            const curtain = document.querySelector(`.${className}`);
+            if (curtain) {
+                const slats = curtain.querySelectorAll('.blind-slat');
+                
+                // Close all first
+                curtain.classList.remove('opened');
+                slats.forEach(slat => {
+                    slat.style.transform = 'rotateX(0deg)';
+                });
+                
+                // Open each slat with delay
+                slats.forEach((slat, index) => {
+                    setTimeout(() => {
+                        slat.style.transform = 'rotateX(90deg)';
+                    }, index * 100);
+                });
+            }
+        }
+        
+        // Change iris segments
+        function changeIrisSegments(className, segmentCount) {
+            const curtain = document.querySelector(`.${className}`);
+            if (curtain) {
+                // Remove existing segments
+                const existingSegments = curtain.querySelectorAll('.iris-segment');
+                existingSegments.forEach(segment => segment.remove());
+                
+                // Create new segments
+                const angleStep = 360 / segmentCount;
+                for (let i = 0; i < segmentCount; i++) {
+                    const segment = document.createElement('div');
+                    segment.className = 'iris-segment';
+                    segment.style.transform = `translate(-50%, -50%) rotate(${i * angleStep}deg)`;
+                    segment.style.clipPath = `polygon(50% 50%, 50% 0%, ${50 + (100 / segmentCount)}% 0%, ${50 + (100 / segmentCount)}% 50%)`;
+                    curtain.appendChild(segment);
+                }
+            }
+        }
+        
+        // Reverse spiral direction
+        function reverseSpiralDirection(className) {
+            const spiral = document.querySelector(`.${className} .curtain-spiral`);
+            if (spiral) {
+                const currentTransform = spiral.style.transform || '';
+                const isReversed = currentTransform.includes('-360deg');
+                
+                if (isReversed) {
+                    spiral.style.transform = spiral.style.transform.replace('-360deg', '360deg');
+                } else {
+                    spiral.style.transform = spiral.style.transform.replace('360deg', '-360deg');
+                }
+            }
+        }
+        
+        // Multi-spiral effect
+        function multiSpiralEffect(className) {
+            const curtain = document.querySelector(`.${className}`);
+            if (curtain) {
+                const originalSpiral = curtain.querySelector('.curtain-spiral');
+                
+                // Create additional spirals
+                for (let i = 0; i < 3; i++) {
+                    const newSpiral = originalSpiral.cloneNode(true);
+                    newSpiral.style.animationDelay = `${i * 0.2}s`;
+                    newSpiral.style.opacity = `${1 - i * 0.3}`;
+                    curtain.appendChild(newSpiral);
+                }
+                
+                // Remove extra spirals after animation
+                setTimeout(() => {
+                    const extraSpirals = curtain.querySelectorAll('.curtain-spiral:not(:first-of-type)');
+                    extraSpirals.forEach(spiral => spiral.remove());
+                }, 2000);
+            }
+        }
+        
+        // Set spiral rotation
+        function setSpiralRotation(className, degrees) {
+            const spiral = document.querySelector(`.${className} .curtain-spiral`);
+            if (spiral) {
+                const currentTransform = spiral.style.transform || 'translate(-50%, -50%) rotate(360deg) scale(0)';
+                const isNegative = currentTransform.includes('-');
+                const newRotation = isNegative ? `-${degrees}deg` : `${degrees}deg`;
+                spiral.style.transform = currentTransform.replace(/rotate\([^)]*\)/, `rotate(${newRotation})`);
+            }
+        }
+        
+        // Add click handlers for all curtains
+        document.addEventListener('DOMContentLoaded', () => {
+            const curtains = document.querySelectorAll('.curtain-container');
+            curtains.forEach(curtain => {
+                curtain.addEventListener('click', () => {
+                    // Add click effect
+                    curtain.style.transform = 'scale(0.98)';
+                    setTimeout(() => {
+                        curtain.style.transform = 'scale(1)';
+                    }, 150);
+                });
+            });
+        });
+        
+        // Add hover effects
+        document.addEventListener('DOMContentLoaded', () => {
+            const curtains = document.querySelectorAll('.curtain-container');
+            curtains.forEach(curtain => {
+                curtain.addEventListener('mouseenter', () => {
+                    curtain.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.3)';
+                });
+                
+                curtain.addEventListener('mouseleave', () => {
+                    curtain.style.boxShadow = 'none';
+                });
+            });
+        });
+        
+        // Cleanup intervals on page unload
+        window.addEventListener('beforeunload', () => {
+            Object.values(autoToggleIntervals).forEach(interval => {
+                if (interval) clearInterval(interval);
+            });
+        });
+    </script>
+</body>
+</html>
