@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slide Transitions - Karmakazi</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            background: #1a1a2e;
+        }
+        
+        /* Slide Container */
+        .slide-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* Slides */
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .slide-1 { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .slide-2 { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .slide-3 { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .slide-4 { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .slide-5 { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        
+        .slide-content {
+            text-align: center;
+            color: white;
+            padding: 2rem;
+            max-width: 800px;
+            z-index: 10;
+        }
+        
+        .slide-title {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .slide-subtitle {
+            font-size: 1.5rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+        
+        /* Slide Transitions */
+        
+        /* Horizontal Slide */
+        .slide-horizontal {
+            transform: translateX(100%);
+        }
+        
+        .slide-horizontal.active {
+            transform: translateX(0);
+        }
+        
+        .slide-horizontal.prev {
+            transform: translateX(-100%);
+        }
+        
+        /* Vertical Slide */
+        .slide-vertical {
+            transform: translateY(100%);
+        }
+        
+        .slide-vertical.active {
+            transform: translateY(0);
+        }
+        
+        .slide-vertical.prev {
+            transform: translateY(-100%);
+        }
+        
+        /* Diagonal Slide */
+        .slide-diagonal {
+            transform: translate(100%, 100%);
+        }
+        
+        .slide-diagonal.active {
+            transform: translate(0, 0);
+        }
+        
+        .slide-diagonal.prev {
+            transform: translate(-100%, -100%);
+        }
+        
+        /* Zoom Slide */
+        .slide-zoom {
+            transform: scale(0);
+            opacity: 0;
+        }
+        
+        .slide-zoom.active {
+            transform: scale(1);
+            opacity: 1;
+        }
+        
+        .slide-zoom.prev {
+            transform: scale(2);
+            opacity: 0;
+        }
+        
+        /* Rotate Slide */
+        .slide-rotate {
+            transform: translateX(100%) rotate(90deg);
+            opacity: 0;
+        }
+        
+        .slide-rotate.active {
+            transform: translateX(0) rotate(0deg);
+            opacity: 1;
+        }
+        
+        .slide-rotate.prev {
+            transform: translateX(-100%) rotate(-90deg);
+            opacity: 0;
+        }
+        
+        /* Flip Slide */
+        .slide-flip {
+            transform: rotateY(180deg);
+            backface-visibility: hidden;
+        }
+        
+        .slide-flip.active {
+            transform: rotateY(0deg);
+        }
+        
+        .slide-flip.prev {
+            transform: rotateY(-180deg);
+        }
+        
+        /* Cube Slide */
+        .cube-container {
+            perspective: 1200px;
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .slide-cube {
+            transform-style: preserve-3d;
+            transform: translateZ(-50vh) rotateY(90deg);
+        }
+        
+        .slide-cube.active {
+            transform: translateZ(-50vh) rotateY(0deg);
+        }
+        
+        .slide-cube.prev {
+            transform: translateZ(-50vh) rotateY(-90deg);
+        }
+        
+        /* Cover Slide */
+        .slide-cover {
+            transform: translateX(100%);
+            z-index: 2;
+        }
+        
+        .slide-cover.active {
+            transform: translateX(0);
+            z-index: 3;
+        }
+        
+        .slide-cover.prev {
+            transform: translateX(0);
+            z-index: 1;
+        }
+        
+        /* Push Slide */
+        .slide-push {
+            transform: translateX(100%);
+        }
+        
+        .slide-push.active {
+            transform: translateX(0);
+        }
+        
+        .slide-push.prev {
+            transform: translateX(-25%);
+            opacity: 0.5;
+        }
+        
+        /* Transition Selector */
+        .transition-selector {
+            position: fixed;
+            top: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 0.5rem;
+            z-index: 1000;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 90%;
+        }
+        
+        .transition-btn {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+        }
+        
+        .transition-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .transition-btn.active {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: white;
+        }
+        
+        /* Navigation */
+        .navigation {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            z-index: 1000;
+        }
+        
+        .nav-btn {
+            padding: 1rem 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+        
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        /* Progress Indicators */
+        .progress-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+        
+        /* Dots */
+        .dots-nav {
+            position: fixed;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1000;
+        }
+        
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            margin: 1rem 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .dot:hover {
+            background: rgba(255, 255, 255, 0.5);
+            transform: scale(1.2);
+        }
+        
+        .dot.active {
+            background: white;
+            transform: scale(1.5);
+        }
+        
+        /* Back Button */
+        .back-button {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .back-button:hover {
+            background: white;
+            transform: translateX(-5px);
+        }
+        
+        .back-button::before {
+            content: '←';
+            font-size: 1.25rem;
+        }
+        
+        /* Slide Counter */
+        .slide-counter {
+            position: fixed;
+            top: 50%;
+            left: 2rem;
+            transform: translateY(-50%);
+            color: white;
+            font-size: 4rem;
+            font-weight: 700;
+            opacity: 0.2;
+            z-index: 100;
+        }
+        
+        /* Touch Hint */
+        .touch-hint {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            opacity: 0.5;
+            font-size: 0.875rem;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="back-button">Back to Gallery</a>
+    
+    <!-- Transition Selector -->
+    <div class="transition-selector">
+        <button class="transition-btn active" data-transition="horizontal">Horizontal</button>
+        <button class="transition-btn" data-transition="vertical">Vertical</button>
+        <button class="transition-btn" data-transition="diagonal">Diagonal</button>
+        <button class="transition-btn" data-transition="zoom">Zoom</button>
+        <button class="transition-btn" data-transition="rotate">Rotate</button>
+        <button class="transition-btn" data-transition="flip">Flip</button>
+        <button class="transition-btn" data-transition="cube">Cube</button>
+        <button class="transition-btn" data-transition="cover">Cover</button>
+        <button class="transition-btn" data-transition="push">Push</button>
+    </div>
+    
+    <!-- Slide Container -->
+    <div class="slide-container" id="slideContainer">
+        <!-- Slide 1 -->
+        <div class="slide slide-1 slide-horizontal active">
+            <div class="slide-content">
+                <h1 class="slide-title">SLIDE TRANSITIONS</h1>
+                <p class="slide-subtitle">Dynamic sliding page animations</p>
+                <p style="opacity: 0.8; line-height: 1.6;">
+                    Experience smooth sliding transitions between pages. 
+                    Choose from various slide effects using the controls above.
+                </p>
+            </div>
+        </div>
+        
+        <!-- Slide 2 -->
+        <div class="slide slide-2 slide-horizontal">
+            <div class="slide-content">
+                <h1 class="slide-title">CREATIVE FLOW</h1>
+                <p class="slide-subtitle">Seamless navigation experience</p>
+                <p style="opacity: 0.8; line-height: 1.6;">
+                    Each transition style creates a unique visual flow, 
+                    perfect for storytelling and presentations.
+                </p>
+            </div>
+        </div>
+        
+        <!-- Slide 3 -->
+        <div class="slide slide-3 slide-horizontal">
+            <div class="slide-content">
+                <h1 class="slide-title">INNOVATION</h1>
+                <p class="slide-subtitle">Modern web interactions</p>
+                <p style="opacity: 0.8; line-height: 1.6;">
+                    Combine different slide effects to create engaging 
+                    user experiences that capture attention.
+                </p>
+            </div>
+        </div>
+        
+        <!-- Slide 4 -->
+        <div class="slide slide-4 slide-horizontal">
+            <div class="slide-content">
+                <h1 class="slide-title">PERFORMANCE</h1>
+                <p class="slide-subtitle">Hardware-accelerated animations</p>
+                <p style="opacity: 0.8; line-height: 1.6;">
+                    Optimized CSS transforms ensure smooth 60fps 
+                    performance across all devices.
+                </p>
+            </div>
+        </div>
+        
+        <!-- Slide 5 -->
+        <div class="slide slide-5 slide-horizontal">
+            <div class="slide-content">
+                <h1 class="slide-title">EXPLORE</h1>
+                <p class="slide-subtitle">Discover all transition styles</p>
+                <p style="opacity: 0.8; line-height: 1.6;">
+                    Try each transition type to find the perfect match 
+                    for your project's needs.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Slide Counter -->
+    <div class="slide-counter" id="slideCounter">01</div>
+    
+    <!-- Progress Bar -->
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width: 20%;"></div>
+    </div>
+    
+    <!-- Dots Navigation -->
+    <div class="dots-nav">
+        <div class="dot active" data-slide="1"></div>
+        <div class="dot" data-slide="2"></div>
+        <div class="dot" data-slide="3"></div>
+        <div class="dot" data-slide="4"></div>
+        <div class="dot" data-slide="5"></div>
+    </div>
+    
+    <!-- Navigation -->
+    <div class="navigation">
+        <button class="nav-btn" onclick="previousSlide()">← Previous</button>
+        <button class="nav-btn" onclick="toggleAutoPlay()">Auto Play</button>
+        <button class="nav-btn" onclick="nextSlide()">Next →</button>
+    </div>
+    
+    <!-- Touch Hint -->
+    <div class="touch-hint">Swipe or use arrow keys to navigate</div>
+    
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 5;
+        let transitionType = 'horizontal';
+        let autoPlayInterval = null;
+        let isTransitioning = false;
+        
+        // Transition classes
+        const transitionClasses = {
+            horizontal: 'slide-horizontal',
+            vertical: 'slide-vertical',
+            diagonal: 'slide-diagonal',
+            zoom: 'slide-zoom',
+            rotate: 'slide-rotate',
+            flip: 'slide-flip',
+            cube: 'slide-cube',
+            cover: 'slide-cover',
+            push: 'slide-push'
+        };
+        
+        // Set transition type
+        document.querySelectorAll('.transition-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (isTransitioning) return;
+                
+                // Update active button
+                document.querySelectorAll('.transition-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Get transition type
+                transitionType = this.dataset.transition;
+                
+                // Update all slides with new transition class
+                document.querySelectorAll('.slide').forEach(slide => {
+                    // Remove all transition classes
+                    Object.values(transitionClasses).forEach(cls => {
+                        slide.classList.remove(cls);
+                    });
+                    
+                    // Add new transition class
+                    slide.classList.add(transitionClasses[transitionType]);
+                });
+                
+                // Special handling for cube transition
+                if (transitionType === 'cube') {
+                    document.getElementById('slideContainer').classList.add('cube-container');
+                } else {
+                    document.getElementById('slideContainer').classList.remove('cube-container');
+                }
+            });
+        });
+        
+        // Navigate to slide
+        function goToSlide(slideNumber) {
+            if (isTransitioning || slideNumber === currentSlide) return;
+            if (slideNumber < 1 || slideNumber > totalSlides) return;
+            
+            isTransitioning = true;
+            
+            // Update classes
+            const currentSlideEl = document.querySelector(`.slide-${currentSlide}`);
+            const newSlideEl = document.querySelector(`.slide-${slideNumber}`);
+            
+            // Remove active from current
+            currentSlideEl.classList.remove('active');
+            
+            // Add prev or next based on direction
+            if (slideNumber > currentSlide) {
+                currentSlideEl.classList.add('prev');
+                newSlideEl.classList.remove('prev');
+            } else {
+                currentSlideEl.classList.remove('prev');
+            }
+            
+            // Add active to new slide
+            newSlideEl.classList.add('active');
+            
+            // Update current slide
+            currentSlide = slideNumber;
+            
+            // Update UI elements
+            updateUI();
+            
+            // Reset transition flag
+            setTimeout(() => {
+                isTransitioning = false;
+            }, 1000);
+        }
+        
+        // Next slide
+        function nextSlide() {
+            const next = currentSlide === totalSlides ? 1 : currentSlide + 1;
+            goToSlide(next);
+        }
+        
+        // Previous slide
+        function previousSlide() {
+            const prev = currentSlide === 1 ? totalSlides : currentSlide - 1;
+            goToSlide(prev);
+        }
+        
+        // Update UI elements
+        function updateUI() {
+            // Update counter
+            document.getElementById('slideCounter').textContent = String(currentSlide).padStart(2, '0');
+            
+            // Update progress bar
+            const progress = (currentSlide / totalSlides) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            
+            // Update dots
+            document.querySelectorAll('.dot').forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentSlide - 1);
+            });
+        }
+        
+        // Dots navigation
+        document.querySelectorAll('.dot').forEach(dot => {
+            dot.addEventListener('click', function() {
+                const slideNumber = parseInt(this.dataset.slide);
+                goToSlide(slideNumber);
+            });
+        });
+        
+        // Auto play
+        function toggleAutoPlay() {
+            if (autoPlayInterval) {
+                clearInterval(autoPlayInterval);
+                autoPlayInterval = null;
+                event.target.textContent = 'Auto Play';
+            } else {
+                autoPlayInterval = setInterval(nextSlide, 3000);
+                event.target.textContent = 'Stop';
+            }
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowRight':
+                case 'ArrowDown':
+                    nextSlide();
+                    break;
+                case 'ArrowLeft':
+                case 'ArrowUp':
+                    previousSlide();
+                    break;
+                case ' ':
+                    e.preventDefault();
+                    toggleAutoPlay();
+                    break;
+            }
+        });
+        
+        // Touch/Swipe support
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchEndX = 0;
+        let touchEndY = 0;
+        
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+        });
+        
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            touchEndY = e.changedTouches[0].screenY;
+            handleSwipe();
+        });
+        
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diffX = touchStartX - touchEndX;
+            const diffY = touchStartY - touchEndY;
+            
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                // Horizontal swipe
+                if (Math.abs(diffX) > swipeThreshold) {
+                    if (diffX > 0) {
+                        nextSlide(); // Swipe left
+                    } else {
+                        previousSlide(); // Swipe right
+                    }
+                }
+            } else {
+                // Vertical swipe
+                if (Math.abs(diffY) > swipeThreshold) {
+                    if (diffY > 0) {
+                        nextSlide(); // Swipe up
+                    } else {
+                        previousSlide(); // Swipe down
+                    }
+                }
+            }
+        }
+        
+        // Mouse wheel navigation
+        let scrollThrottle = false;
+        document.addEventListener('wheel', (e) => {
+            if (!scrollThrottle) {
+                scrollThrottle = true;
+                
+                if (e.deltaY > 0) {
+                    nextSlide();
+                } else {
+                    previousSlide();
+                }
+                
+                setTimeout(() => {
+                    scrollThrottle = false;
+                }, 1000);
+            }
+        });
+        
+        // Hide touch hint after first interaction
+        let hintTimeout;
+        function hideTouchHint() {
+            clearTimeout(hintTimeout);
+            hintTimeout = setTimeout(() => {
+                document.querySelector('.touch-hint').style.opacity = '0';
+            }, 2000);
+        }
+        
+        document.addEventListener('touchstart', hideTouchHint);
+        document.addEventListener('mousedown', hideTouchHint);
+        document.addEventListener('keydown', hideTouchHint);
+    </script>
+</body>
+</html>
