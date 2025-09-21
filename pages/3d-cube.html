@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Cube Navigation - Karmakazi</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #505285 0%, #585e92 50%, #65689f 51%, #7474b0 100%);
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .header {
+            position: absolute;
+            top: 100px;
+            text-align: center;
+            z-index: 10;
+        }
+        
+        .title {
+            font-size: clamp(2rem, 6vw, 4rem);
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            margin-bottom: 1rem;
+        }
+        
+        /* Main Navigation Cube */
+        .cube-container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            perspective: 1500px;
+            margin: 2rem auto;
+        }
+        
+        .navigation-cube {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: rotateX(-20deg) rotateY(20deg);
+        }
+        
+        .cube-face {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .cube-face:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .cube-face h2 {
+            font-size: 2.5rem;
+            color: white;
+            margin-bottom: 1rem;
+        }
+        
+        .cube-face p {
+            color: rgba(255, 255, 255, 0.9);
+            text-align: center;
+            line-height: 1.6;
+        }
+        
+        /* Face positions */
+        .face-front {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.8), rgba(118, 75, 162, 0.8));
+            transform: rotateY(0deg) translateZ(200px);
+        }
+        
+        .face-right {
+            background: linear-gradient(135deg, rgba(240, 147, 251, 0.8), rgba(245, 87, 108, 0.8));
+            transform: rotateY(90deg) translateZ(200px);
+        }
+        
+        .face-back {
+            background: linear-gradient(135deg, rgba(79, 172, 254, 0.8), rgba(0, 242, 254, 0.8));
+            transform: rotateY(180deg) translateZ(200px);
+        }
+        
+        .face-left {
+            background: linear-gradient(135deg, rgba(67, 233, 123, 0.8), rgba(56, 249, 215, 0.8));
+            transform: rotateY(270deg) translateZ(200px);
+        }
+        
+        .face-top {
+            background: linear-gradient(135deg, rgba(250, 112, 154, 0.8), rgba(254, 225, 64, 0.8));
+            transform: rotateX(90deg) translateZ(200px);
+        }
+        
+        .face-bottom {
+            background: linear-gradient(135deg, rgba(48, 207, 208, 0.8), rgba(51, 8, 103, 0.8));
+            transform: rotateX(-90deg) translateZ(200px);
+        }
+        
+        /* Mini Cubes Gallery */
+        .mini-cubes {
+            display: flex;
+            gap: 3rem;
+            margin-top: 4rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .mini-cube-wrapper {
+            width: 150px;
+            height: 150px;
+            perspective: 600px;
+        }
+        
+        .mini-cube {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: rotate-cube 10s infinite linear;
+        }
+        
+        .mini-cube-wrapper:nth-child(2) .mini-cube {
+            animation-delay: -2s;
+        }
+        
+        .mini-cube-wrapper:nth-child(3) .mini-cube {
+            animation-delay: -4s;
+        }
+        
+        @keyframes rotate-cube {
+            0% { transform: rotateX(0) rotateY(0); }
+            100% { transform: rotateX(360deg) rotateY(360deg); }
+        }
+        
+        .mini-face {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        
+        .mini-face:nth-child(1) {
+            background: rgba(255, 99, 71, 0.8);
+            transform: rotateY(0deg) translateZ(75px);
+        }
+        
+        .mini-face:nth-child(2) {
+            background: rgba(135, 206, 235, 0.8);
+            transform: rotateY(90deg) translateZ(75px);
+        }
+        
+        .mini-face:nth-child(3) {
+            background: rgba(144, 238, 144, 0.8);
+            transform: rotateY(180deg) translateZ(75px);
+        }
+        
+        .mini-face:nth-child(4) {
+            background: rgba(255, 215, 0, 0.8);
+            transform: rotateY(270deg) translateZ(75px);
+        }
+        
+        .mini-face:nth-child(5) {
+            background: rgba(238, 130, 238, 0.8);
+            transform: rotateX(90deg) translateZ(75px);
+        }
+        
+        .mini-face:nth-child(6) {
+            background: rgba(255, 160, 122, 0.8);
+            transform: rotateX(-90deg) translateZ(75px);
+        }
+        
+        /* Rubik's Cube Style */
+        .rubiks-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            perspective: 1000px;
+            margin: 4rem auto;
+        }
+        
+        .rubiks-cube {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transform: rotateX(-30deg) rotateY(30deg);
+            transition: transform 0.5s;
+        }
+        
+        .rubiks-piece {
+            position: absolute;
+            width: 98px;
+            height: 98px;
+            border: 1px solid #000;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        /* Controls */
+        .controls {
+            position: fixed;
+            bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            z-index: 100;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        /* Navigation buttons */
+        .nav-buttons {
+            position: absolute;
+            bottom: -80px;
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .nav-btn {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .nav-btn.active {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: white;
+        }
+        
+        /* Back Button */
+        .back-button {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .back-button:hover {
+            background: white;
+            transform: translateX(-5px);
+        }
+        
+        .back-button::before {
+            content: '←';
+            font-size: 1.25rem;
+        }
+        
+        /* Interactive mode indicator */
+        .mode-indicator {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            z-index: 100;
+        }
+        
+        /* Exploded view */
+        .navigation-cube.exploded .cube-face {
+            transition: transform 1s ease;
+        }
+        
+        .navigation-cube.exploded .face-front {
+            transform: rotateY(0deg) translateZ(300px);
+        }
+        
+        .navigation-cube.exploded .face-right {
+            transform: rotateY(90deg) translateZ(300px);
+        }
+        
+        .navigation-cube.exploded .face-back {
+            transform: rotateY(180deg) translateZ(300px);
+        }
+        
+        .navigation-cube.exploded .face-left {
+            transform: rotateY(270deg) translateZ(300px);
+        }
+        
+        .navigation-cube.exploded .face-top {
+            transform: rotateX(90deg) translateZ(300px);
+        }
+        
+        .navigation-cube.exploded .face-bottom {
+            transform: rotateX(-90deg) translateZ(300px);
+        }
+        
+        @media (max-width: 768px) {
+            .cube-container {
+                width: 300px;
+                height: 300px;
+            }
+            
+            .cube-face {
+                width: 300px;
+                height: 300px;
+                padding: 1rem;
+            }
+            
+            .cube-face h2 {
+                font-size: 1.8rem;
+            }
+            
+            .face-front { transform: rotateY(0deg) translateZ(150px); }
+            .face-right { transform: rotateY(90deg) translateZ(150px); }
+            .face-back { transform: rotateY(180deg) translateZ(150px); }
+            .face-left { transform: rotateY(270deg) translateZ(150px); }
+            .face-top { transform: rotateX(90deg) translateZ(150px); }
+            .face-bottom { transform: rotateX(-90deg) translateZ(150px); }
+        }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="back-button">Back to Gallery</a>
+    
+    <div class="mode-indicator">Drag to rotate • Click faces to navigate</div>
+    
+    <div class="header">
+        <h1 class="title">3D CUBE NAVIGATION</h1>
+        <p style="color: white; opacity: 0.9;">Interactive cube-based navigation system</p>
+    </div>
+    
+    <!-- Main Navigation Cube -->
+    <div class="cube-container">
+        <div class="navigation-cube" id="navCube">
+            <div class="cube-face face-front" data-page="home">
+                <h2>🏠</h2>
+                <h2>Home</h2>
+                <p>Welcome to the cube navigation. Each face represents a different section.</p>
+            </div>
+            <div class="cube-face face-right" data-page="about">
+                <h2>ℹ️</h2>
+                <h2>About</h2>
+                <p>Learn more about our 3D navigation system and its capabilities.</p>
+            </div>
+            <div class="cube-face face-back" data-page="portfolio">
+                <h2>💼</h2>
+                <h2>Portfolio</h2>
+                <p>Explore our collection of amazing projects and works.</p>
+            </div>
+            <div class="cube-face face-left" data-page="services">
+                <h2>⚙️</h2>
+                <h2>Services</h2>
+                <p>Discover the services we offer and how we can help you.</p>
+            </div>
+            <div class="cube-face face-top" data-page="contact">
+                <h2>📧</h2>
+                <h2>Contact</h2>
+                <p>Get in touch with us. We'd love to hear from you!</p>
+            </div>
+            <div class="cube-face face-bottom" data-page="blog">
+                <h2>📝</h2>
+                <h2>Blog</h2>
+                <p>Read our latest articles and stay updated.</p>
+            </div>
+        </div>
+        
+        <div class="nav-buttons">
+            <button class="nav-btn active" onclick="rotateTo('front')">Home</button>
+            <button class="nav-btn" onclick="rotateTo('right')">About</button>
+            <button class="nav-btn" onclick="rotateTo('back')">Portfolio</button>
+            <button class="nav-btn" onclick="rotateTo('left')">Services</button>
+            <button class="nav-btn" onclick="rotateTo('top')">Contact</button>
+            <button class="nav-btn" onclick="rotateTo('bottom')">Blog</button>
+        </div>
+    </div>
+    
+    <!-- Mini Cubes Gallery -->
+    <div class="mini-cubes">
+        <div class="mini-cube-wrapper">
+            <div class="mini-cube">
+                <div class="mini-face">1</div>
+                <div class="mini-face">2</div>
+                <div class="mini-face">3</div>
+                <div class="mini-face">4</div>
+                <div class="mini-face">5</div>
+                <div class="mini-face">6</div>
+            </div>
+        </div>
+        <div class="mini-cube-wrapper">
+            <div class="mini-cube">
+                <div class="mini-face">A</div>
+                <div class="mini-face">B</div>
+                <div class="mini-face">C</div>
+                <div class="mini-face">D</div>
+                <div class="mini-face">E</div>
+                <div class="mini-face">F</div>
+            </div>
+        </div>
+        <div class="mini-cube-wrapper">
+            <div class="mini-cube">
+                <div class="mini-face">🎨</div>
+                <div class="mini-face">🚀</div>
+                <div class="mini-face">💡</div>
+                <div class="mini-face">⭐</div>
+                <div class="mini-face">🎯</div>
+                <div class="mini-face">🔥</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Controls -->
+    <div class="controls">
+        <button class="btn" onclick="toggleExplode()">Explode View</button>
+        <button class="btn" onclick="resetCube()">Reset Position</button>
+        <button class="btn" onclick="toggleAutoRotate()">Auto Rotate</button>
+        <button class="btn" onclick="randomRotate()">Random Face</button>
+    </div>
+    
+    <script>
+        const navCube = document.getElementById('navCube');
+        let currentRotation = { x: -20, y: 20 };
+        let isDragging = false;
+        let startPos = { x: 0, y: 0 };
+        let autoRotateInterval = null;
+        
+        // Face rotations
+        const faceRotations = {
+            front: { x: 0, y: 0 },
+            right: { x: 0, y: -90 },
+            back: { x: 0, y: -180 },
+            left: { x: 0, y: 90 },
+            top: { x: -90, y: 0 },
+            bottom: { x: 90, y: 0 }
+        };
+        
+        // Rotate to specific face
+        function rotateTo(face) {
+            const rotation = faceRotations[face];
+            currentRotation = { ...rotation };
+            updateCubeRotation();
+            
+            // Update active button
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+        
+        // Update cube rotation
+        function updateCubeRotation() {
+            navCube.style.transform = `rotateX(${currentRotation.x}deg) rotateY(${currentRotation.y}deg)`;
+        }
+        
+        // Toggle exploded view
+        function toggleExplode() {
+            navCube.classList.toggle('exploded');
+            event.target.textContent = navCube.classList.contains('exploded') ? 'Collapse View' : 'Explode View';
+        }
+        
+        // Reset cube position
+        function resetCube() {
+            currentRotation = { x: -20, y: 20 };
+            updateCubeRotation();
+            navCube.classList.remove('exploded');
+        }
+        
+        // Toggle auto rotation
+        function toggleAutoRotate() {
+            if (autoRotateInterval) {
+                clearInterval(autoRotateInterval);
+                autoRotateInterval = null;
+                event.target.textContent = 'Auto Rotate';
+            } else {
+                autoRotateInterval = setInterval(() => {
+                    currentRotation.y += 1;
+                    updateCubeRotation();
+                }, 30);
+                event.target.textContent = 'Stop Rotate';
+            }
+        }
+        
+        // Random face
+        function randomRotate() {
+            const faces = Object.keys(faceRotations);
+            const randomFace = faces[Math.floor(Math.random() * faces.length)];
+            const rotation = faceRotations[randomFace];
+            currentRotation = { ...rotation };
+            updateCubeRotation();
+        }
+        
+        // Mouse drag rotation
+        navCube.addEventListener('mousedown', (e) => {
+            if (e.target.classList.contains('cube-face')) {
+                // Check if clicking for navigation
+                if (e.target.dataset.page) {
+                    console.log(`Navigate to: ${e.target.dataset.page}`);
+                    // In a real app, this would navigate to the page
+                }
+            }
+            
+            isDragging = true;
+            startPos = { x: e.clientX, y: e.clientY };
+            navCube.style.cursor = 'grabbing';
+            
+            if (autoRotateInterval) {
+                clearInterval(autoRotateInterval);
+                autoRotateInterval = null;
+            }
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            
+            e.preventDefault();
+            
+            const deltaX = e.clientX - startPos.x;
+            const deltaY = e.clientY - startPos.y;
+            
+            currentRotation.x -= deltaY * 0.5;
+            currentRotation.y += deltaX * 0.5;
+            
+            updateCubeRotation();
+            
+            startPos = { x: e.clientX, y: e.clientY };
+        });
+        
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+            navCube.style.cursor = 'grab';
+        });
+        
+        // Touch support
+        let touchStart = { x: 0, y: 0 };
+        
+        navCube.addEventListener('touchstart', (e) => {
+            touchStart = {
+                x: e.touches[0].clientX,
+                y: e.touches[0].clientY
+            };
+        });
+        
+        navCube.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            
+            const deltaX = e.touches[0].clientX - touchStart.x;
+            const deltaY = e.touches[0].clientY - touchStart.y;
+            
+            currentRotation.x -= deltaY * 0.5;
+            currentRotation.y += deltaX * 0.5;
+            
+            updateCubeRotation();
+            
+            touchStart = {
+                x: e.touches[0].clientX,
+                y: e.touches[0].clientY
+            };
+        });
+        
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            const step = 90;
+            switch(e.key) {
+                case 'ArrowUp':
+                    currentRotation.x -= step;
+                    break;
+                case 'ArrowDown':
+                    currentRotation.x += step;
+                    break;
+                case 'ArrowLeft':
+                    currentRotation.y += step;
+                    break;
+                case 'ArrowRight':
+                    currentRotation.y -= step;
+                    break;
+                case ' ':
+                    e.preventDefault();
+                    toggleAutoRotate();
+                    break;
+                case 'e':
+                    navCube.classList.toggle('exploded');
+                    break;
+                case 'r':
+                    resetCube();
+                    break;
+            }
+            updateCubeRotation();
+        });
+        
+        // Scroll zoom
+        navCube.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const scale = e.deltaY > 0 ? 0.9 : 1.1;
+            const currentScale = navCube.style.transform.match(/scale\(([^)]+)\)/);
+            const newScale = currentScale ? parseFloat(currentScale[1]) * scale : scale;
+            
+            if (newScale > 0.5 && newScale < 2) {
+                navCube.style.transform = `rotateX(${currentRotation.x}deg) rotateY(${currentRotation.y}deg) scale(${newScale})`;
+            }
+        });
+    </script>
+</body>
+</html>
