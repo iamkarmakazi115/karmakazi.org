@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snap Scrolling - Karmakazi</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        
+        /* Snap Container */
+        .snap-container {
+            height: 100vh;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        /* Hide scrollbar but keep functionality */
+        .snap-container::-webkit-scrollbar {
+            width: 0;
+            background: transparent;
+        }
+        
+        /* Snap Sections */
+        .snap-section {
+            height: 100vh;
+            scroll-snap-align: start;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        /* Section Colors */
+        .section-1 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .section-2 {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .section-3 {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .section-4 {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        
+        .section-5 {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        
+        .section-6 {
+            background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+        }
+        
+        /* Content Styling */
+        .section-content {
+            text-align: center;
+            color: white;
+            padding: 2rem;
+            max-width: 1000px;
+            z-index: 10;
+        }
+        
+        .section-number {
+            font-size: 8rem;
+            font-weight: 700;
+            opacity: 0.3;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+        }
+        
+        .section-title {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            opacity: 0;
+            transform: translateY(50px);
+            animation: fadeInUp 1s forwards;
+        }
+        
+        .section-subtitle {
+            font-size: 1.5rem;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 1s 0.2s forwards;
+        }
+        
+        .section-description {
+            margin-top: 2rem;
+            font-size: 1.125rem;
+            line-height: 1.6;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 1s 0.4s forwards;
+        }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Parallax Elements */
+        .parallax-element {
+            position: absolute;
+            opacity: 0.5;
+        }
+        
+        .floating-shape {
+            width: 200px;
+            height: 200px;
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float 20s infinite ease-in-out;
+        }
+        
+        .floating-shape-1 {
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+        
+        .floating-shape-2 {
+            bottom: 10%;
+            right: 10%;
+            animation-delay: -10s;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            33% {
+                transform: translate(30px, -30px) rotate(120deg);
+            }
+            66% {
+                transform: translate(-20px, 20px) rotate(240deg);
+            }
+        }
+        
+        /* Navigation Dots */
+        .nav-dots {
+            position: fixed;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+        }
+        
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            margin: 1rem 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .dot:hover {
+            background: rgba(255, 255, 255, 0.5);
+            transform: scale(1.2);
+        }
+        
+        .dot.active {
+            background: white;
+            transform: scale(1.5);
+        }
+        
+        .dot::before {
+            content: attr(data-title);
+            position: absolute;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            font-size: 0.875rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+        
+        .dot:hover::before {
+            opacity: 1;
+        }
+        
+        /* Scroll Indicator */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            opacity: 0.7;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateX(-50%) translateY(0);
+            }
+            50% {
+                transform: translateX(-50%) translateY(10px);
+            }
+        }
+        
+        .scroll-indicator svg {
+            width: 24px;
+            height: 24px;
+            fill: white;
+        }
+        
+        /* Horizontal Snap Section */
+        .horizontal-snap-wrapper {
+            display: flex;
+            overflow-x: scroll;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            height: 100%;
+            width: 100%;
+        }
+        
+        .horizontal-snap-wrapper::-webkit-scrollbar {
+            height: 10px;
+        }
+        
+        .horizontal-snap-wrapper::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .horizontal-snap-wrapper::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+        }
+        
+        .horizontal-panel {
+            min-width: 100vw;
+            height: 100%;
+            scroll-snap-align: start;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .horizontal-panel:nth-child(1) {
+            background: linear-gradient(90deg, #ee7752, #e73c7e);
+        }
+        
+        .horizontal-panel:nth-child(2) {
+            background: linear-gradient(90deg, #e73c7e, #23a6d5);
+        }
+        
+        .horizontal-panel:nth-child(3) {
+            background: linear-gradient(90deg, #23a6d5, #23d5ab);
+        }
+        
+        /* Grid Snap Section */
+        .grid-snap {
+            display: grid;
+            grid-template-columns: repeat(2, 100vw);
+            grid-template-rows: repeat(2, 100vh);
+            overflow: scroll;
+            scroll-snap-type: both mandatory;
+            height: 100vh;
+            width: 100vw;
+        }
+        
+        .grid-item {
+            scroll-snap-align: start;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+            font-weight: 700;
+        }
+        
+        .grid-item:nth-child(1) {
+            background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
+        }
+        
+        .grid-item:nth-child(2) {
+            background: linear-gradient(135deg, #A8E063, #56AB2F);
+        }
+        
+        .grid-item:nth-child(3) {
+            background: linear-gradient(135deg, #FF8008, #FFC837);
+        }
+        
+        .grid-item:nth-child(4) {
+            background: linear-gradient(135deg, #8E2DE2, #4A00E0);
+        }
+        
+        /* Back Button */
+        .back-button {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .back-button:hover {
+            background: white;
+            transform: translateX(-5px);
+        }
+        
+        .back-button::before {
+            content: '←';
+            font-size: 1.25rem;
+        }
+        
+        /* Interactive Elements */
+        .cta-button {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 2px solid white;
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            margin-top: 2rem;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 1s 0.6s forwards;
+        }
+        
+        .cta-button:hover {
+            background: white;
+            color: #333;
+            transform: scale(1.05);
+        }
+        
+        /* Progress Bar */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: white;
+            z-index: 1000;
+            transition: width 0.3s ease;
+        }
+        
+        /* Keyboard hint */
+        .keyboard-hint {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            color: white;
+            font-size: 0.875rem;
+            z-index: 100;
+        }
+        
+        .keyboard-hint kbd {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            margin: 0 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+    
+    <a href="../index.html" class="back-button">Back to Gallery</a>
+    
+    <!-- Navigation Dots -->
+    <div class="nav-dots">
+        <div class="dot active" data-title="Introduction" data-section="1"></div>
+        <div class="dot" data-title="Features" data-section="2"></div>
+        <div class="dot" data-title="Horizontal" data-section="3"></div>
+        <div class="dot" data-title="Grid Layout" data-section="4"></div>
+        <div class="dot" data-title="Benefits" data-section="5"></div>
+        <div class="dot" data-title="Get Started" data-section="6"></div>
+    </div>
+    
+    <!-- Keyboard Hint -->
+    <div class="keyboard-hint">
+        Use <kbd>↑</kbd> <kbd>↓</kbd> or scroll
+    </div>
+    
+    <!-- Snap Container -->
+    <div class="snap-container" id="snapContainer">
+        <!-- Section 1: Introduction -->
+        <section class="snap-section section-1" data-section="1">
+            <div class="section-number">01</div>
+            <div class="floating-shape parallax-element floating-shape-1"></div>
+            <div class="floating-shape parallax-element floating-shape-2"></div>
+            <div class="section-content">
+                <h1 class="section-title">SNAP SCROLLING</h1>
+                <p class="section-subtitle">Full-screen sections with perfect positioning</p>
+                <p class="section-description">
+                    Experience smooth, controlled scrolling that snaps to each section perfectly. 
+                    Each scroll brings you to a new full-screen experience.
+                </p>
+                <a href="#" class="cta-button">Explore Features</a>
+            </div>
+            <div class="scroll-indicator">
+                <svg viewBox="0 0 24 24">
+                    <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+                </svg>
+            </div>
+        </section>
+        
+        <!-- Section 2: Features -->
+        <section class="snap-section section-2" data-section="2">
+            <div class="section-number">02</div>
+            <div class="section-content">
+                <h2 class="section-title">KEY FEATURES</h2>
+                <p class="section-subtitle">What makes snap scrolling special</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; margin-top: 3rem;">
+                    <div style="background: rgba(255,255,255,0.1); padding: 1.5rem; border-radius: 1rem;">
+                        <h3>Precision</h3>
+                        <p>Perfect alignment every time</p>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.1); padding: 1.5rem; border-radius: 1rem;">
+                        <h3>Smooth</h3>
+                        <p>Butter-smooth transitions</p>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.1); padding: 1.5rem; border-radius: 1rem;">
+                        <h3>Responsive</h3>
+                        <p>Works on all devices</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Section 3: Horizontal Snap -->
+        <section class="snap-section section-3" data-section="3">
+            <div class="horizontal-snap-wrapper">
+                <div class="horizontal-panel">
+                    <div class="section-content">
+                        <h2 class="section-title">HORIZONTAL</h2>
+                        <p class="section-subtitle">Swipe or scroll sideways →</p>
+                    </div>
+                </div>
+                <div class="horizontal-panel">
+                    <div class="section-content">
+                        <h2 class="section-title">SLIDE 2</h2>
+                        <p class="section-subtitle">Keep going →</p>
+                    </div>
+                </div>
+                <div class="horizontal-panel">
+                    <div class="section-content">
+                        <h2 class="section-title">SLIDE 3</h2>
+                        <p class="section-subtitle">That's it! Now scroll down ↓</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Section 4: Grid Snap -->
+        <section class="snap-section section-4" data-section="4">
+            <div class="grid-snap">
+                <div class="grid-item">↘ Grid 1</div>
+                <div class="grid-item">↙ Grid 2</div>
+                <div class="grid-item">↗ Grid 3</div>
+                <div class="grid-item">↖ Grid 4</div>
+            </div>
+        </section>
+        
+        <!-- Section 5: Benefits -->
+        <section class="snap-section section-5" data-section="5">
+            <div class="section-number">05</div>
+            <div class="section-content">
+                <h2 class="section-title">BENEFITS</h2>
+                <p class="section-subtitle">Why use snap scrolling?</p>
+                <ul style="text-align: left; max-width: 600px; margin: 2rem auto; list-style: none;">
+                    <li style="margin: 1rem 0;">✓ Enhanced user experience</li>
+                    <li style="margin: 1rem 0;">✓ Perfect for storytelling</li>
+                    <li style="margin: 1rem 0;">✓ Mobile-friendly navigation</li>
+                    <li style="margin: 1rem 0;">✓ Reduced scroll fatigue</li>
+                    <li style="margin: 1rem 0;">✓ Professional presentation</li>
+                </ul>
+            </div>
+        </section>
+        
+        <!-- Section 6: Call to Action -->
+        <section class="snap-section section-6" data-section="6">
+            <div class="section-number">06</div>
+            <div class="section-content">
+                <h2 class="section-title">GET STARTED</h2>
+                <p class="section-subtitle">Ready to implement snap scrolling?</p>
+                <p class="section-description">
+                    With just a few lines of CSS, you can transform your website 
+                    into a smooth, professional scrolling experience.
+                </p>
+                <a href="#" class="cta-button" onclick="scrollToTop()">Back to Top</a>
+            </div>
+        </section>
+    </div>
+    
+    <script>
+        const container = document.getElementById('snapContainer');
+        const sections = document.querySelectorAll('.snap-section');
+        const dots = document.querySelectorAll('.dot');
+        const progressBar = document.getElementById('progressBar');
+        
+        // Update active section on scroll
+        container.addEventListener('scroll', () => {
+            const scrollPosition = container.scrollTop;
+            const containerHeight = container.scrollHeight - container.clientHeight;
+            const scrollPercentage = (scrollPosition / containerHeight) * 100;
+            
+            // Update progress bar
+            progressBar.style.width = scrollPercentage + '%';
+            
+            // Find active section
+            sections.forEach((section, index) => {
+                const rect = section.getBoundingClientRect();
+                const isVisible = rect.top >= -100 && rect.top <= 100;
+                
+                if (isVisible) {
+                    // Update dots
+                    dots.forEach(dot => dot.classList.remove('active'));
+                    if (dots[index]) {
+                        dots[index].classList.add('active');
+                    }
+                    
+                    // Restart animations for visible section
+                    const animatedElements = section.querySelectorAll('.section-title, .section-subtitle, .section-description, .cta-button');
+                    animatedElements.forEach(el => {
+                        el.style.animation = 'none';
+                        setTimeout(() => {
+                            el.style.animation = '';
+                        }, 10);
+                    });
+                }
+            });
+        });
+        
+        // Dot navigation
+        dots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                const sectionIndex = parseInt(dot.dataset.section) - 1;
+                sections[sectionIndex].scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            const currentSection = Array.from(sections).findIndex(section => {
+                const rect = section.getBoundingClientRect();
+                return rect.top >= -100 && rect.top <= 100;
+            });
+            
+            if (e.key === 'ArrowDown' || e.key === ' ') {
+                e.preventDefault();
+                if (currentSection < sections.length - 1) {
+                    sections[currentSection + 1].scrollIntoView({ behavior: 'smooth' });
+                }
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (currentSection > 0) {
+                    sections[currentSection - 1].scrollIntoView({ behavior: 'smooth' });
+                }
+            } else if (e.key === 'Home') {
+                e.preventDefault();
+                sections[0].scrollIntoView({ behavior: 'smooth' });
+            } else if (e.key === 'End') {
+                e.preventDefault();
+                sections[sections.length - 1].scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+        
+        // Scroll to top function
+        function scrollToTop() {
+            sections[0].scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Touch support for mobile
+        let touchStartY = 0;
+        let touchEndY = 0;
+        
+        container.addEventListener('touchstart', (e) => {
+            touchStartY = e.changedTouches[0].screenY;
+        });
+        
+        container.addEventListener('touchend', (e) => {
+            touchEndY = e.changedTouches[0].screenY;
+            handleSwipe();
+        });
+        
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartY - touchEndY;
+            
+            if (Math.abs(diff) > swipeThreshold) {
+                const currentSection = Array.from(sections).findIndex(section => {
+                    const rect = section.getBoundingClientRect();
+                    return rect.top >= -100 && rect.top <= 100;
+                });
+                
+                if (diff > 0 && currentSection < sections.length - 1) {
+                    // Swipe up
+                    sections[currentSection + 1].scrollIntoView({ behavior: 'smooth' });
+                } else if (diff < 0 && currentSection > 0) {
+                    // Swipe down
+                    sections[currentSection - 1].scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        }
+        
+        // Parallax effect on mouse move
+        document.addEventListener('mousemove', (e) => {
+            const parallaxElements = document.querySelectorAll('.parallax-element');
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+            
+            parallaxElements.forEach((element, index) => {
+                const speed = (index + 1) * 20;
+                const xPos = (x - 0.5) * speed;
+                const yPos = (y - 0.5) * speed;
+                
+                element.style.transform = `translate(${xPos}px, ${yPos}px)`;
+            });
+        });
+        
+        // Hide keyboard hint after first interaction
+        let hintTimeout;
+        container.addEventListener('scroll', () => {
+            clearTimeout(hintTimeout);
+            hintTimeout = setTimeout(() => {
+                document.querySelector('.keyboard-hint').style.opacity = '0';
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
