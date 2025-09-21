@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horizontal Scroll - Karmakazi</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            overflow-x: hidden;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .container {
+            position: relative;
+        }
+        
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .hero-title {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+        }
+        
+        .scroll-hint {
+            position: absolute;
+            bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: white;
+            animation: bounce-horizontal 2s infinite;
+        }
+        
+        @keyframes bounce-horizontal {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(10px); }
+        }
+        
+        /* Horizontal Scroll Section */
+        .horizontal-section {
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .horizontal-wrapper {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        
+        .horizontal-container {
+            display: flex;
+            position: relative;
+            transform: translateX(0);
+            transition: transform 0.1s ease-out;
+        }
+        
+        .panel {
+            min-width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .panel:nth-child(1) { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .panel:nth-child(2) { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .panel:nth-child(3) { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .panel:nth-child(4) { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .panel:nth-child(5) { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        
+        .panel-content {
+            text-align: center;
+            color: white;
+            padding: 2rem;
+            max-width: 800px;
+        }
+        
+        .panel-number {
+            font-size: 8rem;
+            font-weight: 700;
+            opacity: 0.3;
+            margin-bottom: 1rem;
+        }
+        
+        .panel-title {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .panel-text {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+        
+        /* Gallery Horizontal Scroll */
+        .gallery-section {
+            padding: 4rem 0;
+            background: rgba(0, 0, 0, 0.1);
+        }
+        
+        .gallery-title {
+            text-align: center;
+            font-size: 3rem;
+            color: white;
+            margin-bottom: 3rem;
+        }
+        
+        .gallery-track {
+            display: flex;
+            gap: 2rem;
+            padding: 0 2rem;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .gallery-track::-webkit-scrollbar {
+            height: 10px;
+        }
+        
+        .gallery-track::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+        
+        .gallery-track::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+        }
+        
+        .gallery-card {
+            min-width: 400px;
+            height: 500px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            padding: 2rem;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .gallery-card:hover {
+            transform: scale(1.05);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .gallery-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        
+        /* Timeline Horizontal Scroll */
+        .timeline-section {
+            padding: 4rem 2rem;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .timeline-container {
+            position: relative;
+            height: 400px;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+        
+        .timeline-track {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            display: flex;
+            align-items: center;
+            padding: 0 50vw;
+        }
+        
+        .timeline-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .timeline-item {
+            position: relative;
+            min-width: 300px;
+            padding: 2rem;
+            margin: 0 2rem;
+        }
+        
+        .timeline-dot {
+            position: absolute;
+            top: 50%;
+            left: -10px;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+        
+        .timeline-content {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            color: white;
+        }
+        
+        .timeline-date {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #fee140;
+        }
+        
+        /* Infinite Horizontal Scroll */
+        .infinite-horizontal {
+            padding: 4rem 0;
+            overflow: hidden;
+        }
+        
+        .infinite-track {
+            display: flex;
+            animation: scroll-horizontal 20s linear infinite;
+        }
+        
+        @keyframes scroll-horizontal {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        
+        .infinite-item {
+            min-width: 250px;
+            height: 150px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            margin: 0 1rem;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        /* Progress Indicator */
+        .progress-dots {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            z-index: 100;
+        }
+        
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .dot.active {
+            background: white;
+            transform: scale(1.5);
+        }
+        
+        .back-button {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .back-button:hover {
+            background: white;
+            transform: translateX(-5px);
+        }
+        
+        .back-button::before {
+            content: '←';
+            font-size: 1.25rem;
+        }
+        
+        /* Controls */
+        .controls {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            gap: 1rem;
+            z-index: 100;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="back-button">Back to Gallery</a>
+    
+    <div class="container">
+        <!-- Hero Section -->
+        <section class="hero">
+            <h1 class="hero-title">HORIZONTAL SCROLL</h1>
+            <p style="color: white; font-size: 1.25rem; opacity: 0.9;">
+                Sideways scrolling sections and galleries
+            </p>
+            <div class="scroll-hint">
+                <span>Scroll down to explore</span>
+                <span>→</span>
+            </div>
+        </section>
+        
+        <!-- Main Horizontal Scroll Section -->
+        <section class="horizontal-section" id="horizontal-scroll">
+            <div class="horizontal-wrapper">
+                <div class="horizontal-container" id="horizontal-panels">
+                    <div class="panel">
+                        <div class="panel-content">
+                            <div class="panel-number">01</div>
+                            <h2 class="panel-title">Welcome</h2>
+                            <p class="panel-text">
+                                This is a horizontal scrolling section. Keep scrolling vertically 
+                                to move through the panels horizontally.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="panel">
+                        <div class="panel-content">
+                            <div class="panel-number">02</div>
+                            <h2 class="panel-title">Discover</h2>
+                            <p class="panel-text">
+                                Each panel slides in from the right as you scroll down the page, 
+                                creating a unique navigation experience.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="panel">
+                        <div class="panel-content">
+                            <div class="panel-number">03</div>
+                            <h2 class="panel-title">Explore</h2>
+                            <p class="panel-text">
+                                Perfect for storytelling, product showcases, or creating 
+                                immersive web experiences.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="panel">
+                        <div class="panel-content">
+                            <div class="panel-number">04</div>
+                            <h2 class="panel-title">Create</h2>
+                            <p class="panel-text">
+                                Combine vertical and horizontal scrolling for dynamic layouts 
+                                that break the traditional web paradigm.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="panel">
+                        <div class="panel-content">
+                            <div class="panel-number">05</div>
+                            <h2 class="panel-title">Complete</h2>
+                            <p class="panel-text">
+                                You've reached the end of the horizontal journey. 
+                                Continue scrolling to see more examples.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Gallery Section -->
+        <section class="gallery-section">
+            <h2 class="gallery-title">Horizontal Gallery</h2>
+            <div class="gallery-track">
+                <div class="gallery-card">
+                    <div class="gallery-icon">🎨</div>
+                    <h3 style="color: white; font-size: 1.5rem;">Design</h3>
+                    <p style="color: rgba(255,255,255,0.8); text-align: center;">
+                        Beautiful designs that inspire creativity
+                    </p>
+                </div>
+                <div class="gallery-card">
+                    <div class="gallery-icon">💡</div>
+                    <h3 style="color: white; font-size: 1.5rem;">Ideas</h3>
+                    <p style="color: rgba(255,255,255,0.8); text-align: center;">
+                        Innovation starts with a single idea
+                    </p>
+                </div>
+                <div class="gallery-card">
+                    <div class="gallery-icon">🚀</div>
+                    <h3 style="color: white; font-size: 1.5rem;">Launch</h3>
+                    <p style="color: rgba(255,255,255,0.8); text-align: center;">
+                        Take your projects to the next level
+                    </p>
+                </div>
+                <div class="gallery-card">
+                    <div class="gallery-icon">⭐</div>
+                    <h3 style="color: white; font-size: 1.5rem;">Success</h3>
+                    <p style="color: rgba(255,255,255,0.8); text-align: center;">
+                        Achieve your goals with style
+                    </p>
+                </div>
+                <div class="gallery-card">
+                    <div class="gallery-icon">🎯</div>
+                    <h3 style="color: white; font-size: 1.5rem;">Target</h3>
+                    <p style="color: rgba(255,255,255,0.8); text-align: center;">
+                        Hit your marks with precision
+                    </p>
+                </div>
+                <div class="gallery-card">
+                    <div class="gallery-icon">🔥</div>
+                    <h3 style="color: white; font-size: 1.5rem;">Trending</h3>
+                    <p style="color: rgba(255,255,255,0.8); text-align: center;">
+                        Stay ahead of the curve
+                    </p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Timeline Section -->
+        <section class="timeline-section">
+            <h2 style="text-align: center; font-size: 3rem; color: white; margin-bottom: 3rem;">
+                Timeline Scroll
+            </h2>
+            <div class="timeline-container">
+                <div class="timeline-line"></div>
+                <div class="timeline-track">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-date">2020</div>
+                            <h3>Project Started</h3>
+                            <p>The journey begins here</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-date">2021</div>
+                            <h3>Major Milestone</h3>
+                            <p>Significant progress achieved</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-date">2022</div>
+                            <h3>Expansion</h3>
+                            <p>Growing beyond expectations</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-date">2023</div>
+                            <h3>Innovation</h3>
+                            <p>Breaking new ground</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-date">2024</div>
+                            <h3>Future</h3>
+                            <p>The best is yet to come</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Infinite Scroll Section -->
+        <section class="infinite-horizontal">
+            <h2 style="text-align: center; font-size: 3rem; color: white; margin-bottom: 3rem;">
+                Infinite Loop
+            </h2>
+            <div class="infinite-track" id="infinite-track">
+                <!-- Items will be duplicated by JavaScript -->
+            </div>
+        </section>
+    </div>
+    
+    <!-- Progress Dots -->
+    <div class="progress-dots">
+        <div class="dot active" data-panel="0"></div>
+        <div class="dot" data-panel="1"></div>
+        <div class="dot" data-panel="2"></div>
+        <div class="dot" data-panel="3"></div>
+        <div class="dot" data-panel="4"></div>
+    </div>
+    
+    <!-- Controls -->
+    <div class="controls">
+        <button class="btn" onclick="scrollToPanel(0)">Start</button>
+        <button class="btn" onclick="toggleAutoScroll()">Auto Scroll</button>
+    </div>
+    
+    <script>
+        // Horizontal scroll effect
+        const horizontalSection = document.getElementById('horizontal-scroll');
+        const horizontalPanels = document.getElementById('horizontal-panels');
+        const panels = horizontalPanels.querySelectorAll('.panel');
+        const dots = document.querySelectorAll('.dot');
+        
+        let currentPanel = 0;
+        let autoScrollInterval = null;
+        
+        // Calculate scroll distance
+        const panelWidth = window.innerWidth;
+        const totalPanels = panels.length;
+        const maxScroll = (totalPanels - 1) * panelWidth;
+        
+        // Main horizontal scroll handler
+        window.addEventListener('scroll', () => {
+            const sectionTop = horizontalSection.offsetTop;
+            const sectionHeight = horizontalSection.offsetHeight;
+            const scrollY = window.pageYOffset;
+            
+            if (scrollY >= sectionTop && scrollY <= sectionTop + sectionHeight) {
+                const progress = (scrollY - sectionTop) / sectionHeight;
+                const translateX = -progress * maxScroll;
+                
+                horizontalPanels.style.transform = `translateX(${translateX}px)`;
+                
+                // Update current panel and dots
+                currentPanel = Math.floor(-translateX / panelWidth);
+                updateDots(currentPanel);
+            }
+        });
+        
+        // Update progress dots
+        function updateDots(index) {
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+        }
+        
+        // Dot navigation
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                scrollToPanel(index);
+            });
+        });
+        
+        // Scroll to specific panel
+        function scrollToPanel(index) {
+            const sectionTop = horizontalSection.offsetTop;
+            const scrollTarget = sectionTop + (index / (totalPanels - 1)) * horizontalSection.offsetHeight;
+            
+            window.scrollTo({
+                top: scrollTarget,
+                behavior: 'smooth'
+            });
+        }
+        
+        // Auto scroll toggle
+        function toggleAutoScroll() {
+            if (autoScrollInterval) {
+                clearInterval(autoScrollInterval);
+                autoScrollInterval = null;
+            } else {
+                autoScrollInterval = setInterval(() => {
+                    currentPanel = (currentPanel + 1) % totalPanels;
+                    scrollToPanel(currentPanel);
+                }, 3000);
+            }
+        }
+        
+        // Infinite scroll setup
+        const infiniteTrack = document.getElementById('infinite-track');
+        const items = ['🎨', '🚀', '💡', '⭐', '🎯', '🔥', '✨', '🌟'];
+        
+        // Create items
+        items.forEach((emoji, index) => {
+            const item = document.createElement('div');
+            item.className = 'infinite-item';
+            item.textContent = emoji;
+            infiniteTrack.appendChild(item);
+        });
+        
+        // Duplicate items for seamless loop
+        items.forEach((emoji, index) => {
+            const item = document.createElement('div');
+            item.className = 'infinite-item';
+            item.textContent = emoji;
+            infiniteTrack.appendChild(item);
+        });
+        
+        // Pause infinite scroll on hover
+        infiniteTrack.addEventListener('mouseenter', () => {
+            infiniteTrack.style.animationPlayState = 'paused';
+        });
+        
+        infiniteTrack.addEventListener('mouseleave', () => {
+            infiniteTrack.style.animationPlayState = 'running';
+        });
+        
+        // Gallery scroll with mouse wheel
+        const galleryTrack = document.querySelector('.gallery-track');
+        
+        galleryTrack.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            galleryTrack.scrollLeft += e.deltaY;
+        });
+        
+        // Timeline scroll
+        const timelineContainer = document.querySelector('.timeline-container');
+        
+        timelineContainer.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            timelineContainer.scrollLeft += e.deltaY;
+        });
+    </script>
+</body>
+</html>
