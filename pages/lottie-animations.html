@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lottie Animations - Karmakazi</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 2rem 0;
+            background: rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .title {
+            font-size: clamp(2rem, 6vw, 4rem);
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            margin-bottom: 1rem;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 2rem;
+        }
+        
+        /* Demo Container */
+        .demo-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 3rem;
+            padding: 3rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .demo-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            min-height: 400px;
+        }
+        
+        .demo-title {
+            font-size: 1.5rem;
+            color: white;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        /* Lottie Container */
+        .lottie-container {
+            width: 100%;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            margin: 1rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .lottie-container:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.02);
+        }
+        
+        .lottie-animation {
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Controls */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .control-btn {
+            padding: 0.6rem 1.2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            font-size: 0.9rem;
+        }
+        
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .control-btn.active {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.7);
+        }
+        
+        /* Progress Bar */
+        .progress-container {
+            margin: 1rem 0;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+        
+        /* Slider Controls */
+        .slider-control {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1rem 0;
+            color: white;
+        }
+        
+        .slider {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Animation Info */
+        .animation-info {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 0.5rem 0;
+        }
+        
+        /* Fallback Animation (CSS) */
+        .fallback-animation {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        .bouncing-dots {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            height: 100px;
+        }
+        
+        .bouncing-dot {
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            animation: bounce 1.4s ease-in-out infinite both;
+        }
+        
+        .bouncing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .bouncing-dot:nth-child(2) { animation-delay: -0.16s; }
+        .bouncing-dot:nth-child(3) { animation-delay: 0s; }
+        
+        .pulsing-heart {
+            width: 60px;
+            height: 60px;
+            background: #ff6b6b;
+            margin: 20px auto;
+            transform: rotate(-45deg);
+            animation: pulse 1s ease-in-out infinite;
+        }
+        
+        .pulsing-heart::before,
+        .pulsing-heart::after {
+            content: '';
+            width: 60px;
+            height: 60px;
+            position: absolute;
+            left: 30px;
+            top: 0;
+            background: #ff6b6b;
+            border-radius: 30px;
+            transform: rotate(-45deg);
+            transform-origin: 0 30px;
+        }
+        
+        .pulsing-heart::after {
+            left: 0;
+            transform: rotate(45deg);
+            transform-origin: 30px 30px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: rotate(-45deg) scale(1); }
+            50% { transform: rotate(-45deg) scale(1.2); }
+        }
+        
+        /* Error State */
+        .error-state {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            padding: 2rem;
+        }
+        
+        .error-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        /* Custom Upload */
+        .upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 1rem 0;
+        }
+        
+        .upload-area:hover {
+            border-color: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .upload-area.dragover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .demo-container {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+                gap: 2rem;
+            }
+            
+            .lottie-container {
+                height: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="title">Lottie Animations</h1>
+        <p class="subtitle">Interactive vector animations powered by Lottie</p>
+    </div>
+
+    <div class="demo-container">
+        <!-- Loading Animation -->
+        <div class="demo-card">
+            <h3 class="demo-title">Loading Animation</h3>
+            <div class="lottie-container" onclick="toggleAnimation('loading')">
+                <div class="lottie-animation" id="loadingAnimation">
+                    <div class="fallback-animation">
+                        <div class="loading-spinner"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="playAnimation('loading')">▶️ Play</button>
+                <button class="control-btn" onclick="pauseAnimation('loading')">⏸️ Pause</button>
+                <button class="control-btn" onclick="stopAnimation('loading')">⏹️ Stop</button>
+                <button class="control-btn" onclick="reverseAnimation('loading')">⏪ Reverse</button>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar" onclick="seekAnimation('loading', event)">
+                    <div class="progress-fill" id="loadingProgress"></div>
+                </div>
+            </div>
+            <div class="slider-control">
+                <span>Speed:</span>
+                <input type="range" class="slider" min="0.1" max="3" step="0.1" value="1" 
+                       onchange="setAnimationSpeed('loading', this.value)" id="loadingSpeed">
+                <span id="loadingSpeedValue">1x</span>
+            </div>
+        </div>
+
+        <!-- Success Animation -->
+        <div class="demo-card">
+            <h3 class="demo-title">Success Checkmark</h3>
+            <div class="lottie-container" onclick="toggleAnimation('success')">
+                <div class="lottie-animation" id="successAnimation">
+                    <div class="fallback-animation">
+                        <div style="font-size: 4rem; color: #2ecc71; text-align: center;">✓</div>
+                    </div>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="playAnimation('success')">▶️ Play</button>
+                <button class="control-btn" onclick="pauseAnimation('success')">⏸️ Pause</button>
+                <button class="control-btn" onclick="restartAnimation('success')">🔄 Restart</button>
+                <button class="control-btn" onclick="toggleLoop('success')">🔁 Loop</button>
+            </div>
+            <div class="animation-info">
+                <div class="info-row">
+                    <span>Status:</span>
+                    <span id="successStatus">Ready</span>
+                </div>
+                <div class="info-row">
+                    <span>Loop:</span>
+                    <span id="successLoop">Disabled</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Heart Animation -->
+        <div class="demo-card">
+            <h3 class="demo-title">Animated Heart</h3>
+            <div class="lottie-container" onclick="toggleAnimation('heart')">
+                <div class="lottie-animation" id="heartAnimation">
+                    <div class="fallback-animation">
+                        <div class="pulsing-heart"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="playAnimation('heart')">▶️ Play</button>
+                <button class="control-btn" onclick="pauseAnimation('heart')">⏸️ Pause</button>
+                <button class="control-btn" onclick="playSegments('heart', [0, 30])">❤️ First Half</button>
+                <button class="control-btn" onclick="playSegments('heart', [30, 60])">💖 Second Half</button>
+            </div>
+            <div class="slider-control">
+                <span>Frame:</span>
+                <input type="range" class="slider" min="0" max="60" value="0" 
+                       onchange="goToFrame('heart', this.value)" id="heartFrame">
+                <span id="heartFrameValue">0</span>
+            </div>
+        </div>
+
+        <!-- Bouncing Animation -->
+        <div class="demo-card">
+            <h3 class="demo-title">Bouncing Elements</h3>
+            <div class="lottie-container" onclick="toggleAnimation('bounce')">
+                <div class="lottie-animation" id="bounceAnimation">
+                    <div class="fallback-animation">
+                        <div class="bouncing-dots">
+                            <div class="bouncing-dot"></div>
+                            <div class="bouncing-dot"></div>
+                            <div class="bouncing-dot"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="playAnimation('bounce')">▶️ Play</button>
+                <button class="control-btn" onclick="pauseAnimation('bounce')">⏸️ Pause</button>
+                <button class="control-btn" onclick="changeDirection('bounce', 1)">⏩ Forward</button>
+                <button class="control-btn" onclick="changeDirection('bounce', -1)">⏪ Backward</button>
+            </div>
+            <div class="animation-info">
+                <div class="info-row">
+                    <span>Direction:</span>
+                    <span id="bounceDirection">Forward</span>
+                </div>
+                <div class="info-row">
+                    <span>Current Frame:</span>
+                    <span id="bounceFrame">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Custom Upload -->
+        <div class="demo-card">
+            <h3 class="demo-title">Custom Lottie File</h3>
+            <div class="upload-area" onclick="document.getElementById('lottieFile').click()">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">📁</div>
+                <div>Click to upload or drag & drop</div>
+                <div style="font-size: 0.8rem; margin-top: 0.5rem;">JSON Lottie files only</div>
+                <input type="file" id="lottieFile" class="file-input" accept=".json" onchange="loadCustomLottie(event)">
+            </div>
+            <div class="lottie-container" id="customContainer" style="display: none;">
+                <div class="lottie-animation" id="customAnimation"></div>
+            </div>
+            <div class="controls" id="customControls" style="display: none;">
+                <button class="control-btn" onclick="playAnimation('custom')">▶️ Play</button>
+                <button class="control-btn" onclick="pauseAnimation('custom')">⏸️ Pause</button>
+                <button class="control-btn" onclick="restartAnimation('custom')">🔄 Restart</button>
+                <button class="control-btn" onclick="downloadAnimation('custom')">💾 Download</button>
+            </div>
+        </div>
+
+        <!-- Interactive Animation -->
+        <div class="demo-card">
+            <h3 class="demo-title">Interactive Demo</h3>
+            <div class="lottie-container" id="interactiveContainer">
+                <div class="lottie-animation" id="interactiveAnimation">
+                    <div class="error-state">
+                        <div class="error-icon">🎨</div>
+                        <div>Hover and click to interact!</div>
+                    </div>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="createInteractiveDemo()">🎯 Create Demo</button>
+                <button class="control-btn" onclick="randomizeColors()">🌈 Random Colors</button>
+                <button class="control-btn" onclick="exportGIF()">📱 Export GIF</button>
+            </div>
+            <div class="slider-control">
+                <span>Interaction Sensitivity:</span>
+                <input type="range" class="slider" min="1" max="10" value="5" 
+                       onchange="setInteractionSensitivity(this.value)" id="interactionSensitivity">
+                <span id="sensitivityValue">5</span>
+            </div>
+        </div>
+
+        <!-- Morphing Animation -->
+        <div class="demo-card">
+            <h3 class="demo-title">Shape Morphing</h3>
+            <div class="lottie-container" onclick="toggleAnimation('morph')">
+                <div class="lottie-animation" id="morphAnimation">
+                    <div class="fallback-animation">
+                        <div style="font-size: 4rem; text-align: center; animation: pulse 2s infinite;">🔄</div>
+                    </div>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="playAnimation('morph')">▶️ Play</button>
+                <button class="control-btn" onclick="pauseAnimation('morph')">⏸️ Pause</button>
+                <button class="control-btn" onclick="morphTo('circle')">⭕ Circle</button>
+                <button class="control-btn" onclick="morphTo('square')">⬜ Square</button>
+                <button class="control-btn" onclick="morphTo('triangle')">🔺 Triangle</button>
+            </div>
+            <div class="animation-info">
+                <div class="info-row">
+                    <span>Current Shape:</span>
+                    <span id="currentShape">Circle</span>
+                </div>
+                <div class="info-row">
+                    <span>Animation Progress:</span>
+                    <span id="morphProgress">0%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Particle System -->
+        <div class="demo-card">
+            <h3 class="demo-title">Particle Effects</h3>
+            <div class="lottie-container" onclick="triggerParticles()">
+                <div class="lottie-animation" id="particleAnimation">
+                    <div class="fallback-animation">
+                        <div style="font-size: 3rem; text-align: center;">✨ Click to trigger ✨</div>
+                    </div>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" onclick="triggerParticles()">✨ Trigger</button>
+                <button class="control-btn" onclick="setParticleType('stars')">⭐ Stars</button>
+                <button class="control-btn" onclick="setParticleType('confetti')">🎉 Confetti</button>
+                <button class="control-btn" onclick="setParticleType('fireworks')">🎆 Fireworks</button>
+            </div>
+            <div class="slider-control">
+                <span>Particle Count:</span>
+                <input type="range" class="slider" min="10" max="100" value="50" 
+                       onchange="setParticleCount(this.value)" id="particleCount">
+                <span id="particleCountValue">50</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let animations = {};
+        let animationData = {};
+        let interactionSensitivity = 5;
+        let particleCount = 50;
+        let currentParticleType = 'stars';
+        
+        // Sample Lottie JSON data (simplified for demo)
+        const sampleAnimations = {
+            loading: {
+                "v": "5.5.7",
+                "fr": 30,
+                "ip": 0,
+                "op": 60,
+                "w": 200,
+                "h": 200,
+                "nm": "Loading",
+                "ddd": 0,
+                "assets": [],
+                "layers": [{
+                    "ddd": 0,
+                    "ind": 1,
+                    "ty": 4,
+                    "nm": "Circle",
+                    "sr": 1,
+                    "ks": {
+                        "o": {"a": 0, "k": 100},
+                        "r": {"a": 1, "k": [{"i": {"x": [0.833], "y": [0.833]}, "o": {"x": [0.167], "y": [0.167]}, "t": 0, "s": [0]}, {"t": 60, "s": [360]}]},
+                        "p": {"a": 0, "k": [100, 100, 0]},
+                        "a": {"a": 0, "k": [0, 0, 0]},
+                        "s": {"a": 0, "k": [100, 100, 100]}
+                    },
+                    "ao": 0,
+                    "shapes": [{
+                        "ty": "el",
+                        "p": {"a": 0, "k": [0, 0]},
+                        "s": {"a": 0, "k": [60, 60]}
+                    }],
+                    "ip": 0,
+                    "op": 60,
+                    "st": 0,
+                    "bm": 0
+                }]
+            }
+        };
+        
+        // Initialize animations
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeAnimations();
+            setupDragAndDrop();
+        });
+        
+        function initializeAnimations() {
+            // Initialize built-in animations
+            const animationTypes = ['loading', 'success', 'heart', 'bounce', 'morph'];
+            
+            animationTypes.forEach(type => {
+                try {
+                    if (sampleAnimations[type]) {
+                        loadLottieAnimation(type, sampleAnimations[type]);
+                    } else {
+                        createFallbackAnimation(type);
+                    }
+                } catch (error) {
+                    console.warn(`Failed to load ${type} animation:`, error);
+                    createFallbackAnimation(type);
+                }
+            });
+        }
+        
+        function loadLottieAnimation(type, animationData) {
+            const container = document.getElementById(`${type}Animation`);
+            if (!container) return;
+            
+            try {
+                // Clear existing content
+                container.innerHTML = '';
+                
+                animations[type] = lottie.loadAnimation({
+                    container: container,
+                    renderer: 'svg',
+                    loop: type === 'loading' || type === 'bounce',
+                    autoplay: false,
+                    animationData: animationData
+                });
+                
+                // Set up event listeners
+                animations[type].addEventListener('complete', () => {
+                    updateAnimationStatus(type, 'Complete');
+                });
+                
+                animations[type].addEventListener('loopComplete', () => {
+                    updateAnimationStatus(type, 'Loop Complete');
+                });
+                
+                animations[type].addEventListener('enterFrame', () => {
+                    updateProgress(type);
+                });
+                
+            } catch (error) {
+                console.error(`Error loading ${type} animation:`, error);
+                createFallbackAnimation(type);
+            }
+        }
+        
+        function createFallbackAnimation(type) {
+            const container = document.getElementById(`${type}Animation`);
+            if (!container) return;
+            
+            // Keep existing fallback content or create simple CSS animation
+            if (!container.querySelector('.fallback-animation')) {
+                container.innerHTML = `
+                    <div class="fallback-animation">
+                        <div class="loading-spinner"></div>
+                    </div>
+                `;
+            }
+        }
+        
+        // Animation Controls
+        function playAnimation(type) {
+            if (animations[type]) {
+                animations[type].play();
+                updateAnimationStatus(type, 'Playing');
+            }
+        }
+        
+        function pauseAnimation(type) {
+            if (animations[type]) {
+                animations[type].pause();
+                updateAnimationStatus(type, 'Paused');
+            }
+        }
+        
+        function stopAnimation(type) {
+            if (animations[type]) {
+                animations[type].stop();
+                updateAnimationStatus(type, 'Stopped');
+            }
+        }
+        
+        function restartAnimation(type) {
+            if (animations[type]) {
+                animations[type].goToAndPlay(0);
+                updateAnimationStatus(type, 'Playing');
+            }
+        }
+        
+        function reverseAnimation(type) {
+            if (animations[type]) {
+                animations[type].setDirection(-animations[type].playDirection);
+                animations[type].play();
+                updateAnimationStatus(type, 'Playing Reverse');
+            }
+        }
+        
+        function toggleAnimation(type) {
+            if (animations[type]) {
+                if (animations[type].isPaused) {
+                    playAnimation(type);
+                } else {
+                    pauseAnimation(type);
+                }
+            }
+        }
+        
+        function toggleLoop(type) {
+            if (animations[type]) {
+                const isLooping = animations[type].loop;
+                animations[type].loop = !isLooping;
+                updateLoopStatus(type, !isLooping);
+            }
+        }
+        
+        function setAnimationSpeed(type, speed) {
+            if (animations[type]) {
+                animations[type].setSpeed(parseFloat(speed));
+                document.getElementById(`${type}SpeedValue`).textContent = speed + 'x';
+            }
+        }
+        
+        function seekAnimation(type, event) {
+            if (!animations[type]) return;
+            
+            const progressBar = event.currentTarget;
+            const rect = progressBar.getBoundingClientRect();
+            const clickPosition = (event.clientX - rect.left) / rect.width;
+            const totalFrames = animations[type].totalFrames;
+            const targetFrame = clickPosition * totalFrames;
+            
+            animations[type].goToAndStop(targetFrame);
+        }
+        
+        function goToFrame(type, frame) {
+            if (animations[type]) {
+                animations[type].goToAndStop(parseInt(frame));
+                document.getElementById(`${type}FrameValue`).textContent = frame;
+            }
+        }
+        
+        function playSegments(type, segments) {
+            if (animations[type]) {
+                animations[type].playSegments(segments, true);
+                updateAnimationStatus(type, `Playing frames ${segments[0]}-${segments[1]}`);
+            }
+        }
+        
+        function changeDirection(type, direction) {
+            if (animations[type]) {
+                animations[type].setDirection(direction);
+                const directionText = direction === 1 ? 'Forward' : 'Backward';
+                updateDirectionStatus(type, directionText);
+            }
+        }
+        
+        // Custom Lottie Upload
+        function setupDragAndDrop() {
+            const uploadArea = document.querySelector('.upload-area');
+            
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    loadCustomLottieFile(files[0]);
+                }
+            });
+        }
+        
+        function loadCustomLottie(event) {
+            const file = event.target.files[0];
+            if (file) {
+                loadCustomLottieFile(file);
+            }
+        }
+        
+        function loadCustomLottieFile(file) {
+            if (file.type !== 'application/json') {
+                alert('Please upload a JSON file');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const animationData = JSON.parse(e.target.result);
+                    loadLottieAnimation('custom', animationData);
+                    
+                    // Show custom animation container and controls
+                    document.getElementById('customContainer').style.display = 'block';
+                    document.getElementById('customControls').style.display = 'flex';
+                    
+                } catch (error) {
+                    alert('Invalid Lottie JSON file');
+                    console.error(error);
+                }
+            };
+            reader.readAsText(file);
+        }
+        
+        // Interactive Demo
+        function createInteractiveDemo() {
+            const container = document.getElementById('interactiveAnimation');
+            container.innerHTML = '';
+            
+            // Create simple interactive SVG animation
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('width', '100%');
+            svg.setAttribute('height', '100%');
+            svg.setAttribute('viewBox', '0 0 200 200');
+            
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', '100');
+            circle.setAttribute('cy', '100');
+            circle.setAttribute('r', '30');
+            circle.setAttribute('fill', '#667eea');
+            circle.style.cursor = 'pointer';
+            circle.style.transition = 'all 0.3s ease';
+            
+            // Add interactivity
+            circle.addEventListener('mouseenter', () => {
+                circle.setAttribute('r', '40');
+                circle.setAttribute('fill', '#764ba2');
+            });
+            
+            circle.addEventListener('mouseleave', () => {
+                circle.setAttribute('r', '30');
+                circle.setAttribute('fill', '#667eea');
+            });
+            
+            circle.addEventListener('click', () => {
+                const currentR = parseInt(circle.getAttribute('r'));
+                circle.setAttribute('r', currentR + 10);
+                setTimeout(() => {
+                    circle.setAttribute('r', '30');
+                }, 300);
+            });
+            
+            svg.appendChild(circle);
+            container.appendChild(svg);
+        }
+        
+        function randomizeColors() {
+            const container = document.getElementById('interactiveAnimation');
+            const circle = container.querySelector('circle');
+            
+            if (circle) {
+                const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffeaa7', '#dda0dd', '#98d8c8'];
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                circle.setAttribute('fill', randomColor);
+            }
+        }
+        
+        function setInteractionSensitivity(value) {
+            interactionSensitivity = parseInt(value);
+            document.getElementById('sensitivityValue').textContent = value;
+        }
+        
+        // Particle Effects
+        function triggerParticles() {
+            const container = document.getElementById('particleAnimation');
+            container.innerHTML = '';
+            
+            // Create particle effect using CSS animations
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.style.position = 'absolute';
+                particle.style.width = '4px';
+                particle.style.height = '4px';
+                particle.style.background = getParticleColor();
+                particle.style.borderRadius = '50%';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animation = `particleFloat ${Math.random() * 2 + 1}s ease-out forwards`;
+                
+                container.appendChild(particle);
+                
+                // Remove particle after animation
+                setTimeout(() => {
+                    if (particle.parentNode) {
+                        particle.parentNode.removeChild(particle);
+                    }
+                }, 3000);
+            }
+        }
+        
+        function getParticleColor() {
+            switch (currentParticleType) {
+                case 'stars':
+                    return '#FFD700';
+                case 'confetti':
+                    const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffeaa7'];
+                    return colors[Math.floor(Math.random() * colors.length)];
+                case 'fireworks':
+                    return '#ff4757';
+                default:
+                    return '#ffffff';
+            }
+        }
+        
+        function setParticleType(type) {
+            currentParticleType = type;
+        }
+        
+        function setParticleCount(count) {
+            particleCount = parseInt(count);
+            document.getElementById('particleCountValue').textContent = count;
+        }
+        
+        // Morphing Animation
+        function morphTo(shape) {
+            const container = document.getElementById('morphAnimation');
+            container.innerHTML = '';
+            
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('width', '100%');
+            svg.setAttribute('height', '100%');
+            svg.setAttribute('viewBox', '0 0 200 200');
+            
+            let element;
+            
+            switch (shape) {
+                case 'circle':
+                    element = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    element.setAttribute('cx', '100');
+                    element.setAttribute('cy', '100');
+                    element.setAttribute('r', '40');
+                    break;
+                case 'square':
+                    element = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                    element.setAttribute('x', '60');
+                    element.setAttribute('y', '60');
+                    element.setAttribute('width', '80');
+                    element.setAttribute('height', '80');
+                    break;
+                case 'triangle':
+                    element = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+                    element.setAttribute('points', '100,60 140,140 60,140');
+                    break;
+            }
+            
+            element.setAttribute('fill', '#667eea');
+            element.style.transition = 'all 0.5s ease';
+            
+            svg.appendChild(element);
+            container.appendChild(svg);
+            
+            document.getElementById('currentShape').textContent = shape.charAt(0).toUpperCase() + shape.slice(1);
+        }
+        
+        // Utility Functions
+        function updateProgress(type) {
+            if (!animations[type]) return;
+            
+            const progress = (animations[type].currentFrame / animations[type].totalFrames) * 100;
+            const progressFill = document.getElementById(`${type}Progress`);
+            
+            if (progressFill) {
+                progressFill.style.width = progress + '%';
+            }
+            
+            // Update frame counter
+            const frameElement = document.getElementById(`${type}Frame`);
+            if (frameElement) {
+                frameElement.textContent = Math.round(animations[type].currentFrame);
+            }
+        }
+        
+        function updateAnimationStatus(type, status) {
+            const statusElement = document.getElementById(`${type}Status`);
+            if (statusElement) {
+                statusElement.textContent = status;
+            }
+        }
+        
+        function updateLoopStatus(type, isLooping) {
+            const loopElement = document.getElementById(`${type}Loop`);
+            if (loopElement) {
+                loopElement.textContent = isLooping ? 'Enabled' : 'Disabled';
+            }
+        }
+        
+        function updateDirectionStatus(type, direction) {
+            const directionElement = document.getElementById(`${type}Direction`);
+            if (directionElement) {
+                directionElement.textContent = direction;
+            }
+        }
+        
+        function downloadAnimation(type) {
+            if (animations[type] && animationData[type]) {
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(animationData[type]));
+                const downloadAnchorNode = document.createElement('a');
+                downloadAnchorNode.setAttribute("href", dataStr);
+                downloadAnchorNode.setAttribute("download", `${type}-animation.json`);
+                document.body.appendChild(downloadAnchorNode);
+                downloadAnchorNode.click();
+                downloadAnchorNode.remove();
+            }
+        }
+        
+        function exportGIF() {
+            // This would typically require a library like gif.js
+            alert('GIF export would require additional libraries in a production environment');
+        }
+        
+        // CSS Animation for particles
+        const particleCSS = `
+            @keyframes particleFloat {
+                0% {
+                    transform: translateY(0) scale(1);
+                    opacity: 1;
+                }
+                100% {
+                    transform: translateY(-100px) scale(0);
+                    opacity: 0;
+                }
+            }
+        `;
+        
+        const style = document.createElement('style');
+        style.textContent = particleCSS;
+        document.head.appendChild(style);
+        
+        // Initialize interactive demo on load
+        setTimeout(() => {
+            createInteractiveDemo();
+            morphTo('circle');
+        }, 1000);
+    </script>
+</body>
+</html>
